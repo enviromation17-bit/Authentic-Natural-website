@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform, useInView, AnimatePresence, useSpring } from 'framer-motion';
 import Image from 'next/image';
 
 const PRICE = 1499;
@@ -26,215 +26,245 @@ const steps = [
 ];
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 48 },
   visible: (i: number = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.8, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] },
   }),
 };
 
-function FadeIn({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
+function Reveal({ children, className = '', id, style }: any) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-60px' });
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
   return (
-    <motion.div
+    <motion.section
+      id={id}
       ref={ref}
-      initial={{ opacity: 0, y: 36 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
+      initial="hidden"
+      animate={isInView ? 'visible' : 'hidden'}
+      variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
       className={className}
+      style={style}
     >
       {children}
-    </motion.div>
+    </motion.section>
   );
 }
 
 export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [bag, setBag] = useState(0);
   const [qty, setQty] = useState(1);
-  const { scrollYProgress } = useScroll();
-  const heroY = useTransform(scrollYProgress, [0, 0.35], [0, 60]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
+  const [filter, setFilter] = useState('All');
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const { scrollYProgress: pageProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], [0, 100]);
+  const opacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
+  const progressScale = useSpring(pageProgress, { stiffness: 100, damping: 30 });
 
-  const orderLink = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hi! I want to order Authentic Naturals Hair Oil (Qty: ${qty})`)}`;
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem('an-bag');
+      if (s) setBag(Math.min(20, Math.max(0, parseInt(s) || 0)));
+    } catch {}
+  }, []);
+  useEffect(() => {
+    try { localStorage.setItem('an-bag', String(bag)); } catch {}
+  }, [bag]);
+
+  const addToBag = () => { setBag(b => Math.min(20, b + qty)); setCartOpen(true); };
+  const orderWA = () => {
+    const msg = encodeURIComponent(`Hello Authentic Naturals,\n\nI would like to order:\n• Hair Repair & Revive Growth Oil × ${bag}\nTotal: Rs. ${(bag * PRICE).toLocaleString('en-PK')}\n\nPlease confirm availability and delivery.`);
+    window.open(`https://wa.me/${WHATSAPP}?text=${msg}`, '_blank');
+  };
+
+  const filtered = ingredients.filter(ing => filter === 'All' || ing.tag === filter);
 
   return (
     <>
+      {/* Premium scroll progress bar */}
+      <motion.div className="scroll-progress" style={{ scaleX: progressScale }} />
+
+      <motion.div initial={{ y: -40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        style={{ background: 'var(--green)', color: '#fff', textAlign: 'center', fontSize: 12, letterSpacing: '0.04em', padding: '10px 16px' }}>
+        Your hair care, delivered to your door. <strong style={{ fontWeight: 500, marginLeft: 8 }}>Free delivery across Pakistan</strong>
+        <span style={{ opacity: 0.8 }}> • 3 to 4 days</span>
+      </motion.div>
+
+      <motion.header initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+        className="glass" style={{ position: 'sticky', top: 0, zIndex: 50, height: 88, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 5%', borderBottom: '1px solid var(--line)' }}>
+        <a href="#"><Image src="/assets/logo-transparent.png" alt="Authentic Naturals" width={64} height={64} style={{ objectFit: 'contain' }} /></a>
+        <nav style={{ display: 'flex', gap: 28, fontSize: 13, fontWeight: 500 }} className="desk-nav">
+          <a href="#shop">Shop hair care</a>
+          <a href="#ingredients">Our ingredients</a>
+          <a href="#ritual">Your ritual</a>
+          <a href="#story">Our story</a>
+        </nav>
+        <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => setCartOpen(true)} className="btn-premium" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 500, padding: '10px 18px', borderRadius: 999, background: 'var(--green)', color: '#fff' }}>
+          Bag <span style={{ background: 'rgba(255,255,255,0.2)', borderRadius: 999, padding: '2px 8px', fontSize: 12 }}>{bag}</span>
+        </motion.button>
+      </motion.header>
+
+      <main>
+        <section ref={heroRef} style={{ position: 'relative', minHeight: '86vh', display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', overflow: 'hidden' }}>
+          <motion.div style={{ opacity, padding: '60px 8% 40px' }}>
+            <motion.p custom={0} initial="hidden" animate="visible" variants={fadeUp} style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.22em', color: 'var(--olive)', marginBottom: 24 }}>NATURAL CARE FOR YOUR EVERYDAY ROUTINE</motion.p>
+            <motion.h1 custom={1} initial="hidden" animate="visible" variants={fadeUp} style={{ marginBottom: 24 }}>Give your hair<br /><em style={{ fontStyle: 'italic', color: 'var(--olive)', fontWeight: 400 }}>a little more care.</em></motion.h1>
+            <motion.p custom={2} initial="hidden" animate="visible" variants={fadeUp} style={{ maxWidth: 420, color: 'var(--muted)', marginBottom: 32 }}>Dry ends? Frizz that won’t settle? Make time for a little nourishment with our blend of oils and botanicals.</motion.p>
+            <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp}>
+              <motion.a whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }} href="#shop" className="btn-premium" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'var(--green)', color: '#fff', padding: '16px 28px', borderRadius: 999, fontWeight: 500, fontSize: 14 }}>Take a closer look ↗</motion.a>
+            </motion.div>
+            <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp} style={{ marginTop: 36, fontSize: 13, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 18 }}>❧</span> Creating value through natural purity.
+            </motion.div>
+          </motion.div>
+          <motion.div style={{ y, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', padding: 40 }}>
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.1, delay: 0.25, ease: [0.22, 1, 0.36, 1] }} className="product-glow">
+              <Image src="/assets/product.png" alt="Product" width={520} height={620} style={{ objectFit: 'contain' }} priority />
+            </motion.div>
+          </motion.div>
+        </section>
+
+        {/* The remaining sections from the original are preserved below with enhanced motion */}
+        {/* Shop / Product CTA */}
+        <Reveal id="shop" style={{ padding: '100px 5%', background: 'var(--cream-dark)' }}>
+          <motion.div variants={fadeUp} style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto 48px' }}>
+            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.2em', color: 'var(--olive)', marginBottom: 16 }}>THE OIL</p>
+            <h2 style={{ marginBottom: 16 }}>Hair Repair & Revive Growth Oil</h2>
+            <p style={{ color: 'var(--muted)' }}>100 ml · Pure botanical blend · Rs. {PRICE.toLocaleString('en-PK')}</p>
+          </motion.div>
+          <motion.div variants={fadeUp} style={{ display: 'flex', flexWrap: 'wrap', gap: 40, alignItems: 'center', justifyContent: 'center' }}>
+            <div className="product-glow" style={{ maxWidth: 360 }}>
+              <Image src="/assets/product.png" alt="Product" width={360} height={440} style={{ objectFit: 'contain' }} />
+            </div>
+            <div style={{ maxWidth: 360 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
+                <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ width: 40, height: 40, borderRadius: 10, border: '1px solid var(--line)', fontSize: 18 }}>−</button>
+                <span style={{ fontWeight: 600, minWidth: 28, textAlign: 'center' }}>{qty}</span>
+                <button onClick={() => setQty(qty + 1)} style={{ width: 40, height: 40, borderRadius: 10, border: '1px solid var(--line)', fontSize: 18 }}>+</button>
+              </div>
+              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={addToBag} className="btn-premium" style={{ width: '100%', background: 'var(--green)', color: '#fff', padding: '16px', borderRadius: 999, fontWeight: 500, fontSize: 15, marginBottom: 12 }}>Add to bag — Rs. {(qty * PRICE).toLocaleString('en-PK')}</motion.button>
+              <p style={{ fontSize: 13, color: 'var(--muted)', textAlign: 'center' }}>Free delivery · 3–4 days across Pakistan</p>
+            </div>
+          </motion.div>
+        </Reveal>
+
+        {/* Ingredients */}
+        <Reveal id="ingredients" style={{ padding: '100px 5%' }}>
+          <motion.div variants={fadeUp} style={{ textAlign: 'center', marginBottom: 40 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.2em', color: 'var(--olive)', marginBottom: 12 }}>THE FORMULA</p>
+            <h2>Six botanicals. One powerful oil.</h2>
+          </motion.div>
+          <motion.div variants={fadeUp} style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 36 }}>
+            {['All', 'Moisture', 'Growth', 'Nourish', 'Strength', 'Scalp', 'Protect'].map(t => (
+              <button key={t} onClick={() => setFilter(t)} style={{ padding: '8px 16px', borderRadius: 999, fontSize: 13, fontWeight: 500, background: filter === t ? 'var(--green)' : 'transparent', color: filter === t ? '#fff' : 'var(--ink)', border: filter === t ? 'none' : '1px solid var(--line)' }}>{t}</button>
+            ))}
+          </motion.div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
+            {filtered.map((ing, i) => (
+              <motion.div key={ing.name} variants={fadeUp} custom={i} className="card-premium" style={{ background: '#fff', borderRadius: 16, padding: 24, border: '1px solid var(--line)' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', color: 'var(--olive)', marginBottom: 8 }}>{ing.tag}</div>
+                <h3 style={{ fontSize: 20, marginBottom: 8 }}>{ing.name}</h3>
+                <p style={{ fontSize: 14, color: 'var(--muted)' }}>{ing.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </Reveal>
+
+        {/* Ritual */}
+        <Reveal id="ritual" style={{ padding: '100px 5%', background: 'var(--cream-dark)' }}>
+          <motion.div variants={fadeUp} style={{ textAlign: 'center', marginBottom: 48 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.2em', color: 'var(--olive)', marginBottom: 12 }}>YOUR RITUAL</p>
+            <h2>How to use</h2>
+          </motion.div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 24 }}>
+            {steps.map((step, i) => (
+              <motion.div key={step.title} variants={fadeUp} custom={i} className="card-premium" style={{ textAlign: 'center' }}>
+                <div className="img-zoom" style={{ marginBottom: 16, aspectRatio: '1', position: 'relative' }}>
+                  <Image src={step.img} alt={step.title} fill style={{ objectFit: 'cover', borderRadius: 12 }} />
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--olive)', marginBottom: 6 }}>0{i + 1}</div>
+                <h3 style={{ fontSize: 17, marginBottom: 6 }}>{step.title}</h3>
+                <p style={{ fontSize: 13, color: 'var(--muted)' }}>{step.text}</p>
+              </motion.div>
+            ))}
+          </div>
+          <motion.div variants={fadeUp} style={{ marginTop: 56, position: 'relative', aspectRatio: '16/9', maxWidth: 720, marginLeft: 'auto', marginRight: 'auto', borderRadius: 16, overflow: 'hidden', boxShadow: 'var(--shadow)' }}>
+            <video src="/assets/product-video.mp4" autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </motion.div>
+        </Reveal>
+
+        {/* Story */}
+        <Reveal id="story" style={{ padding: '100px 5%', background: 'var(--green)', color: '#f7f3eb' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
+            <motion.div variants={fadeUp}>
+              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.2em', color: 'var(--olive)', marginBottom: 16 }}>OUR STORY</p>
+              <h2 style={{ marginBottom: 24, color: '#f7f3eb' }}>Rooted in tradition. Refined for today.</h2>
+              <p style={{ fontSize: 16, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>Authentic Naturals was born from a simple belief: the most powerful care for hair comes from nature. Our Hair Repair & Revive Growth Oil is a carefully balanced formula of six time-tested botanicals.</p>
+              <p style={{ fontSize: 16, lineHeight: 1.7, opacity: 0.9 }}>No fillers. No synthetic fragrance. Just pure, plant-powered care you can feel from the first application.</p>
+            </motion.div>
+            <motion.div variants={fadeUp} className="img-zoom" style={{ position: 'relative', aspectRatio: '1', borderRadius: 16, overflow: 'hidden' }}>
+              <Image src="/assets/ritual.png" alt="Hair care ritual" fill style={{ objectFit: 'cover' }} />
+            </motion.div>
+          </div>
+        </Reveal>
+
+        {/* Footer */}
+        <footer style={{ padding: '48px 5%', borderTop: '1px solid var(--line)', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Image src="/assets/logo-transparent.png" alt="" width={40} height={40} style={{ objectFit: 'contain' }} />
+            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 18 }}>Authentic Naturals</span>
+          </div>
+          <p style={{ fontSize: 13, color: 'var(--muted)' }}>© {new Date().getFullYear()} Authentic Naturals. All rights reserved.</p>
+        </footer>
+      </main>
+
+      {/* Cart drawer */}
+      <AnimatePresence>
+        {cartOpen && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setCartOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 80 }} />
+            <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className="glass" style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(380px, 100%)', zIndex: 90, padding: 26, display: 'flex', flexDirection: 'column', boxShadow: '-12px 0 40px rgba(0,0,0,0.08)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <h3 style={{ fontSize: 22, fontFamily: 'Cormorant Garamond, serif' }}>Your bag</h3>
+                <button onClick={() => setCartOpen(false)} style={{ fontSize: 22, opacity: 0.6 }}>×</button>
+              </div>
+              {bag === 0 ? <p style={{ color: 'var(--muted)', flex: 1 }}>Your bag is empty.</p> : (
+                <>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', gap: 14, marginBottom: 20 }}>
+                      <Image src="/assets/product.png" alt="" width={72} height={72} style={{ borderRadius: 10, background: '#fff' }} />
+                      <div>
+                        <div style={{ fontWeight: 500 }}>Hair Repair & Revive Growth Oil</div>
+                        <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 3 }}>100 ml × {bag}</div>
+                        <div style={{ marginTop: 6, fontWeight: 500 }}>Rs. {(bag * PRICE).toLocaleString('en-PK')}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <button onClick={() => setBag(b => Math.max(0, b - 1))} style={{ width: 34, height: 34, border: '1px solid var(--line)', borderRadius: 8 }}>−</button>
+                      <span>{bag}</span>
+                      <button onClick={() => setBag(b => Math.min(20, b + 1))} style={{ width: 34, height: 34, border: '1px solid var(--line)', borderRadius: 8 }}>+</button>
+                    </div>
+                  </div>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={orderWA} className="btn-premium" style={{ width: '100%', background: 'var(--green)', color: '#fff', padding: '15px', borderRadius: 999, fontWeight: 500, fontSize: 15, marginTop: 20 }}>Order on WhatsApp</motion.button>
+                </>
+              )}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
       <style jsx global>{`
-        .container { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
-        .font-serif { font-family: 'Cormorant Garamond', Georgia, serif; }
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
+          section { grid-template-columns: 1fr !important; }
           .desk-nav { display: none !important; }
           [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
         }
       `}</style>
-
-      {/* Nav */}
-      <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, background: 'rgba(247,243,235,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(31,51,36,0.08)' }}>
-        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 72 }}>
-          <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Image src="/assets/logo-transparent.png" alt="Authentic Naturals" width={44} height={44} style={{ objectFit: 'contain' }} />
-            <span className="font-serif" style={{ fontSize: 20, color: '#1f3324', letterSpacing: '0.02em' }}>Authentic Naturals</span>
-          </a>
-          <nav className="desk-nav" style={{ display: 'flex', alignItems: 'center', gap: 28, fontSize: 14, fontWeight: 500, color: '#1f3324' }}>
-            <a href="#story" style={{ transition: 'color 0.2s' }}>Our Story</a>
-            <a href="#ritual">The Ritual</a>
-            <a href="#product">Product</a>
-            <a href="#shop" style={{ padding: '10px 22px', background: '#1f3324', color: '#f7f3eb', borderRadius: 999, transition: 'background 0.2s' }}>Shop Now</a>
-          </nav>
-          <button onClick={() => setMenuOpen(!menuOpen)} style={{ display: 'none', padding: 8 }} aria-label="Menu" className="mobile-menu-btn">
-            <div style={{ width: 24, display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <span style={{ display: 'block', height: 2, background: '#1f3324', transition: '0.2s', transform: menuOpen ? 'rotate(45deg) translateY(8px)' : 'none' }} />
-              <span style={{ display: 'block', height: 2, background: '#1f3324', transition: '0.2s', opacity: menuOpen ? 0 : 1 }} />
-              <span style={{ display: 'block', height: 2, background: '#1f3324', transition: '0.2s', transform: menuOpen ? 'rotate(-45deg) translateY(-8px)' : 'none' }} />
-            </div>
-          </button>
-        </div>
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} style={{ overflow: 'hidden', background: '#f7f3eb', borderBottom: '1px solid rgba(31,51,36,0.08)' }}>
-              <div className="container" style={{ padding: '20px 20px 24px', display: 'flex', flexDirection: 'column', gap: 16, color: '#1f3324' }}>
-                <a href="#story" onClick={() => setMenuOpen(false)}>Our Story</a>
-                <a href="#ritual" onClick={() => setMenuOpen(false)}>The Ritual</a>
-                <a href="#product" onClick={() => setMenuOpen(false)}>Product</a>
-                <a href="#shop" onClick={() => setMenuOpen(false)} style={{ fontWeight: 600 }}>Shop Now</a>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
-
-      {/* Hero */}
-      <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', paddingTop: 72, overflow: 'hidden' }}>
-        <motion.div style={{ position: 'absolute', inset: 0, zIndex: 0, y: heroY }}>
-          <Image src="/assets/family-care.png" alt="" fill style={{ objectFit: 'cover', opacity: 0.35 }} priority />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(247,243,235,0.4), rgba(247,243,235,0.75), #f7f3eb)' }} />
-        </motion.div>
-        <div className="container" style={{ position: 'relative', zIndex: 10, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center', padding: '64px 20px' }}>
-          <div>
-            <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} style={{ fontSize: 13, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c9a86c', marginBottom: 16 }}>Pure Botanical Care</motion.p>
-            <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="font-serif" style={{ fontSize: 'clamp(2.4rem, 5vw, 3.8rem)', color: '#1f3324', marginBottom: 20, lineHeight: 1.15 }}>Hair Repair & Revive Growth Oil</motion.h1>
-            <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} style={{ fontSize: 17, color: '#6b6b6b', marginBottom: 32, maxWidth: 420, lineHeight: 1.65 }}>A carefully balanced blend of argan, castor, coconut, amla, bhringraj and vitamin E — crafted to nourish the scalp and strengthen hair from root to tip.</motion.p>
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-              <a href="#shop" style={{ padding: '14px 28px', background: '#1f3324', color: '#f7f3eb', borderRadius: 999, fontWeight: 500, transition: 'background 0.2s' }}>Shop the Oil — Rs {PRICE}</a>
-              <a href="#ritual" style={{ padding: '14px 28px', border: '1px solid #1f3324', color: '#1f3324', borderRadius: 999, fontWeight: 500 }}>The Ritual</a>
-            </motion.div>
-          </div>
-          <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35, duration: 0.8 }} style={{ position: 'relative', aspectRatio: '4/5', maxWidth: 400, margin: '0 auto' }}>
-            <Image src="/assets/product.png" alt="Authentic Naturals Hair Oil" fill style={{ objectFit: 'contain', filter: 'drop-shadow(0 25px 50px rgba(0,0,0,0.15))' }} priority />
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Story */}
-      <section id="story" style={{ padding: '96px 0', background: '#1f3324', color: '#f7f3eb' }}>
-        <div className="container">
-          <FadeIn>
-            <p style={{ fontSize: 13, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c9a86c', marginBottom: 12 }}>Our Story</p>
-            <h2 className="font-serif" style={{ fontSize: 'clamp(1.9rem, 4vw, 2.8rem)', marginBottom: 32, maxWidth: 560 }}>Rooted in tradition. Refined for today.</h2>
-          </FadeIn>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
-            <FadeIn delay={0.12}>
-              <p style={{ fontSize: 17, color: 'rgba(247,243,235,0.85)', lineHeight: 1.7, marginBottom: 20 }}>Authentic Naturals was born from a simple belief: the most powerful care for hair comes from nature. Our Hair Repair & Revive Growth Oil is a carefully balanced formula of six time-tested botanicals, each chosen for its ability to nourish the scalp and strengthen the hair shaft.</p>
-              <p style={{ fontSize: 17, color: 'rgba(247,243,235,0.85)', lineHeight: 1.7 }}>No fillers. No synthetic fragrance. Just pure, plant-powered care you can feel from the first application.</p>
-            </FadeIn>
-            <FadeIn delay={0.25}>
-              <div style={{ position: 'relative', aspectRatio: '1', borderRadius: 16, overflow: 'hidden' }}>
-                <Image src="/assets/ritual.png" alt="Hair care ritual" fill style={{ objectFit: 'cover' }} />
-              </div>
-            </FadeIn>
-          </div>
-        </div>
-      </section>
-
-      {/* Ritual */}
-      <section id="ritual" style={{ padding: '96px 0' }}>
-        <div className="container">
-          <FadeIn>
-            <p style={{ fontSize: 13, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c9a86c', marginBottom: 12, textAlign: 'center' }}>The Ritual</p>
-            <h2 className="font-serif" style={{ fontSize: 'clamp(1.9rem, 4vw, 2.8rem)', textAlign: 'center', color: '#1f3324', marginBottom: 48 }}>How to use</h2>
-          </FadeIn>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 28 }}>
-            {steps.map((step, i) => (
-              <FadeIn key={step.title} delay={i * 0.08}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ position: 'relative', aspectRatio: '1', borderRadius: 12, overflow: 'hidden', marginBottom: 16 }}>
-                    <Image src={step.img} alt={step.title} fill style={{ objectFit: 'cover' }} />
-                  </div>
-                  <h3 className="font-serif" style={{ fontSize: 18, color: '#1f3324', marginBottom: 6 }}>{step.title}</h3>
-                  <p style={{ fontSize: 14, color: '#6b6b6b', lineHeight: 1.5 }}>{step.text}</p>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-          <FadeIn delay={0.35}>
-            <div style={{ marginTop: 56, position: 'relative', aspectRatio: '16/9', maxWidth: 720, marginLeft: 'auto', marginRight: 'auto', borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.12)' }}>
-              <video src="/assets/product-video.mp4" autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* Product */}
-      <section id="product" style={{ padding: '96px 0', background: '#f0ebe3' }}>
-        <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
-            <FadeIn>
-              <div style={{ position: 'relative', aspectRatio: '1', maxWidth: 420 }}>
-                <Image src="/assets/product.png" alt="Product bottle" fill style={{ objectFit: 'contain' }} />
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.15}>
-              <p style={{ fontSize: 13, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c9a86c', marginBottom: 12 }}>The Formula</p>
-              <h2 className="font-serif" style={{ fontSize: 'clamp(1.9rem, 4vw, 2.8rem)', color: '#1f3324', marginBottom: 20 }}>Six botanicals. One powerful oil.</h2>
-              <p style={{ color: '#6b6b6b', marginBottom: 28, lineHeight: 1.65 }}>Each ingredient is selected for its proven benefits and carefully proportioned to work in harmony. The result is a lightweight yet deeply nourishing oil that absorbs well and leaves hair soft, strong and full of life.</p>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {ingredients.map((ing) => (
-                  <li key={ing.name} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                    <span style={{ marginTop: 7, width: 8, height: 8, borderRadius: '50%', background: '#c9a86c', flexShrink: 0 }} />
-                    <div>
-                      <span style={{ fontWeight: 500, color: '#1f3324' }}>{ing.name}</span>
-                      <span style={{ color: '#6b6b6b' }}> — {ing.desc}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </FadeIn>
-          </div>
-        </div>
-      </section>
-
-      {/* Shop */}
-      <section id="shop" style={{ padding: '96px 0' }}>
-        <div className="container" style={{ textAlign: 'center' }}>
-          <FadeIn>
-            <p style={{ fontSize: 13, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c9a86c', marginBottom: 12 }}>Ready to begin?</p>
-            <h2 className="font-serif" style={{ fontSize: 'clamp(1.9rem, 4vw, 2.8rem)', color: '#1f3324', marginBottom: 16 }}>Experience Authentic Naturals</h2>
-            <p style={{ color: '#6b6b6b', maxWidth: 480, margin: '0 auto 28px', lineHeight: 1.6 }}>Start your hair recovery ritual today. Pure ingredients, thoughtful craftsmanship, and results you can see and feel.</p>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16, marginBottom: 24, background: '#f0ebe3', padding: '10px 20px', borderRadius: 999 }}>
-              <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ width: 36, height: 36, borderRadius: '50%', background: '#1f3324', color: '#f7f3eb', fontSize: 18, lineHeight: 1 }}>−</button>
-              <span style={{ fontWeight: 600, minWidth: 24 }}>{qty}</span>
-              <button onClick={() => setQty(qty + 1)} style={{ width: 36, height: 36, borderRadius: '50%', background: '#1f3324', color: '#f7f3eb', fontSize: 18, lineHeight: 1 }}>+</button>
-            </div>
-            <div>
-              <a href={orderLink} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', padding: '16px 40px', background: '#1f3324', color: '#f7f3eb', borderRadius: 999, fontSize: 17, fontWeight: 500, boxShadow: '0 8px 24px rgba(31,51,36,0.25)' }}>
-                Order on WhatsApp — Rs {PRICE * qty}
-              </a>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer style={{ padding: '40px 0', borderTop: '1px solid rgba(31,51,36,0.1)' }}>
-        <div className="container" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Image src="/assets/logo-transparent.png" alt="" width={32} height={32} style={{ objectFit: 'contain' }} />
-            <span className="font-serif" style={{ color: '#1f3324' }}>Authentic Naturals</span>
-          </div>
-          <p style={{ fontSize: 13, color: '#6b6b6b' }}>© {new Date().getFullYear()} Authentic Naturals. All rights reserved.</p>
-        </div>
-      </footer>
     </>
   );
 }
