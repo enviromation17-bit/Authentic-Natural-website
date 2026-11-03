@@ -2,11 +2,14 @@
 
 :root {
   --green: #1f3324;
-  --green-light: #2d4a35;
-  --cream: #f7f3eb;
-  --gold: #c9a86c;
-  --text: #1a1a1a;
-  --muted: #6b6b6b;
+  --green-light: #2d4a34;
+  --olive: #6b7f55;
+  --cream: #f8f6f0;
+  --cream-dark: #f0ede4;
+  --ink: #1c261e;
+  --muted: #5c6b5e;
+  --gold: #c4a574;
+  --gold-light: #d4bc94;
 }
 
 * {
@@ -20,17 +23,17 @@ html {
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background: var(--cream);
-  color: var(--text);
+  color: var(--ink);
   line-height: 1.6;
-  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4 {
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 a {
@@ -38,9 +41,8 @@ a {
   text-decoration: none;
 }
 
-img {
+img, video {
   max-width: 100%;
-  height: auto;
   display: block;
 }
 
@@ -52,20 +54,8 @@ button {
 }
 
 .container {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 0 24px;
-}
-
-/* Utility */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  padding: 0 20px;
 }
