@@ -1,16 +1,18 @@
 # Authentic Naturals Website
 
-Premium Next.js + Framer Motion website for Authentic Naturals Hair Repair & Revive Growth Oil.
+Original static website packaged on 2 November 2026.
 
-## Local Development
+## Contents
+- `index.html` — Main website page
+- `styles.css` — Website styling
+- `app.js` — Bag, ingredient search, image zoom and usage navigation
+- `assets/` — Logo, product images, usage illustrations and product video
+- `_headers` — Security headers for hosting platforms
 
-```bash
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000)
+## View locally
+Extract and open `index.html` in a browser, or serve the folder with a static server.
 
 ## Deploy
+Upload the contents to any static host (Vercel, Netlify, GitHub Pages, etc.).
 
-This project is ready for Vercel. Connect the GitHub repository to Vercel and it will auto-deploy.
+WhatsApp order number: +92 324 8019501
