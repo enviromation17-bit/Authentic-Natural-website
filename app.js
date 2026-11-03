@@ -148,3 +148,25 @@ usageTrack.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowLeft') { event.preventDefault(); showUsageStep(usageStep - 1); }
 });
 updateUsageUI();
+
+
+/* Lightweight progressive enhancement: reveal elements only when an observer is available.
+   The shopping bag, ingredient filters, and ritual carousel remain untouched. */
+(() => {
+  const motionAllowed = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!motionAllowed || !('IntersectionObserver' in window)) return;
+  const targets = document.querySelectorAll(
+    '.section-heading, .product-info, .gallery, .story-layout, .video-section > div, .faq > div, .footer-intro, .footer-main'
+  );
+  const observer = new IntersectionObserver((entries, instance) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add('is-visible');
+      instance.unobserve(entry.target);
+    }
+  }, {threshold:0.06, rootMargin:'0px 0px 40px 0px'});
+  targets.forEach((element) => {
+    element.classList.add('reveal-ready');
+    observer.observe(element);
+  });
+})();
