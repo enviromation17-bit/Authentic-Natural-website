@@ -492,3 +492,14 @@ dialog{background:rgba(250,252,247,.97);border:1px solid rgba(255,255,255,.9);ba
  .ritual-scroll-section .usage-carousel{height:min(70vh,650px);flex:none}
  .ritual-scroll-section .usage-track{height:100%}
 }
+
+
+/* Botanical photography blends into the product section without hiding original product imagery. */
+.product.section{position:relative;isolation:isolate}
+.product.section:before{
+ content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+ background-image:linear-gradient(90deg,rgba(247,248,243,.82),rgba(247,248,243,.88)),url('https://images.unsplash.com/photo-1781552163129-3643d42d84ab?auto=format&fit=crop&w=1600&q=75');
+ background-size:cover;background-position:center;opacity:.7
+}
+.ingredient-card{cursor:pointer}
+@media(max-width:640px){.product.section:before{background-position:center;opacity:.48}}
