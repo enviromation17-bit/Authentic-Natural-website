@@ -38,7 +38,7 @@ document.querySelectorAll('dialog').forEach((dialog) => dialog.addEventListener(
 document.querySelectorAll('.thumbs button').forEach((button) => button.addEventListener('click', () => {
   document.querySelectorAll('.thumbs button').forEach((b) => { b.classList.remove('selected'); b.setAttribute('aria-pressed', 'false'); });
   button.classList.add('selected'); button.setAttribute('aria-pressed', 'true');
-  $('#gallery-image').src = 'assets/' + button.dataset.image;
+  $('#gallery-image').src = 'public/assets/' + button.dataset.image;
   $('#gallery-image').alt = button.querySelector('img').alt;
 }));
 $('#zoom-image').addEventListener('click', () => { $('#large-image').src = $('#gallery-image').src; $('#large-image').alt = $('#gallery-image').alt; $('#image-dialog').classList.remove('original-size'); $('#toggle-image-size').textContent = 'Zoom to original size'; $('#toggle-image-size').setAttribute('aria-pressed', 'false'); $('#image-dialog').showModal(); });
@@ -90,9 +90,37 @@ function renderIngredients() {
     const number = document.createElement('span'); number.textContent = String(index + 1).padStart(2, '0'); number.setAttribute('aria-hidden', 'true');
     const title = document.createElement('h3'); title.textContent = name;
     const p = document.createElement('p'); p.textContent = description;
-    card.append(number, title, p); grid.append(card);
+    const details = document.createElement('button');
+    details.type = 'button'; details.className = 'ingredient-explore';
+    details.textContent = 'Explore benefits ↗';
+    details.setAttribute('aria-label', 'Explore ' + name + ' in hair care');
+    details.addEventListener('click', () => openIngredientDetail(name, description));
+    card.append(number, title, p, details); grid.append(card);
   });
   $('#ingredient-count').textContent = filtered.length ? `${filtered.length} ingredient guides` : 'No matching ingredients. Try another name or choose all ingredients.';
+}
+const ingredientPhotoSet = {
+  rosemary: 'https://images.unsplash.com/photo-1582745741856-1a5d68158ba3?auto=format&fit=crop&w=950&q=80',
+  coconut: 'https://images.unsplash.com/photo-1646230153819-2f1a3651a6d4?auto=format&fit=crop&w=950&q=80',
+  oils: 'https://images.unsplash.com/photo-1781552163129-3643d42d84ab?auto=format&fit=crop&w=950&q=80'
+};
+function openIngredientDetail(name, description) {
+  const ingredientDialog = document.getElementById('ingredient-dialog');
+  const lower = name.toLowerCase();
+  let image = ingredientPhotoSet.oils;
+  if (lower.includes('rosemary') || lower.includes('mint') || lower.includes('herb')) image = ingredientPhotoSet.rosemary;
+  if (lower.includes('coconut')) image = ingredientPhotoSet.coconut;
+  document.getElementById('ingredient-detail-title').textContent = name;
+  document.getElementById('ingredient-detail-benefit').textContent = description;
+  document.getElementById('ingredient-detail-description').textContent =
+    'In cosmetic hair care, ' + name.toLowerCase() + ' is featured as part of a botanical oil blend. ' +
+    (lower.includes('coconut') ? 'Coconut oil is commonly used to condition hair and help reduce dryness.' :
+    lower.includes('rosemary') ? 'Rosemary provides an aromatic botanical element. Research on hair growth is limited and does not establish that this finished blend grows hair.' :
+    'The ingredient is included for traditional hair or scalp-care use; specific results are not guaranteed.');
+  const photo = document.getElementById('ingredient-detail-image');
+  photo.src = image;
+  photo.alt = lower.includes('rosemary') ? 'Illustrative photograph of rosemary herbs' : lower.includes('coconut') ? 'Illustrative photograph of fresh coconuts' : 'Illustrative photograph of botanical oil and herbs';
+  ingredientDialog.showModal();
 }
 $('#ingredient-search').addEventListener('input', renderIngredients);
 document.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', () => {
@@ -104,51 +132,72 @@ $('#year').textContent = new Date().getFullYear();
 renderBag(); renderQuantity(); renderIngredients();
 
 let usageStep = 0;
+const ritualSection = document.getElementById('ritual');
+const ritualStage = ritualSection.querySelector('.ritual-sticky');
 const usageTrack = document.getElementById('usage-panels');
 const usagePanels = [...usageTrack.querySelectorAll('.usage-panel')];
 const usageButtons = [...document.querySelectorAll('[data-step]')];
 const usagePrev = document.getElementById('usage-prev');
 const usageNext = document.getElementById('usage-next');
 const usageStatus = document.getElementById('usage-status');
-
-function updateUsageUI() {
-  usageTrack.style.transform = 'translateX(-' + (usageStep * 100) + '%)';
-  usageButtons.forEach((button, i) => button.setAttribute('aria-pressed', String(i === usageStep)));
-  usagePanels.forEach((panel, i) => {
-    panel.setAttribute('aria-hidden', String(i !== usageStep));
+const ritualProgressFill = document.getElementById('ritual-progress-fill');
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let ritualFrame = 0;
+function updateUsageUI(index) {
+  usageStep = Math.max(0, Math.min(usagePanels.length - 1, index));
+  usageTrack.style.transform = 'translate3d(-' + (usageStep * 100) + '%,0,0)';
+  usageButtons.forEach((button,i) => button.setAttribute('aria-pressed', String(i === usageStep)));
+  usagePanels.forEach((panel,i) => {
+    panel.setAttribute('aria-hidden',String(i !== usageStep));
     if ('inert' in panel) panel.inert = i !== usageStep;
   });
   usagePrev.disabled = usageStep === 0;
   usageNext.disabled = usageStep === usagePanels.length - 1;
   usageStatus.textContent = 'Step ' + (usageStep + 1) + ' of ' + usagePanels.length;
+  ritualProgressFill.style.width = ((usageStep+1) / usagePanels.length * 100) + '%';
+  usageButtons[usageStep].scrollIntoView && usageButtons[usageStep].scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
+}
+function ritualScrollRange() {
+  return Math.max(1, ritualSection.offsetHeight - ritualStage.offsetHeight);
+}
+function syncRitualToScroll() {
+  ritualFrame = 0;
+  if (reducedMotion.matches) return;
+  const progress = Math.max(0, Math.min(1, -ritualSection.getBoundingClientRect().top / ritualScrollRange()));
+  const index = Math.min(usagePanels.length - 1, Math.floor(progress * usagePanels.length));
+  if (index !== usageStep) updateUsageUI(index);
+}
+function requestRitualSync() {
+  if (!ritualFrame) ritualFrame = requestAnimationFrame(syncRitualToScroll);
 }
 function showUsageStep(index) {
-  usageStep = Math.max(0, Math.min(index, usagePanels.length - 1));
-  updateUsageUI();
+  const target = Math.max(0, Math.min(index, usagePanels.length - 1));
+  if (reducedMotion.matches) { updateUsageUI(target); return; }
+  const position = ritualSection.getBoundingClientRect().top + window.scrollY +
+    ritualScrollRange() * (target === usagePanels.length - 1 ? .99 : (target + .14) / usagePanels.length);
+  window.scrollTo({top:position,behavior:'smooth'});
+  updateUsageUI(target);
 }
-usageButtons.forEach((button, i) => button.addEventListener('click', () => showUsageStep(i)));
+usageButtons.forEach((button,i) => button.addEventListener('click', () => showUsageStep(i)));
 usagePrev.addEventListener('click', () => showUsageStep(usageStep - 1));
 usageNext.addEventListener('click', () => showUsageStep(usageStep + 1));
-
-let gestureStartX = 0;
-let gestureStartY = 0;
-usageTrack.addEventListener('touchstart', (event) => {
-  gestureStartX = event.changedTouches[0].clientX;
-  gestureStartY = event.changedTouches[0].clientY;
-}, { passive: true });
-usageTrack.addEventListener('touchend', (event) => {
-  const dx = gestureStartX - event.changedTouches[0].clientX;
-  const dy = gestureStartY - event.changedTouches[0].clientY;
-  if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.25) {
-    showUsageStep(usageStep + (dx > 0 ? 1 : -1));
-  }
-}, { passive: true });
-usageTrack.addEventListener('keydown', (event) => {
-  if (event.key === 'ArrowRight') { event.preventDefault(); showUsageStep(usageStep + 1); }
-  if (event.key === 'ArrowLeft') { event.preventDefault(); showUsageStep(usageStep - 1); }
+let gestureStartX=0, gestureStartY=0;
+usageTrack.addEventListener('touchstart',e => {
+  gestureStartX=e.changedTouches[0].clientX; gestureStartY=e.changedTouches[0].clientY;
+},{passive:true});
+usageTrack.addEventListener('touchend',e => {
+  const dx=gestureStartX-e.changedTouches[0].clientX;
+  const dy=gestureStartY-e.changedTouches[0].clientY;
+  if(Math.abs(dx)>45 && Math.abs(dx)>Math.abs(dy)*1.25) showUsageStep(usageStep+(dx>0?1:-1));
+},{passive:true});
+usageTrack.addEventListener('keydown',e => {
+  if(e.key==='ArrowRight'){e.preventDefault();showUsageStep(usageStep+1);}
+  if(e.key==='ArrowLeft'){e.preventDefault();showUsageStep(usageStep-1);}
 });
-updateUsageUI();
-
+window.addEventListener('scroll',requestRitualSync,{passive:true});
+window.addEventListener('resize',requestRitualSync,{passive:true});
+updateUsageUI(0);
+requestRitualSync();
 
 /* Lightweight progressive enhancement: reveal elements only when an observer is available.
    The shopping bag, ingredient filters, and ritual carousel remain untouched. */
