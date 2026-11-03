@@ -95,6 +95,7 @@ function renderIngredients() {
     details.textContent = 'Explore benefits ↗';
     details.setAttribute('aria-label', 'Explore ' + name + ' in hair care');
     details.addEventListener('click', () => openIngredientDetail(name, description));
+    card.addEventListener('click', (event) => { if (!event.target.closest('button')) openIngredientDetail(name, description); });
     card.append(number, title, p, details); grid.append(card);
   });
   $('#ingredient-count').textContent = filtered.length ? `${filtered.length} ingredient guides` : 'No matching ingredients. Try another name or choose all ingredients.';
@@ -155,7 +156,11 @@ function updateUsageUI(index) {
   usageNext.disabled = usageStep === usagePanels.length - 1;
   usageStatus.textContent = 'Step ' + (usageStep + 1) + ' of ' + usagePanels.length;
   ritualProgressFill.style.width = ((usageStep+1) / usagePanels.length * 100) + '%';
-  usageButtons[usageStep].scrollIntoView && usageButtons[usageStep].scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
+  const activeTab = usageButtons[usageStep];
+  const tabStrip = activeTab.parentElement;
+  if (tabStrip && tabStrip.scrollWidth > tabStrip.clientWidth) {
+    tabStrip.scrollTo({left: activeTab.offsetLeft - tabStrip.offsetLeft - tabStrip.clientWidth / 3, behavior:'instant'});
+  }
 }
 function ritualScrollRange() {
   return Math.max(1, ritualSection.offsetHeight - ritualStage.offsetHeight);
