@@ -352,3 +352,143 @@ dialog{background:rgba(250,252,247,.97);border:1px solid rgba(255,255,255,.9);ba
   .usage-pagination button {padding:9px}
   .announcement {font-size:9px}
 }
+
+
+/* === Scroll-driven ritual and botanical ingredient gallery === */
+.ritual-scroll-section{
+  --ritual-header:84px;
+  position:relative!important;
+  min-height:calc(680svh + var(--ritual-header))!important;
+  height:auto!important;
+  padding:0!important;
+  background:linear-gradient(145deg,#ecf2e7,#fafbf6 75%);
+}
+.ritual-scroll-section .ritual-sticky{
+  position:sticky;
+  top:var(--ritual-header);
+  height:calc(100svh - var(--ritual-header));
+  min-height:540px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  padding:clamp(14px,2vh,24px) clamp(20px,5vw,80px);
+  gap:clamp(8px,1.2vh,15px);
+  isolation:isolate;
+}
+.ritual-scroll-section .section-heading{flex:0 0 auto;margin:0;gap:16px;align-items:center}
+.ritual-scroll-section .section-heading h2{font-size:clamp(1.8rem,3.1vw,3.4rem);margin:0}
+.ritual-scroll-section .section-heading .eyebrow{margin-bottom:5px}
+.ritual-scroll-section .section-heading>p{font-size:13px;line-height:1.5;margin:0}
+.ritual-scroll-section .usage-nav{flex:0 0 auto;margin:0;min-height:48px;padding:2px 0 8px}
+.ritual-scroll-section .usage-nav button{min-height:46px;padding:8px 12px;font-size:11px;border-radius:13px}
+.ritual-scroll-section .usage-nav button span:first-child{margin-bottom:1px}
+.ritual-scroll-section .usage-carousel{flex:1 1 auto;min-height:0;max-height:none;width:100%;margin:0;overflow:hidden}
+.ritual-scroll-section .usage-track{width:100%;height:100%;transition:transform .38s cubic-bezier(.2,.85,.2,1)}
+.ritual-scroll-section .usage-track .usage-panel,
+.ritual-scroll-section .usage-track .usage-panel[hidden]{
+ display:grid;grid-template-columns:minmax(0,1.2fr) minmax(220px,.8fr);
+ gap:clamp(16px,3vw,55px);height:100%;min-height:0;align-items:center;overflow:hidden
+}
+.ritual-scroll-section .usage-track .usage-panel figure{
+ height:100%;min-height:0;min-width:0;width:100%;display:flex;align-items:center;justify-content:center;
+ padding:6px;box-shadow:0 16px 35px rgba(25,55,39,.07)
+}
+.ritual-scroll-section .usage-track .usage-panel figure a{
+ width:100%;height:100%;min-height:0;display:flex;align-items:center;justify-content:center
+}
+.ritual-scroll-section .usage-track .usage-panel figure img{
+ width:auto;max-width:100%;max-height:100%;height:100%;
+ object-fit:contain;object-position:center
+}
+.ritual-scroll-section .usage-track .usage-panel .usage-caption{
+ width:100%;max-width:540px;align-self:center;padding:12px
+}
+.ritual-scroll-section .usage-track .usage-panel .usage-caption h3{font-size:clamp(1.8rem,3vw,3rem)}
+.ritual-progress{height:3px;flex:0 0 3px;overflow:hidden;border-radius:10px;background:#d5e1d0}
+.ritual-progress span{display:block;width:16.666%;height:100%;background:#476b49;transition:width .3s ease}
+.ritual-scroll-section .usage-pagination{flex:0 0 auto;margin:0}
+.ritual-scroll-section .usage-pagination button{padding:7px 16px;min-height:40px}
+.ritual-scroll-section .usage-precautions{flex:0 0 auto;margin:0;max-height:70px;overflow:auto;font-size:11px}
+.ritual-scroll-section .usage-precautions summary{cursor:pointer}
+.ingredient-editorial{
+ display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.35fr);
+ align-items:stretch;gap:clamp(18px,3vw,38px);margin:12px 0 40px;
+ padding:clamp(18px,2vw,28px);
+ border:1px solid rgba(255,255,255,.86);border-radius:26px;
+ background:linear-gradient(135deg,rgba(228,239,216,.85),rgba(255,255,255,.75));
+ box-shadow:0 18px 52px rgba(31,68,39,.07);
+}
+.ingredient-editorial-copy{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.ingredient-editorial-copy h3{font-size:clamp(1.8rem,3vw,3.5rem);margin:4px 0 12px}
+.ingredient-editorial-copy p:not(.eyebrow){font-size:14px;line-height:1.7;max-width:340px}
+.ingredient-editorial-copy small{font-size:10px;color:#627566;margin-top:20px}
+.ingredient-photo-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;min-width:0;min-height:225px}
+.ingredient-photo-strip img{display:block;width:100%;height:100%;min-height:225px;max-height:350px;object-fit:cover;border-radius:15px}
+.ingredient-photo-strip img:nth-child(2){object-position:center}
+.ingredient-card{display:flex;flex-direction:column;align-items:flex-start}
+.ingredient-card p{flex:1}
+.ingredient-explore{background:#e6efe0;color:#234733;border-radius:999px;padding:10px 16px;min-height:42px;border:1px solid rgba(53,99,57,.15);margin-top:15px;font:700 12px 'Manrope',sans-serif;transition:background .2s,transform .2s}
+.ingredient-explore:hover{background:#d4e5cb;transform:translateY(-2px)}
+.ingredient-explore:focus-visible{outline:3px solid #92ae7f;outline-offset:3px}
+.ingredient-dialog{max-width:min(900px,calc(100vw - 28px));width:900px;background:#f5f7f0;border-radius:24px;padding:0;overflow:auto;max-height:min(88dvh,800px)}
+.ingredient-dialog-content{padding:clamp(16px,3vw,34px)}
+.ingredient-dialog-top{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.ingredient-detail-body{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(16px,3vw,35px);align-items:center}
+.ingredient-detail-media{min-width:0}
+.ingredient-detail-media img{width:100%;height:clamp(260px,35vw,440px);border-radius:20px;object-fit:cover;background:#e5eddf}
+.ingredient-detail-copy h2{font-size:clamp(2.2rem,4vw,4rem);margin:0 0 15px}
+.ingredient-detail-copy h3{font:700 13px 'Manrope',sans-serif;margin:22px 0 8px}
+.ingredient-detail-copy p{line-height:1.75;color:#50675a}
+.ingredient-detail-safety{font-size:12px;border-top:1px solid #cbd8c9;padding-top:16px}
+@media(max-width:980px){
+ .ritual-scroll-section{--ritual-header:120px;min-height:calc(680svh + 120px)!important}
+ .ritual-scroll-section .ritual-sticky{min-height:0;padding:12px 18px}
+ .ritual-scroll-section .section-heading{display:block}
+ .ritual-scroll-section .section-heading>p{display:none}
+ .ritual-scroll-section .section-heading h2{font-size:clamp(1.8rem,5vw,2.7rem)}
+ .ritual-scroll-section .usage-track .usage-panel,
+ .ritual-scroll-section .usage-track .usage-panel[hidden]{display:flex;flex-direction:column;gap:7px}
+ .ritual-scroll-section .usage-track .usage-panel figure{flex:1 1 auto;height:auto;min-height:0;width:100%}
+ .ritual-scroll-section .usage-track .usage-panel figure a{height:100%}
+ .ritual-scroll-section .usage-track .usage-panel figure img{max-height:100%;height:100%;width:auto;object-fit:contain}
+ .ritual-scroll-section .usage-track .usage-panel .usage-caption{flex:0 0 auto;padding:4px 6px}
+ .ritual-scroll-section .usage-track .usage-panel .usage-caption h3{font-size:clamp(1.4rem,4.6vw,2rem);margin:2px 0 5px}
+ .ritual-scroll-section .usage-track .usage-panel .usage-caption p{margin:2px 0 5px;font-size:12px}
+ .ritual-scroll-section .usage-track .usage-panel .usage-caption .eyebrow{margin:0}
+ .ingredient-editorial{grid-template-columns:1fr}
+ .ingredient-photo-strip img{min-height:180px;max-height:280px}
+}
+@media(max-width:640px){
+ .ritual-scroll-section{--ritual-header:110px}
+ .ritual-scroll-section .ritual-sticky{padding:8px 12px;gap:7px}
+ .ritual-scroll-section .section-heading h2{font-size:clamp(1.55rem,6.5vw,2.3rem);line-height:1.17}
+ .ritual-scroll-section .section-heading .eyebrow{font-size:9px}
+ .ritual-scroll-section .usage-nav{min-height:39px;padding:0 0 4px;gap:7px}
+ .ritual-scroll-section .usage-nav button{min-height:38px;width:117px;padding:4px 7px;font-size:10px}
+ .ritual-scroll-section .usage-nav button span:first-child{font-size:10px}
+ .ritual-scroll-section .usage-track .usage-panel figure{padding:2px;border-radius:16px}
+ .ritual-scroll-section .usage-track .usage-panel figure img{max-height:100%;width:auto;height:100%}
+ .ritual-scroll-section .usage-track .usage-panel .usage-caption h3{font-size:1.5rem;line-height:1.15}
+ .ritual-scroll-section .usage-track .usage-panel .usage-caption p{font-size:11px}
+ .ritual-scroll-section .usage-pagination button{min-height:34px;font-size:11px;padding:4px 8px}
+ .ritual-scroll-section .usage-pagination p{font-size:11px}
+ .ritual-scroll-section .usage-precautions{font-size:10px;max-height:48px}
+ .ingredient-editorial{padding:14px;gap:15px;margin:0 0 28px}
+ .ingredient-photo-strip{gap:5px;min-height:120px}
+ .ingredient-photo-strip img{min-height:120px;max-height:180px;border-radius:10px}
+ .ingredient-detail-body{grid-template-columns:1fr;gap:12px}
+ .ingredient-detail-media img{height:190px}
+ .ingredient-detail-copy h2{font-size:2.2rem}
+ .ingredient-dialog{max-height:calc(100dvh - 24px)}
+}
+@media(max-height:660px){
+ .ritual-scroll-section .section-heading h2{font-size:1.55rem}
+ .ritual-scroll-section .usage-precautions{display:none}
+ .ritual-scroll-section .usage-track .usage-panel .usage-caption h3{font-size:1.3rem}
+}
+@media(prefers-reduced-motion:reduce){
+ .ritual-scroll-section{min-height:auto!important;padding:42px 18px!important}
+ .ritual-scroll-section .ritual-sticky{position:relative;top:auto;height:auto;min-height:0;overflow:visible;padding:0}
+ .ritual-scroll-section .usage-carousel{height:min(70vh,650px);flex:none}
+ .ritual-scroll-section .usage-track{height:100%}
+}
