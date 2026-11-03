@@ -1,6 +1,5 @@
-/* Photo fit + Apple glass + ritual side text + sticky scrub */
+/* Photo fit + glass + ritual side text + pinned scrub */
 
-/* Smaller photos, full product visible */
 .hero-photo{padding:28px 32px!important;display:flex;align-items:center;justify-content:center}
 .hero-photo img{width:min(100%,420px)!important;max-width:420px!important;max-height:min(68vh,520px)!important;height:auto!important;object-fit:contain!important;object-position:center!important}
 .gallery .main-image{padding:28px!important;display:flex;flex-direction:column;align-items:center}
@@ -8,7 +7,6 @@
 .family-photo{max-height:480px!important;object-fit:contain!important;object-position:center!important;background:rgba(255,255,255,.5)}
 .cart-item img{width:72px!important;height:80px!important;object-fit:contain!important}
 
-/* Apple glass */
 .header,.ingredient-card,.filters button,.usage-nav button,.gallery .main-image,.usage-track .usage-panel figure,.usage-pagination button,.search-label input,.tags span{
   background:rgba(255,255,255,.55)!important;
   backdrop-filter:blur(24px) saturate(180%)!important;
@@ -24,73 +22,88 @@
   background:radial-gradient(ellipse at 20% 0%,rgba(255,255,255,.5),transparent 50%),linear-gradient(160deg,#eef3e9,#f8faf5 64%,#eef4e8)!important
 }
 
-/* Ritual: always image LEFT + writing RIGHT (side by side) */
-.usage-track .usage-panel,
-.usage-track .usage-panel[hidden]{
+/* FORCE image left + writing RIGHT — desktop */
+#ritual .usage-track{
+  display:flex!important;
+  width:100%!important;
+  transition:transform .35s ease!important
+}
+#ritual .usage-track .usage-panel{
   display:grid!important;
-  grid-template-columns:minmax(0,1.05fr) minmax(260px,0.95fr)!important;
-  gap:28px!important;
+  grid-template-columns:1.1fr 0.9fr!important;
+  grid-template-rows:auto!important;
+  gap:32px!important;
   align-items:center!important;
   flex:0 0 100%!important;
   width:100%!important;
-  min-width:100%!important
+  min-width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  padding:8px 4px!important
 }
-.usage-track .usage-panel figure{
+#ritual .usage-track .usage-panel figure{
+  grid-column:1!important;
+  grid-row:1!important;
   display:flex!important;
   align-items:center!important;
   justify-content:center!important;
-  padding:18px!important;
   margin:0!important;
-  min-height:0!important
+  padding:16px!important;
+  width:100%!important;
+  max-width:100%!important
 }
-.usage-track .usage-panel img{
-  width:min(100%,360px)!important;
-  max-width:360px!important;
-  max-height:min(52vh,440px)!important;
-  height:auto!important;
-  object-fit:contain!important;
-  object-position:center!important;
-  margin:0 auto!important
-}
-.usage-track .usage-caption{
-  padding:8px 12px 8px 4px!important;
+#ritual .usage-track .usage-panel .usage-caption{
+  grid-column:2!important;
+  grid-row:1!important;
   display:flex!important;
   flex-direction:column!important;
-  justify-content:center!important
+  justify-content:center!important;
+  padding:12px 8px!important;
+  text-align:left!important
 }
-.usage-track .usage-caption h3{
-  margin:8px 0 12px!important;
-  font-size:clamp(1.6rem,2.8vw,2.6rem)!important
+#ritual .usage-track .usage-panel img{
+  width:min(100%,380px)!important;
+  max-width:380px!important;
+  max-height:min(50vh,420px)!important;
+  height:auto!important;
+  object-fit:contain!important;
+  margin:0 auto!important
 }
-.usage-track .usage-caption p{margin:8px 0!important;line-height:1.7!important}
-.usage-track .usage-panel figcaption{display:none!important}
+#ritual .usage-track .usage-panel figcaption{display:none!important}
+#ritual .usage-track .usage-caption h3{
+  margin:10px 0 14px!important;
+  font-size:clamp(1.75rem,3vw,2.75rem)!important;
+  line-height:1.15!important
+}
+#ritual .usage-track .usage-caption p{margin:8px 0 12px!important;line-height:1.7!important}
 
-/* Sticky scrub shell */
-#ritual.ritual-scrub-active{
-  position:relative
-}
+/* Sticky pin container */
 #ritual .ritual-sticky-wrap{
-  position:sticky;
-  top:96px;
-  z-index:5;
-  padding-bottom:8px
+  position:sticky!important;
+  top:88px!important;
+  z-index:6!important;
+  background:linear-gradient(160deg,#eef3e9,#f8faf5 64%,#eef4e8)!important;
+  padding:12px 0 20px!important
 }
 .ritual-scrub-progress{
-  height:3px;width:100%;background:rgba(25,60,46,.12);border-radius:99px;margin:14px 0 10px;overflow:hidden
+  height:3px;width:100%;background:rgba(25,60,46,.12);border-radius:99px;margin:12px 0 8px;overflow:hidden
 }
 .ritual-scrub-progress>span{
-  display:block;height:100%;width:0%;background:linear-gradient(90deg,#68784d,#253c29);border-radius:99px;transition:width .12s linear
+  display:block;height:100%;width:16.66%;background:linear-gradient(90deg,#68784d,#253c29);border-radius:99px;transition:width .2s ease
 }
-.scrub-hint{font-size:12px;color:#647064;text-align:center;margin:6px 0 14px;letter-spacing:.04em}
+.scrub-hint{font-size:12px;color:#647064;text-align:center;margin:4px 0 12px;letter-spacing:.04em}
 
-@media(max-width:980px){
-  .hero-photo img{max-width:320px!important;max-height:400px!important}
-  .gallery .main-image img{max-width:300px!important;max-height:380px!important}
-  .usage-track .usage-panel,
-  .usage-track .usage-panel[hidden]{
+/* Only stack on small phones */
+@media(max-width:700px){
+  #ritual .usage-track .usage-panel{
     grid-template-columns:1fr!important;
-    gap:14px!important
+    gap:12px!important
   }
-  .usage-track .usage-panel img{max-width:280px!important;max-height:340px!important}
-  #ritual .ritual-sticky-wrap{top:80px}
+  #ritual .usage-track .usage-panel figure,
+  #ritual .usage-track .usage-panel .usage-caption{
+    grid-column:1!important;
+    grid-row:auto!important
+  }
+  #ritual .usage-track .usage-panel img{max-width:280px!important;max-height:300px!important}
+  #ritual .ritual-sticky-wrap{top:72px!important}
 }
