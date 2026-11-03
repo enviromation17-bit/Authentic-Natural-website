@@ -1,4 +1,4 @@
-/* Photo fit + glass + ritual side text + pinned scrub */
+/* Photo fit + glass + ritual + video + footer + 3D product */
 
 .hero-photo{padding:28px 32px!important;display:flex;align-items:center;justify-content:center}
 .hero-photo img{width:min(100%,420px)!important;max-width:420px!important;max-height:min(68vh,520px)!important;height:auto!important;object-fit:contain!important;object-position:center!important}
@@ -30,12 +30,10 @@
 #ritual .usage-track .usage-panel figcaption{display:none!important}
 #ritual .usage-track .usage-caption h3{margin:10px 0 14px!important;font-size:clamp(1.75rem,3vw,2.75rem)!important;line-height:1.15!important}
 #ritual .usage-track .usage-caption p{margin:8px 0 12px!important;line-height:1.7!important}
-
 #ritual .ritual-sticky-wrap{position:sticky!important;top:88px!important;z-index:6!important;background:linear-gradient(160deg,#eef3e9,#f8faf5 64%,#eef4e8)!important;padding:12px 0 20px!important}
 .ritual-scrub-progress{height:3px;width:100%;background:rgba(25,60,46,.12);border-radius:99px;margin:12px 0 8px;overflow:hidden}
 .ritual-scrub-progress>span{display:block;height:100%;width:16.66%;background:linear-gradient(90deg,#68784d,#253c29);border-radius:99px;transition:width .2s ease}
 .scrub-hint{font-size:12px;color:#647064;text-align:center;margin:4px 0 12px;letter-spacing:.04em}
-
 @media(max-width:700px){
   #ritual .usage-track .usage-panel{grid-template-columns:1fr!important;gap:12px!important}
   #ritual .usage-track .usage-panel figure,#ritual .usage-track .usage-panel .usage-caption{grid-column:1!important;grid-row:auto!important}
@@ -43,10 +41,59 @@
   #ritual .ritual-sticky-wrap{top:72px!important}
 }
 
-/* Video: smaller, full view */
-.video-section{display:grid!important;grid-template-columns:minmax(0,0.95fr) minmax(0,1.05fr)!important;gap:clamp(24px,4vw,48px)!important;align-items:center!important}
-.video-section video{display:block!important;width:100%!important;max-width:480px!important;max-height:min(52vh,420px)!important;height:auto!important;margin-left:auto!important;margin-right:auto!important;object-fit:contain!important;object-position:center!important;border-radius:20px!important;background:#1a221c!important;box-shadow:0 18px 50px rgba(25,60,46,.12)!important;border:1px solid rgba(255,255,255,.55)!important}
-@media(max-width:900px){.video-section{grid-template-columns:1fr!important}.video-section video{max-width:360px!important;max-height:320px!important}}
+/* 3D product tilt */
+.product-3d{
+  transform-style:preserve-3d!important;
+  perspective:900px!important;
+  cursor:grab!important;
+  position:relative!important;
+  overflow:hidden!important
+}
+.product-3d.is-dragging{cursor:grabbing!important}
+.product-3d img{
+  transition:transform .12s ease-out!important;
+  transform-style:preserve-3d!important;
+  will-change:transform!important;
+  user-select:none!important;
+  -webkit-user-drag:none!important
+}
+.product-3d:after{
+  content:'';
+  pointer-events:none;
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:radial-gradient(circle at var(--shine-x,50%) var(--shine-y,40%),rgba(255,255,255,.28),transparent 55%);
+  mix-blend-mode:soft-light;
+  opacity:.85
+}
+.product-3d .image-hint{position:relative;z-index:2}
+
+/* Video: smaller card, full view */
+.video-section{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,0.95fr)!important;
+  gap:clamp(20px,4vw,40px)!important;
+  align-items:center!important
+}
+.video-section video{
+  display:block!important;
+  width:100%!important;
+  max-width:420px!important;
+  max-height:min(42vh,360px)!important;
+  height:auto!important;
+  margin:0 auto!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  border-radius:18px!important;
+  background:#1a221c!important;
+  box-shadow:0 16px 44px rgba(25,60,46,.14)!important;
+  border:1px solid rgba(255,255,255,.55)!important
+}
+@media(max-width:900px){
+  .video-section{grid-template-columns:1fr!important}
+  .video-section video{max-width:320px!important;max-height:280px!important}
+}
 
 /* Brand footer */
 .site-footer{background:radial-gradient(ellipse at 15% 0%,rgba(104,120,77,.18),transparent 45%),linear-gradient(180deg,#1f3328 0%,#16241d 100%)!important;color:#e8efe4!important;margin-top:0!important;border-top:none!important}
