@@ -5,243 +5,113 @@ const storageKey = 'authentic-naturals-bag-v1';
 const clamp = (n) => Math.max(0, Math.min(20, Number.isFinite(Number(n)) ? Math.trunc(Number(n)) : 0));
 let bag = 0;
 try { bag = clamp(localStorage.getItem(storageKey)); } catch {}
-const saveBag = () => { try { localStorage.setItem(storageKey, String(bag)); } catch {} };
-
-const ingredients = [
-  { name: 'Coconut Oil', benefit: 'softness', note: 'Softens and conditions hair' },
-  { name: 'Olive Oil', benefit: 'softness', note: 'Adds softness and shine' },
-  { name: 'Castor Oil', benefit: 'scalp', note: 'Supports scalp comfort' },
-  { name: 'Jojoba Oil', benefit: 'softness', note: 'Lightweight conditioning' },
-  { name: 'Tea Tree Oil', benefit: 'scalp', note: 'Fresh scalp feel' },
-  { name: 'Lavender Oil', benefit: 'scalp', note: 'Calming aroma' },
-  { name: 'Rosemary Oil', benefit: 'scalp', note: 'Traditional scalp care' },
-  { name: 'Peppermint Oil', benefit: 'scalp', note: 'Cooling sensation' },
-  { name: 'Rosehip Oil', benefit: 'softness', note: 'Nourishing care' },
-  { name: 'Moringa Oil', benefit: 'softness', note: 'Lightweight nourishment' },
-  { name: 'Orange Oil', benefit: 'softness', note: 'Fresh citrus note' },
-  { name: 'Almond Oil', benefit: 'softness', note: 'Softens hair strands' },
-  { name: 'Egg Oil', benefit: 'softness', note: 'Traditional conditioning' },
-  { name: 'Cinnamon Oil', benefit: 'scalp', note: 'Warm aromatic care' },
-  { name: 'Onion Oil', benefit: 'scalp', note: 'Traditional scalp blend' },
-  { name: 'Poppy Seed Oil', benefit: 'softness', note: 'Gentle conditioning' },
-  { name: 'Pumpkin Seed Oil', benefit: 'softness', note: 'Nourishing plant oil' },
-  { name: 'Coriander Oil', benefit: 'scalp', note: 'Herbal freshness' },
-  { name: 'Ushna Oil', benefit: 'scalp', note: 'Traditional care oil' },
-  { name: 'Amla', benefit: 'softness', note: 'Ayurvedic hair tonic' },
-  { name: 'Reetha and Shikakai Oil', benefit: 'softness', note: 'Gentle cleansing oils' },
-  { name: 'Sesame Oil', benefit: 'softness', note: 'Classic hair oil' },
-  { name: 'Fenugreek Seed Oil', benefit: 'scalp', note: 'Traditional seed oil' },
-  { name: 'Nagarmotha Oil', benefit: 'scalp', note: 'Herbal scalp care' },
-  { name: 'Flaxseed Oil', benefit: 'softness', note: 'Lightweight nourishment' },
-  { name: 'Ginger', benefit: 'scalp', note: 'Warming botanical' },
-  { name: 'Garlic', benefit: 'scalp', note: 'Traditional botanical' },
-  { name: 'Black Seed', benefit: 'scalp', note: 'Traditional seed care' },
-  { name: 'Henna Leaves', benefit: 'softness', note: 'Traditional leaf care' },
-  { name: 'Curry Leaves', benefit: 'softness', note: 'Traditional leaf care' },
-];
-
-function updateBagUI() {
-  const countEls = document.querySelectorAll('[data-bag-count]');
-  countEls.forEach((el) => { el.textContent = String(bag); });
-  const totalEl = document.getElementById('bag-total');
-  if (totalEl) totalEl.textContent = 'Rs. ' + (bag * price).toLocaleString('en-PK');
-  const empty = document.getElementById('bag-empty');
-  const filled = document.getElementById('bag-filled');
-  if (empty && filled) {
-    empty.hidden = bag > 0;
-    filled.hidden = bag === 0;
-  }
-  saveBag();
+let quantity = 1;
+const money = (n) => 'Rs. ' + n.toLocaleString('en-PK');
+let toastTimer;
+function toast(message) { $('#toast').textContent = message; $('#toast').classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').classList.remove('visible'), 3000); }
+function renderBag() {
+  $('#bag-count').textContent = String(bag);
+  $('#empty-bag').hidden = bag > 0;
+  $('#filled-bag').hidden = bag === 0;
+  $('#cart-quantity').textContent = String(bag);
+  $('#subtotal').textContent = money(bag * price);
+  $('#total').textContent = money(bag * price);
+  $('#cart-plus').disabled = bag >= 20;
+  try { localStorage.setItem(storageKey, String(bag)); } catch {}
 }
-
-function openBag() {
-  const drawer = document.getElementById('bag-drawer');
-  const overlay = document.getElementById('bag-overlay');
-  if (drawer) drawer.classList.add('open');
-  if (overlay) overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
+function renderQuantity() {
+  $('#quantity').textContent = String(quantity);
+  $('#minus').disabled = quantity <= 1;
+  $('#plus').disabled = quantity >= 20;
+  const text = `Hello Authentic Naturals, I’d like to order ${quantity} ${quantity === 1 ? 'bottle' : 'bottles'} of Hair Repair & Revive Growth Oil, 100 ml. The total is ${money(quantity * price)} with free delivery across Pakistan. Please confirm availability and payment details.`;
+  $('#direct-whatsapp').href = 'https://wa.me/923248019501?text=' + encodeURIComponent(text);
 }
-
-function closeBag() {
-  const drawer = document.getElementById('bag-drawer');
-  const overlay = document.getElementById('bag-overlay');
-  if (drawer) drawer.classList.remove('open');
-  if (overlay) overlay.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-function addToBag(qty) {
-  bag = clamp(bag + (qty || 1));
-  updateBagUI();
-  openBag();
-}
-
-function setBag(n) {
-  bag = clamp(n);
-  updateBagUI();
-}
-
-function orderWhatsApp() {
-  if (bag < 1) return;
-  const msg = encodeURIComponent(
-    'Hello Authentic Naturals,\n\nI would like to order:\n• Hair Repair & Revive Growth Oil × ' +
-      bag +
-      '\nTotal: Rs. ' +
-      (bag * price).toLocaleString('en-PK') +
-      '\n\nPlease confirm availability and delivery.'
-  );
-  window.open('https://wa.me/923248019501?text=' + msg, '_blank', 'noopener');
-}
-
-// Ingredient grid
-function renderIngredients(filter, search) {
-  const grid = document.getElementById('ingredient-grid');
-  const countEl = document.getElementById('ingredient-count');
-  if (!grid) return;
-  const q = (search || '').trim().toLowerCase();
-  const list = ingredients.filter((ing) => {
-    const matchFilter = filter === 'all' || ing.benefit === filter;
-    const matchSearch =
-      !q ||
-      ing.name.toLowerCase().includes(q) ||
-      ing.note.toLowerCase().includes(q);
-    return matchFilter && matchSearch;
-  });
-  grid.innerHTML = list
-    .map(
-      (ing) =>
-        `<article class="ingredient-card"><h3>${ing.name}</h3><p>${ing.note}</p><span class="tag">${ing.benefit === 'softness' ? 'Softness & shine' : 'Scalp care'}</span></article>`
-    )
-    .join('');
-  if (countEl) {
-    countEl.textContent =
-      list.length === 0
-        ? 'No matching ingredients.'
-        : `Showing ${list.length} of ${ingredients.length} ingredients`;
-  }
-}
-
-// Usage steps
-let usageStep = 0;
-const usageSteps = 6;
-function showUsageStep(i) {
-  usageStep = ((i % usageSteps) + usageSteps) % usageSteps;
-  document.querySelectorAll('[data-usage-step]').forEach((el, idx) => {
-    el.hidden = idx !== usageStep;
-  });
-  document.querySelectorAll('[data-usage-dot]').forEach((el, idx) => {
-    el.classList.toggle('active', idx === usageStep);
-  });
-}
-
-// Image zoom
-function openZoom(src, alt) {
-  const modal = document.getElementById('zoom-modal');
-  const img = document.getElementById('zoom-img');
-  if (!modal || !img) return;
-  img.src = src;
-  img.alt = alt || '';
-  modal.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeZoom() {
-  const modal = document.getElementById('zoom-modal');
-  if (modal) modal.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-// Init
-document.addEventListener('DOMContentLoaded', () => {
-  updateBagUI();
-  renderIngredients('all', '');
-
-  document.querySelectorAll('[data-add-bag]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const qty = Number(btn.getAttribute('data-add-bag')) || 1;
-      addToBag(qty);
-    });
-  });
-
-  const bagOpenBtn = document.getElementById('bag-open');
-  if (bagOpenBtn) bagOpenBtn.addEventListener('click', openBag);
-  const bagCloseBtn = document.getElementById('bag-close');
-  if (bagCloseBtn) bagCloseBtn.addEventListener('click', closeBag);
-  const bagOverlay = document.getElementById('bag-overlay');
-  if (bagOverlay) bagOverlay.addEventListener('click', closeBag);
-
-  const bagMinus = document.getElementById('bag-minus');
-  const bagPlus = document.getElementById('bag-plus');
-  if (bagMinus) bagMinus.addEventListener('click', () => setBag(bag - 1));
-  if (bagPlus) bagPlus.addEventListener('click', () => setBag(bag + 1));
-
-  const orderBtn = document.getElementById('bag-order');
-  if (orderBtn) orderBtn.addEventListener('click', orderWhatsApp);
-
-  // Filters
-  let currentFilter = 'all';
-  document.querySelectorAll('[data-filter]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      currentFilter = btn.getAttribute('data-filter') || 'all';
-      document.querySelectorAll('[data-filter]').forEach((b) => {
-        b.classList.toggle('active', b === btn);
-        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
-      });
-      const search = document.getElementById('ingredient-search');
-      renderIngredients(currentFilter, search ? search.value : '');
-    });
-  });
-
-  const searchInput = document.getElementById('ingredient-search');
-  if (searchInput) {
-    searchInput.addEventListener('input', () => {
-      renderIngredients(currentFilter, searchInput.value);
-    });
-  }
-
-  // Usage nav
-  showUsageStep(0);
-  const prev = document.getElementById('usage-prev');
-  const next = document.getElementById('usage-next');
-  if (prev) prev.addEventListener('click', () => showUsageStep(usageStep - 1));
-  if (next) next.addEventListener('click', () => showUsageStep(usageStep + 1));
-  document.querySelectorAll('[data-usage-dot]').forEach((dot, idx) => {
-    dot.addEventListener('click', () => showUsageStep(idx));
-  });
-
-  // Zoom
-  document.querySelectorAll('[data-zoom]').forEach((el) => {
-    el.addEventListener('click', (e) => {
-      e.preventDefault();
-      const src = el.getAttribute('href') || el.getAttribute('src');
-      const alt = el.getAttribute('alt') || '';
-      if (src) openZoom(src, alt);
-    });
-  });
-  const zoomClose = document.getElementById('zoom-close');
-  const zoomModal = document.getElementById('zoom-modal');
-  if (zoomClose) zoomClose.addEventListener('click', closeZoom);
-  if (zoomModal) {
-    zoomModal.addEventListener('click', (e) => {
-      if (e.target === zoomModal) closeZoom();
-    });
-  }
-
-  // Mobile nav
-  const menuBtn = document.getElementById('menu-toggle');
-  const mobileNav = document.getElementById('mobile-nav');
-  if (menuBtn && mobileNav) {
-    menuBtn.addEventListener('click', () => {
-      mobileNav.classList.toggle('open');
-      menuBtn.setAttribute(
-        'aria-expanded',
-        mobileNav.classList.contains('open') ? 'true' : 'false'
-      );
-    });
-    mobileNav.querySelectorAll('a').forEach((a) => {
-      a.addEventListener('click', () => {
-        mobileNav.classList.remove('open');
-        menuBtn.setAttribute('aria-expanded', 'false');
-      });
-    });
-  }
+$('#minus').addEventListener('click', () => { quantity = Math.max(1, quantity - 1); renderQuantity(); });
+$('#plus').addEventListener('click', () => { quantity = Math.min(20, quantity + 1); renderQuantity(); });
+$('#add-cart').addEventListener('click', () => { if (bag + quantity > 20) { toast('Your bag can hold up to 20 bottles. Contact us for larger orders.'); return; } bag += quantity; renderBag(); $('#cart-dialog').showModal(); });
+$('#open-cart').addEventListener('click', () => $('#cart-dialog').showModal());
+$('#cart-minus').addEventListener('click', () => { bag = clamp(bag - 1); renderBag(); });
+$('#cart-plus').addEventListener('click', () => { bag = clamp(bag + 1); renderBag(); });
+$('#remove-item').addEventListener('click', () => { bag = 0; renderBag(); $('#order-form').reset(); });
+document.querySelectorAll('[data-close]').forEach((button) => button.addEventListener('click', () => document.getElementById(button.dataset.close).close()));
+document.querySelectorAll('dialog').forEach((dialog) => dialog.addEventListener('click', (e) => { if (e.target === dialog) { const r = dialog.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close(); } }));
+document.querySelectorAll('.thumbs button').forEach((button) => button.addEventListener('click', () => {
+  document.querySelectorAll('.thumbs button').forEach((b) => { b.classList.remove('selected'); b.setAttribute('aria-pressed', 'false'); });
+  button.classList.add('selected'); button.setAttribute('aria-pressed', 'true');
+  $('#gallery-image').src = 'assets/' + button.dataset.image;
+  $('#gallery-image').alt = button.querySelector('img').alt;
+}));
+$('#zoom-image').addEventListener('click', () => { $('#large-image').src = $('#gallery-image').src; $('#large-image').alt = $('#gallery-image').alt; $('#image-dialog').classList.remove('original-size'); $('#toggle-image-size').textContent = 'Zoom to original size'; $('#toggle-image-size').setAttribute('aria-pressed', 'false'); $('#image-dialog').showModal(); });
+$('#toggle-image-size').addEventListener('click', () => { const full = $('#image-dialog').classList.toggle('original-size'); $('#toggle-image-size').textContent = full ? 'Fit photo to screen' : 'Zoom to original size'; $('#toggle-image-size').setAttribute('aria-pressed', String(full)); const pane = document.querySelector('.image-scroll'); pane.scrollLeft = full ? Math.max(0, 1254 * 0.36 - pane.clientWidth / 2) : 0; pane.scrollTop = full ? 420 : 0; });
+$('#privacy-open').addEventListener('click', () => $('#privacy-dialog').showModal());
+$('#clear-data').addEventListener('click', () => { bag = 0; renderBag(); try { localStorage.removeItem(storageKey); } catch {} $('#order-form').reset(); toast('Saved bag cleared.'); });
+$('#order-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (!bag || !event.currentTarget.reportValidity()) return;
+  const data = new FormData(event.currentTarget);
+  const clean = (key) => String(data.get(key) || '').trim().replace(/[\u0000-\u001f\u007f]/g, ' ');
+  if (['customer', 'phone', 'city', 'address'].some((key) => !clean(key))) { toast('Please complete your delivery details.'); return; }
+  const message = `Hello Authentic Naturals, I would like to request an order.\n\nHair Repair & Revive Growth Oil, 100 ml\nQuantity: ${bag}\nUnit price: ${money(price)}\nDelivery: Free across Pakistan\nTotal: ${money(bag * price)}\n\nName: ${clean('customer')}\nPhone: ${clean('phone')}\nCity: ${clean('city')}\nAddress: ${clean('address')}\nPreferred payment: ${clean('payment')}\n\nPlease confirm availability, delivery timing, payment instructions and return terms. I understand this is an order request awaiting your confirmation.`;
+  const url = 'https://wa.me/923248019501?text=' + encodeURIComponent(message);
+  window.open(url, '_blank', 'noopener,noreferrer');
 });
+const ingredients = [
+  ['Rosemary Oil', 'Supports scalp care and healthier looking hair.', 'scalp'],
+  ['Peppermint Oil', 'A cooling sensation for a refreshed, clean feeling scalp.', 'scalp'],
+  ['Tea Tree Oil', 'Helps cleanse the scalp and supports comfort and freshness.', 'scalp'],
+  ['Lavender Oil', 'Conditions the scalp with a calming aromatic experience.', 'scalp'],
+  ['Castor Oil', 'Moisturizes strands and supports thicker looking hair.', 'softness'],
+  ['Coconut Oil', 'Conditions hair for softness, smoothness and shine.', 'softness'],
+  ['Olive Oil', 'Conditioning care to help improve manageability.', 'softness'],
+  ['Jojoba Oil', 'Moisturizes the scalp and promotes softer feeling hair.', 'scalp'],
+  ['Almond Oil', 'Nourishes dry hair and supports shine and softness.', 'softness'],
+  ['Moringa Oil', 'Conditions the hair and scalp for healthy looking hair.', 'scalp'],
+  ['Rosehip Oil', 'Nourishes the scalp and helps improve softness.', 'scalp'],
+  ['Onion Oil', 'Traditionally used to nourish roots and support stronger looking hair.', 'scalp'],
+  ['Black Seed Oil', 'Traditionally valued for scalp nourishment and healthy looking hair.', 'scalp'],
+  ['Pumpkin Seed Oil', 'Contributes to scalp conditioning and a hair care routine.', 'scalp'],
+  ['Fenugreek Oil', 'Traditional nourishment for conditioned, stronger looking hair.', 'scalp'],
+  ['Amla Oil', 'A traditional Ayurvedic ingredient for shine and stronger looking hair.', 'softness'],
+  ['Sesame Oil', 'Conditions hair and supports moisture retention.', 'softness'],
+  ['Flaxseed Oil', 'Helps smooth strands, manage frizz and support shine.', 'softness'],
+  ['Egg Oil', 'Conditions and nourishes hair for a smoother looking texture.', 'softness'],
+  ['Garlic & Ginger Extracts', 'Traditionally used to support a nourished scalp care routine.', 'scalp'],
+  ['Curry Leaves', 'A traditional ingredient for hair and scalp nourishment.', 'scalp'],
+  ['Henna Leaves', 'Natural conditioning care for shine and smoothness.', 'softness'],
+  ['Cinnamon Oil', 'A warming sensory experience in scalp care routines.', 'scalp']
+];
+let filter = 'all';
+function renderIngredients() {
+  const query = $('#ingredient-search').value.toLowerCase().trim();
+  const filtered = ingredients.filter(([name, , category]) => (filter === 'all' || category === filter) && name.toLowerCase().includes(query));
+  const grid = $('#ingredient-grid'); grid.replaceChildren();
+  filtered.forEach(([name, description], index) => {
+    const card = document.createElement('article'); card.className = 'ingredient-card';
+    const number = document.createElement('span'); number.textContent = String(index + 1).padStart(2, '0'); number.setAttribute('aria-hidden', 'true');
+    const title = document.createElement('h3'); title.textContent = name;
+    const p = document.createElement('p'); p.textContent = description;
+    card.append(number, title, p); grid.append(card);
+  });
+  $('#ingredient-count').textContent = filtered.length ? `${filtered.length} ingredient guides` : 'No matching ingredients. Try another name or choose all ingredients.';
+}
+$('#ingredient-search').addEventListener('input', renderIngredients);
+document.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', () => {
+  filter = button.dataset.filter;
+  document.querySelectorAll('[data-filter]').forEach((b) => { b.classList.toggle('active', b === button); b.setAttribute('aria-pressed', String(b === button)); });
+  renderIngredients();
+}));
+$('#year').textContent = new Date().getFullYear();
+renderBag(); renderQuantity(); renderIngredients();
+
+let usageStep = 0;
+function showUsageStep(index) {
+  usageStep = Math.max(0, Math.min(5, index));
+  document.querySelectorAll('.usage-panel').forEach((panel, i) => { panel.hidden = i !== usageStep; });
+  document.querySelectorAll('[data-step]').forEach((button, i) => { button.setAttribute('aria-pressed', String(i === usageStep)); });
+  document.getElementById('usage-prev').disabled = usageStep === 0;
+  document.getElementById('usage-next').disabled = usageStep === 5;
+  document.getElementById('usage-status').textContent = 'Step ' + (usageStep + 1) + ' of 6';
+}
+document.querySelectorAll('[data-step]').forEach((button) => button.addEventListener('click', () => showUsageStep(Number(button.dataset.step))));
+document.getElementById('usage-prev').addEventListener('click', () => showUsageStep(usageStep - 1));
+document.getElementById('usage-next').addEventListener('click', () => showUsageStep(usageStep + 1));
