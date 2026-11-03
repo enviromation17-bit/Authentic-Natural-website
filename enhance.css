@@ -1,7 +1,7 @@
-/* Photo fit + glass + ritual + video + footer + 360 spin stage */
+/* Photo fit + glass + ritual + video + footer + single product orbit */
 
-.hero-photo{padding:28px 32px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;background:transparent!important;border:none!important;box-shadow:none!important}
-.gallery .main-image{padding:20px!important;display:flex;flex-direction:column;align-items:center;background:linear-gradient(165deg,#f7f9f4,#eef3ea)!important;border:1px solid rgba(255,255,255,.7)!important;overflow:visible!important}
+.hero-photo{padding:28px 32px!important;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hero-photo img{width:min(100%,420px)!important;max-width:420px!important;max-height:min(68vh,520px)!important;height:auto!important;object-fit:contain!important;object-position:center!important;filter:drop-shadow(0 22px 36px rgba(30,50,35,.16))}
 .family-photo{max-height:480px!important;object-fit:contain!important;object-position:center!important;background:rgba(255,255,255,.5)}
 .cart-item img{width:72px!important;height:80px!important;object-fit:contain!important}
 
@@ -33,101 +33,105 @@
   #ritual .usage-track .usage-panel figure,#ritual .usage-track .usage-panel .usage-caption{grid-column:1!important;grid-row:auto!important}
 }
 
-/* === 360 SPIN STAGE — product no longer looks pasted === */
-.spin-stage{
+/* === SINGLE free-orbit product (shop only) === */
+.gallery .main-image.orbit-stage,
+.orbit-stage{
   position:relative!important;
   overflow:visible!important;
   background:
-    radial-gradient(ellipse at 50% 78%,rgba(80,110,70,.12),transparent 55%),
-    linear-gradient(165deg,#f8faf5 0%,#eef3ea 100%)!important;
+    radial-gradient(ellipse at 50% 100%,rgba(70,100,60,.1),transparent 50%),
+    linear-gradient(180deg,#f9faf6 0%,#eef2e9 100%)!important;
   border-radius:28px!important;
-  border:1px solid rgba(255,255,255,.75)!important;
-  box-shadow:
-    0 20px 50px rgba(25,60,46,.08),
-    inset 0 1px 0 rgba(255,255,255,.9)!important;
-  padding:28px 20px 36px!important;
-  cursor:grab!important;
-  user-select:none!important;
-  touch-action:none!important
+  border:1px solid rgba(255,255,255,.8)!important;
+  box-shadow:0 18px 48px rgba(25,60,46,.08),inset 0 1px 0 #fff!important;
+  padding:24px 18px 20px!important;
+  min-height:420px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important
 }
-.spin-stage.is-spinning{cursor:grabbing!important}
-.spin-stage-inner{
-  perspective:1100px;
-  perspective-origin:50% 45%;
+.orbit-stage-inner{
+  position:relative;
   width:100%;
+  min-height:340px;
+  perspective:1200px;
+  perspective-origin:50% 40%;
   display:flex;
-  flex-direction:column;
   align-items:center;
   justify-content:center;
-  min-height:320px
+  cursor:grab;
+  touch-action:none;
+  user-select:none
 }
-.spin-turntable{
+.orbit-stage-inner.is-dragging,
+.orbit-stage-inner:active{cursor:grabbing}
+.orbit-object{
   position:relative;
+  z-index:2;
   transform-style:preserve-3d;
   will-change:transform;
-  transition:none;
-  display:flex;
-  align-items:center;
-  justify-content:center
+  transition:none
 }
-.spin-turntable img{
+.orbit-product-img{
   display:block!important;
-  width:min(100%,400px)!important;
-  max-width:400px!important;
-  max-height:min(58vh,460px)!important;
+  width:min(100%,380px)!important;
+  max-width:380px!important;
+  max-height:min(55vh,440px)!important;
   height:auto!important;
   object-fit:contain!important;
   background:transparent!important;
   border:none!important;
-  border-radius:0!important;
-  /* cut the “pasted white box” feel */
-  mix-blend-mode:multiply;
-  filter:drop-shadow(0 28px 40px rgba(30,50,35,.22));
-  pointer-events:none;
-  -webkit-user-drag:none
+  pointer-events:none!important;
+  -webkit-user-drag:none!important;
+  filter:drop-shadow(0 18px 28px rgba(25,45,30,.2))!
 }
-.hero-photo .spin-turntable img{max-width:440px!important;max-height:min(62vh,500px)!important}
-.spin-shadow{
+.orbit-floor-shadow{
   position:absolute;
   left:50%;
-  bottom:4%;
-  width:62%;
-  height:18px;
-  transform:translateX(-50%) rotateX(70deg);
-  background:radial-gradient(ellipse,rgba(30,50,35,.28),transparent 70%);
-  filter:blur(6px);
+  bottom:12%;
+  z-index:1;
+  width:55%;
+  height:22px;
+  transform:translateX(-50%);
+  background:radial-gradient(ellipse,rgba(25,45,30,.32),transparent 70%);
+  filter:blur(8px);
   pointer-events:none;
-  z-index:0
+  transition:opacity .15s ease
 }
-.spin-badge{
-  margin-top:14px;
-  display:inline-flex;
+.orbit-hint{
+  position:absolute;
+  bottom:8px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:3;
+  display:flex;
   flex-direction:column;
   align-items:center;
   gap:2px;
-  padding:8px 14px;
+  padding:8px 16px;
   border-radius:999px;
-  background:rgba(255,255,255,.72);
-  backdrop-filter:blur(12px);
-  border:1px solid rgba(255,255,255,.85);
-  box-shadow:0 6px 18px rgba(25,60,46,.08);
+  background:rgba(255,255,255,.78);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 8px 22px rgba(25,60,46,.1);
   font-family:Manrope,system-ui,sans-serif;
-  pointer-events:none
+  pointer-events:none;
+  white-space:nowrap
 }
-.spin-badge span{
-  font-size:12px;
+.orbit-hint strong{
+  font-size:11px;
   font-weight:800;
-  letter-spacing:.12em;
+  letter-spacing:.06em;
+  text-transform:uppercase;
   color:#1f3328
 }
-.spin-badge small{
+.orbit-hint span{
   font-size:10px;
-  color:#647064;
-  letter-spacing:.04em
+  color:#647064
 }
-.spin-stage .image-label{position:relative;z-index:2}
-.spin-stage .image-hint{position:relative;z-index:2;margin-top:8px}
-.spin-stage .photo-caption{position:relative;z-index:2;margin-top:8px;width:auto}
+.gallery .main-image .image-label{position:relative;z-index:4}
+.gallery .main-image .image-hint{display:none!important}
 
 /* Word shift */
 .word-shift{display:inline-block;transition:opacity .32s ease,transform .32s ease}

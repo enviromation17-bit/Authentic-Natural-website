@@ -1,120 +1,150 @@
 'use strict';
-/* Drag-to-spin 360 product stage — single photo, full Y-axis rotation with depth */
+/* Free-orbit product object — ONE place only (shop gallery).
+   Client can move the product in any direction to inspect it. */
 (function () {
-  function setupStage(container, img) {
-    if (!container || !img || container.dataset.spinReady) return;
-    container.dataset.spinReady = '1';
-    container.classList.add('spin-stage');
+  function setupOrbit(container, img) {
+    if (!container || !img || container.dataset.orbitReady) return;
+    container.dataset.orbitReady = '1';
+    container.classList.add('orbit-stage');
 
-    // Structure: stage > turntable > product img + shadow
+    // Isolate product as an object on a stage
     var stage = document.createElement('div');
-    stage.className = 'spin-stage-inner';
-    var table = document.createElement('div');
-    table.className = 'spin-turntable';
+    stage.className = 'orbit-stage-inner';
+    stage.setAttribute('role', 'img');
+    stage.setAttribute('aria-label', 'Interactive product. Drag to move in any direction.');
+
+    var object = document.createElement('div');
+    object.className = 'orbit-object';
+
     var shadow = document.createElement('div');
-    shadow.className = 'spin-shadow';
-    var badge = document.createElement('div');
-    badge.className = 'spin-badge';
-    badge.innerHTML = '<span>360°</span><small>Drag to rotate</small>';
+    shadow.className = 'orbit-floor-shadow';
 
-    // Move image into turntable
-    var parent = img.parentNode;
-    var next = img.nextSibling;
-    table.appendChild(img);
-    table.appendChild(shadow);
-    stage.appendChild(table);
-    stage.appendChild(badge);
-    if (next) parent.insertBefore(stage, next);
-    else parent.appendChild(stage);
+    var hint = document.createElement('div');
+    hint.className = 'orbit-hint';
+    hint.innerHTML = '<strong>Move the product</strong><span>Drag in any direction to inspect</span>';
 
-    var rotY = -18;
+    // Detach image into the orbit object
+    img.classList.add('orbit-product-img');
+    img.removeAttribute('width');
+    img.removeAttribute('height');
+    object.appendChild(img);
+
+    stage.appendChild(object);
+    stage.appendChild(shadow);
+    stage.appendChild(hint);
+
+    // Place stage where the image / zoom button was
+    var zoomBtn = container.querySelector('#zoom-image') || container.querySelector('.image-zoom');
+    if (zoomBtn) {
+      zoomBtn.replaceWith(stage);
+    } else {
+      container.insertBefore(stage, container.firstChild);
+    }
+
+    // Free orbit state (product orientation)
     var rotX = 8;
+    var rotY = -22;
+    var targetX = rotX;
+    var targetY = rotY;
     var dragging = false;
     var lastX = 0;
     var lastY = 0;
-    var auto = true;
-    var autoDir = 1;
-    var raf = 0;
+    var velocityX = 0;
+    var velocityY = 0;
 
-    function render() {
-      table.style.transform =
-        'rotateX(' + rotX + 'deg) rotateY(' + rotY + 'deg)';
-      // Soft lighting shift
-      var light = 50 + Math.sin((rotY * Math.PI) / 180) * 18;
-      img.style.filter =
-        'drop-shadow(0 28px 40px rgba(30,50,35,0.22)) brightness(' +
-        (0.96 + Math.abs(Math.cos((rotY * Math.PI) / 180)) * 0.06) +
-        ')';
+    function apply() {
+      object.style.transform =
+        'rotateX(' + rotX.toFixed(2) + 'deg) rotateY(' + rotY.toFixed(2) + 'deg)';
+      // Shadow stretches with angle
+      var sx = 1 + Math.abs(rotY) / 90 * 0.25;
+      var sy = 1 - Math.abs(rotX) / 40 * 0.15;
+      shadow.style.transform =
+        'translateX(-50%) scale(' + sx.toFixed(3) + ', ' + Math.max(0.55, sy).toFixed(3) + ')';
+      shadow.style.opacity = String(0.35 + Math.abs(rotX) / 80);
     }
 
-    function tick() {
-      if (auto && !dragging) {
-        rotY += 0.35 * autoDir;
-        if (rotY > 28) autoDir = -1;
-        if (rotY < -28) autoDir = 1;
-        render();
+    function animate() {
+      if (!dragging) {
+        // inertia
+        velocityX *= 0.92;
+        velocityY *= 0.92;
+        if (Math.abs(velocityX) > 0.01 || Math.abs(velocityY) > 0.01) {
+          rotY += velocityY;
+          rotX += velocityX;
+          rotX = Math.max(-35, Math.min(35, rotX));
+          apply();
+        }
       }
-      raf = requestAnimationFrame(tick);
+      requestAnimationFrame(animate);
+    }
+
+    function pointerPos(e) {
+      if (e.touches && e.touches[0]) {
+        return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+      return { x: e.clientX, y: e.clientY };
     }
 
     function onDown(e) {
       dragging = true;
-      auto = false;
-      container.classList.add('is-spinning');
-      lastX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-      lastY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+      stage.classList.add('is-dragging');
+      var p = pointerPos(e);
+      lastX = p.x;
+      lastY = p.y;
+      velocityX = 0;
+      velocityY = 0;
       e.preventDefault();
     }
+
     function onMove(e) {
       if (!dragging) return;
-      var x = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-      var y = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-      var dx = x - lastX;
-      var dy = y - lastY;
-      lastX = x;
-      lastY = y;
-      rotY += dx * 0.45;
-      rotX = Math.max(-12, Math.min(18, rotX - dy * 0.2));
-      render();
+      var p = pointerPos(e);
+      var dx = p.x - lastX;
+      var dy = p.y - lastY;
+      lastX = p.x;
+      lastY = p.y;
+      // Horizontal drag → rotate product left/right
+      // Vertical drag → tilt product up/down
+      rotY += dx * 0.55;
+      rotX = Math.max(-35, Math.min(35, rotX - dy * 0.4));
+      velocityY = dx * 0.25;
+      velocityX = -dy * 0.15;
+      apply();
+      e.preventDefault();
     }
+
     function onUp() {
       dragging = false;
-      container.classList.remove('is-spinning');
-      // gentle auto resume after pause
-      setTimeout(function () {
-        if (!dragging) auto = true;
-      }, 2200);
+      stage.classList.remove('is-dragging');
     }
 
     stage.addEventListener('pointerdown', onDown);
-    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointermove', onMove, { passive: false });
     window.addEventListener('pointerup', onUp);
     stage.addEventListener('touchstart', onDown, { passive: false });
     window.addEventListener('touchmove', onMove, { passive: false });
     window.addEventListener('touchend', onUp);
 
-    // Double-click resets
+    // Reset on double-click
     stage.addEventListener('dblclick', function () {
-      rotY = -18;
       rotX = 8;
-      auto = true;
-      render();
+      rotY = -22;
+      velocityX = 0;
+      velocityY = 0;
+      apply();
     });
 
-    render();
-    raf = requestAnimationFrame(tick);
+    apply();
+    requestAnimationFrame(animate);
   }
 
   function init() {
-    // Shop gallery product
+    // ONLY shop product — not hero
     var galleryImg = document.getElementById('gallery-image');
     var galleryBox = document.querySelector('.gallery .main-image');
-    if (galleryImg && galleryBox) setupStage(galleryBox, galleryImg);
-
-    // Hero product
-    var heroPhoto = document.querySelector('.hero-photo');
-    var heroImg = heroPhoto && heroPhoto.querySelector('img');
-    if (heroImg && heroPhoto) setupStage(heroPhoto, heroImg);
+    if (galleryImg && galleryBox) {
+      setupOrbit(galleryBox, galleryImg);
+    }
   }
 
   if (document.readyState === 'loading') {
