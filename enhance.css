@@ -1,13 +1,14 @@
-/* Photo fit + Apple glass + ritual scrub — Authentic Naturals */
+/* Photo fit + Apple glass + ritual side text + sticky scrub */
+
+/* Smaller photos, full product visible */
 .hero-photo{padding:28px 32px!important;display:flex;align-items:center;justify-content:center}
 .hero-photo img{width:min(100%,420px)!important;max-width:420px!important;max-height:min(68vh,520px)!important;height:auto!important;object-fit:contain!important;object-position:center!important}
 .gallery .main-image{padding:28px!important;display:flex;flex-direction:column;align-items:center}
 .gallery .main-image img,.gallery .main-image .image-zoom img{width:min(100%,380px)!important;max-width:380px!important;max-height:480px!important;height:auto!important;object-fit:contain!important;object-position:center!important;margin:0 auto}
 .family-photo{max-height:480px!important;object-fit:contain!important;object-position:center!important;background:rgba(255,255,255,.5)}
-.usage-track .usage-panel figure{display:flex;align-items:center;justify-content:center;padding:20px!important;min-height:280px}
-.usage-track .usage-panel img{width:min(100%,340px)!important;max-width:340px!important;max-height:420px!important;height:auto!important;object-fit:contain!important;object-position:center!important;margin:0 auto}
 .cart-item img{width:72px!important;height:80px!important;object-fit:contain!important}
 
+/* Apple glass */
 .header,.ingredient-card,.filters button,.usage-nav button,.gallery .main-image,.usage-track .usage-panel figure,.usage-pagination button,.search-label input,.tags span{
   background:rgba(255,255,255,.55)!important;
   backdrop-filter:blur(24px) saturate(180%)!important;
@@ -22,11 +23,74 @@
 .usage-section{
   background:radial-gradient(ellipse at 20% 0%,rgba(255,255,255,.5),transparent 50%),linear-gradient(160deg,#eef3e9,#f8faf5 64%,#eef4e8)!important
 }
-.ritual-scrub-progress{height:3px;width:100%;background:rgba(25,60,46,.12);border-radius:99px;margin:16px 0 24px;overflow:hidden}
-.ritual-scrub-progress>span{display:block;height:100%;width:0%;background:linear-gradient(90deg,#68784d,#253c29);border-radius:99px;transition:width .08s linear}
-.scrub-hint{font-size:12px;color:#647064;text-align:center;margin-top:10px;letter-spacing:.04em}
+
+/* Ritual: always image LEFT + writing RIGHT (side by side) */
+.usage-track .usage-panel,
+.usage-track .usage-panel[hidden]{
+  display:grid!important;
+  grid-template-columns:minmax(0,1.05fr) minmax(260px,0.95fr)!important;
+  gap:28px!important;
+  align-items:center!important;
+  flex:0 0 100%!important;
+  width:100%!important;
+  min-width:100%!important
+}
+.usage-track .usage-panel figure{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:18px!important;
+  margin:0!important;
+  min-height:0!important
+}
+.usage-track .usage-panel img{
+  width:min(100%,360px)!important;
+  max-width:360px!important;
+  max-height:min(52vh,440px)!important;
+  height:auto!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  margin:0 auto!important
+}
+.usage-track .usage-caption{
+  padding:8px 12px 8px 4px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important
+}
+.usage-track .usage-caption h3{
+  margin:8px 0 12px!important;
+  font-size:clamp(1.6rem,2.8vw,2.6rem)!important
+}
+.usage-track .usage-caption p{margin:8px 0!important;line-height:1.7!important}
+.usage-track .usage-panel figcaption{display:none!important}
+
+/* Sticky scrub shell */
+#ritual.ritual-scrub-active{
+  position:relative
+}
+#ritual .ritual-sticky-wrap{
+  position:sticky;
+  top:96px;
+  z-index:5;
+  padding-bottom:8px
+}
+.ritual-scrub-progress{
+  height:3px;width:100%;background:rgba(25,60,46,.12);border-radius:99px;margin:14px 0 10px;overflow:hidden
+}
+.ritual-scrub-progress>span{
+  display:block;height:100%;width:0%;background:linear-gradient(90deg,#68784d,#253c29);border-radius:99px;transition:width .12s linear
+}
+.scrub-hint{font-size:12px;color:#647064;text-align:center;margin:6px 0 14px;letter-spacing:.04em}
+
 @media(max-width:980px){
   .hero-photo img{max-width:320px!important;max-height:400px!important}
   .gallery .main-image img{max-width:300px!important;max-height:380px!important}
+  .usage-track .usage-panel,
+  .usage-track .usage-panel[hidden]{
+    grid-template-columns:1fr!important;
+    gap:14px!important
+  }
   .usage-track .usage-panel img{max-width:280px!important;max-height:340px!important}
+  #ritual .ritual-sticky-wrap{top:80px}
 }
