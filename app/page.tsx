@@ -18,12 +18,21 @@ const ingredients = [
 
 const steps = [
   { img: '/assets/use-01.png', title: 'Part your hair', text: 'Create sections so the oil reaches the scalp evenly.' },
-  { img: '/assets/use-02.png', title: 'Apply to scalp', text: 'Massage gently with fingertips in circular motions.' },
-  { img: '/assets/use-03.png', title: 'Work through lengths', text: 'Coat mid-lengths and ends for full nourishment.' },
-  { img: '/assets/use-04.png', title: 'Leave on', text: 'Leave for at least 1 hour or overnight for best results.' },
-  { img: '/assets/use-05.png', title: 'Rinse', text: 'Wash with a mild shampoo. Repeat 2–3 times a week.' },
-  { img: '/assets/use-06.png', title: 'Enjoy', text: 'Notice softer, stronger, healthier-looking hair over time.' },
+  { img: '/assets/use-02.png', title: 'Warm a few drops', text: 'Rub between palms to activate the blend.' },
+  { img: '/assets/use-03.png', title: 'Massage the scalp', text: 'Use circular motions for 3–5 minutes.' },
+  { img: '/assets/use-04.png', title: 'Work through lengths', text: 'Focus on mid-lengths and ends where dryness shows.' },
+  { img: '/assets/use-05.png', title: 'Leave it in', text: 'Minimum 30 minutes, or overnight for deeper care.' },
+  { img: '/assets/use-06.png', title: 'Wash gently', text: 'Rinse with a mild shampoo. Style as usual.' },
 ];
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
 
 function FadeIn({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef(null);
