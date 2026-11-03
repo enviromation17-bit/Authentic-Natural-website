@@ -235,3 +235,120 @@ dialog{background:rgba(250,252,247,.97);border:1px solid rgba(255,255,255,.9);ba
  .usage-track .usage-panel img{width:100%;height:auto;max-height:none}
  .video-section video{border-width:4px}
 }
+
+
+/* ===== Mobile layout audit — 2026-11-03 =====
+   Corrects phone/tablet usability without reducing original media or removing features. */
+@media (max-width: 980px) {
+  .header {height:72px; min-height:72px; padding-inline:20px; gap:12px}
+  .header .brand {flex:0 0 auto; min-width:0}
+  .header .brand img {width:58px;height:58px;max-width:none}
+  .header .bag {flex:0 0 auto;min-height:44px;padding:10px 14px}
+  .mobile-nav {
+    top:72px;z-index:44;display:flex;align-items:center;justify-content:flex-start;
+    gap:clamp(14px,3vw,28px);min-height:48px;padding:8px 20px;
+    overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
+    overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;
+    white-space:nowrap;border-bottom:1px solid var(--line);
+  }
+  .mobile-nav::-webkit-scrollbar {display:none}
+  .mobile-nav a {flex:0 0 auto;min-height:32px;display:inline-flex;align-items:center;font-size:12px;font-weight:600}
+  .hero {grid-template-columns:minmax(0,1fr)}
+  .hero-copy,.hero-photo,.product,.gallery,.product-info,.video-section,.story-layout,.faq,.section-heading{min-width:0}
+  .section-heading {gap:14px}
+  .product,.story-layout,.video-section,.faq,.section-heading{grid-template-columns:minmax(0,1fr)}
+  .product {gap:30px}
+  .hero-photo img,.gallery .main-image img,.family-photo,.video-section video {max-width:100%;height:auto}
+  .usage-section .usage-nav {scrollbar-width:thin;scroll-snap-type:x proximity}
+  .usage-section .usage-nav button {scroll-snap-align:start;min-height:70px}
+  .usage-track .usage-panel,.usage-track .usage-panel[hidden] {min-width:100%;max-width:100%;flex:0 0 100%;min-height:0}
+  .usage-track .usage-panel figure,.usage-track .usage-panel figure a {max-width:100%;min-width:0}
+  .usage-track .usage-panel img {height:auto;max-width:100%;object-fit:contain}
+  .usage-pagination {gap:12px}
+  .usage-pagination button {min-height:44px}
+  .footer-intro {padding-block:56px 42px;gap:20px}
+  .footer-main {grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px 24px;padding:42px 0 44px}
+  .footer-main > div:first-child {grid-column:1/-1}
+  .footer-main a:not(.footer-brand),.footer-main .footer-link {overflow-wrap:anywhere;max-width:100%;line-height:1.6}
+  dialog {max-width:calc(100vw - 28px);max-height:calc(100dvh - 28px);overflow-y:auto;overscroll-behavior:contain}
+  dialog .cart-dialog,dialog .privacy-dialog,dialog .image-dialog {max-width:100%}
+  .cart-item {grid-template-columns:76px minmax(0,1fr)}
+  .cart-item img {max-width:76px;height:auto;object-fit:contain}
+  .cart-item > div {min-width:0}
+  .cart-dialog input,.cart-dialog textarea,.cart-dialog select {width:100%;min-width:0;max-width:100%;font-size:16px}
+  .image-scroll {max-width:100%;max-height:65dvh}
+  .image-scroll img {height:auto;max-width:100%;object-fit:contain}
+  .image-toolbar {flex-wrap:wrap;gap:10px}
+}
+@media (max-width: 640px) {
+  html {scroll-padding-top:126px}
+  .announcement {font-size:10px;line-height:1.45;letter-spacing:.035em;padding:9px 12px}
+  .announcement span {white-space:normal}
+  .header {height:66px;min-height:66px;padding-inline:14px}
+  .header .brand img {width:52px;height:52px}
+  .header .bag {font-size:12px;min-height:42px;padding:9px 12px}
+  .mobile-nav {top:66px;min-height:44px;padding:6px 14px;gap:22px}
+  .hero-copy {padding:37px 20px 30px}
+  .hero h1 {font-size:clamp(2.65rem,11vw,4.3rem);overflow-wrap:normal}
+  .hero-copy p:not(.eyebrow) {font-size:15px;line-height:1.72}
+  .hero-photo {padding:4px 8px 12px}
+  .hero-photo img {width:100%;max-width:100%;height:auto;max-height:none}
+  .photo-caption {width:100%;gap:10px;padding-inline:8px;font-size:9px;flex-wrap:wrap}
+  .section {padding:52px 16px}
+  .section-heading {margin-bottom:24px}
+  .section-heading h2,.product-info h2 {font-size:clamp(2.25rem,9vw,3.4rem)}
+  .product {gap:22px}
+  .gallery .main-image {padding:5px;border-radius:18px}
+  .gallery .main-image img {width:100%;max-width:100%;height:auto;max-height:none}
+  .product-info .price {gap:8px;flex-wrap:wrap}
+  .product-info .price strong {font-size:27px}
+  .purchase {flex-direction:column;align-items:stretch;gap:12px}
+  .purchase > .quantity {align-self:flex-start}
+  .purchase > .button,.whatsapp-button {justify-content:center;text-align:center;width:100%;min-height:46px;max-width:100%}
+  .tags {gap:6px}
+  .ingredient-controls,.ingredient-controls .search-label {width:100%;min-width:0}
+  .ingredient-controls input {width:100%;min-width:0}
+  .filters {width:100%;display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding-bottom:6px}
+  .filters button {flex:0 0 auto;white-space:nowrap}
+  .ingredient-grid {grid-template-columns:minmax(0,1fr)}
+  .usage-section {padding:48px 12px}
+  .usage-nav {gap:9px}
+  .usage-nav button {width:140px;min-height:72px;white-space:normal}
+  .usage-carousel {border-radius:15px}
+  .usage-track .usage-panel,.usage-track .usage-panel[hidden]{gap:8px}
+  .usage-track .usage-panel figure {padding:2px;border-radius:15px}
+  .usage-track .usage-panel img {display:block;width:100%;height:auto;max-height:none;object-fit:contain}
+  .usage-track .usage-caption {padding:6px 8px 12px}
+  .usage-track .usage-caption h3 {font-size:clamp(1.6rem,7vw,2.2rem)}
+  .usage-pagination {margin-top:10px;justify-content:space-between}
+  .usage-pagination button {padding:10px 12px;font-size:12px;white-space:nowrap}
+  .usage-pagination p {font-size:12px;text-align:center;white-space:nowrap}
+  .family-photo {width:100%;height:auto;max-height:none}
+  .video-section video {width:100%;height:auto;max-height:none;border-width:4px;border-radius:18px}
+  .faq details summary {font-size:14px}
+  .closing {padding:72px 18px}
+  .closing:after {inset:10px}
+  .closing h2 {font-size:clamp(2.7rem,11vw,4rem)}
+  .footer-shell {padding-inline:20px}
+  .footer-intro {padding:52px 0 35px}
+  .footer-intro h2 {font-size:clamp(2.4rem,10vw,3.7rem)}
+  .footer-intro p:not(.footer-kicker) {font-size:14px}
+  .footer-main {grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:34px 16px;padding:38px 0}
+  .footer-main > div:first-child {grid-column:1/-1}
+  .footer-main h3 {font-size:10px;letter-spacing:.10em}
+  .footer-main a:not(.footer-brand),.footer-main .footer-link {font-size:12px}
+  .footer-bottom {padding:18px 0 28px;gap:8px}
+  .floating-whatsapp {right:12px;bottom:max(12px,env(safe-area-inset-bottom));padding:11px 14px;font-size:12px}
+  dialog {width:calc(100vw - 20px);max-width:calc(100vw - 20px);max-height:calc(100dvh - 20px);border-radius:18px}
+  .cart-dialog,.privacy-dialog,.image-dialog {padding:18px}
+  .cart-item {grid-template-columns:68px minmax(0,1fr);gap:10px}
+  .cart-item img {max-width:68px}
+}
+@media(max-width:360px){
+  .footer-main {grid-template-columns:minmax(0,1fr)}
+  .footer-main > div:first-child {grid-column:auto}
+  .footer-intro h2 {font-size:2.3rem}
+  .usage-pagination {gap:6px}
+  .usage-pagination button {padding:9px}
+  .announcement {font-size:9px}
+}
