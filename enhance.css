@@ -1,13 +1,11 @@
-/* Photo fit + glass + ritual + video + footer + 3D + polish */
+/* Photo fit + glass + ritual + video + footer + 360 spin stage */
 
-.hero-photo{padding:28px 32px!important;display:flex;align-items:center;justify-content:center}
-.hero-photo img{width:min(100%,420px)!important;max-width:420px!important;max-height:min(68vh,520px)!important;height:auto!important;object-fit:contain!important;object-position:center!important}
-.gallery .main-image{padding:28px!important;display:flex;flex-direction:column;align-items:center}
-.gallery .main-image img,.gallery .main-image .image-zoom img{width:min(100%,380px)!important;max-width:380px!important;max-height:480px!important;height:auto!important;object-fit:contain!important;object-position:center!important;margin:0 auto}
+.hero-photo{padding:28px 32px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;background:transparent!important;border:none!important;box-shadow:none!important}
+.gallery .main-image{padding:20px!important;display:flex;flex-direction:column;align-items:center;background:linear-gradient(165deg,#f7f9f4,#eef3ea)!important;border:1px solid rgba(255,255,255,.7)!important;overflow:visible!important}
 .family-photo{max-height:480px!important;object-fit:contain!important;object-position:center!important;background:rgba(255,255,255,.5)}
 .cart-item img{width:72px!important;height:80px!important;object-fit:contain!important}
 
-.header,.ingredient-card,.filters button,.usage-nav button,.gallery .main-image,.usage-track .usage-panel figure,.usage-pagination button,.search-label input,.tags span{
+.header,.ingredient-card,.filters button,.usage-nav button,.usage-pagination button,.search-label input,.tags span{
   background:rgba(255,255,255,.55)!important;
   backdrop-filter:blur(24px) saturate(180%)!important;
   -webkit-backdrop-filter:blur(24px) saturate(180%)!important;
@@ -23,10 +21,9 @@
 #ritual .usage-track{display:flex!important;width:100%!important;transition:transform .35s ease!important}
 #ritual .usage-track .usage-panel{display:grid!important;grid-template-columns:1.1fr 0.9fr!important;gap:32px!important;align-items:center!important;flex:0 0 100%!important;width:100%!important;min-width:100%!important;box-sizing:border-box!important;padding:8px 4px!important}
 #ritual .usage-track .usage-panel figure{grid-column:1!important;grid-row:1!important;display:flex!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:16px!important;width:100%!important}
-#ritual .usage-track .usage-panel .usage-caption{grid-column:2!important;grid-row:1!important;display:flex!important;flex-direction:column!important;justify-content:center!important;padding:12px 8px!important;text-align:left!important}
+#ritual .usage-track .usage-panel .usage-caption{grid-column:2!important;grid-row:1!important;display:flex!important;flex-direction:column!important;justify-content:center!important;padding:12px 8px!important}
 #ritual .usage-track .usage-panel img{width:min(100%,380px)!important;max-width:380px!important;max-height:min(50vh,420px)!important;height:auto!important;object-fit:contain!important;margin:0 auto!important}
 #ritual .usage-track .usage-panel figcaption{display:none!important}
-#ritual .usage-track .usage-caption h3{margin:10px 0 14px!important;font-size:clamp(1.75rem,3vw,2.75rem)!important}
 #ritual .ritual-sticky-wrap{position:sticky!important;top:88px!important;z-index:6!important;background:linear-gradient(160deg,#eef3e9,#f8faf5 64%,#eef4e8)!important;padding:12px 0 20px!important}
 .ritual-scrub-progress{height:3px;width:100%;background:rgba(25,60,46,.12);border-radius:99px;margin:12px 0 8px;overflow:hidden}
 .ritual-scrub-progress>span{display:block;height:100%;width:16.66%;background:linear-gradient(90deg,#68784d,#253c29);border-radius:99px;transition:width .2s ease}
@@ -36,79 +33,121 @@
   #ritual .usage-track .usage-panel figure,#ritual .usage-track .usage-panel .usage-caption{grid-column:1!important;grid-row:auto!important}
 }
 
-/* 3D product tilt */
-.product-3d{transform-style:preserve-3d!important;perspective:900px!important;cursor:grab!important;position:relative!important;overflow:hidden!important}
-.product-3d.is-dragging{cursor:grabbing!important}
-.product-3d img{transition:transform .12s ease-out!important;transform-style:preserve-3d!important;will-change:transform!important;user-select:none!important;-webkit-user-drag:none!important}
-.product-3d:after{content:'';pointer-events:none;position:absolute;inset:0;border-radius:inherit;background:radial-gradient(circle at var(--shine-x,50%) var(--shine-y,40%),rgba(255,255,255,.28),transparent 55%);mix-blend-mode:soft-light;opacity:.85}
+/* === 360 SPIN STAGE — product no longer looks pasted === */
+.spin-stage{
+  position:relative!important;
+  overflow:visible!important;
+  background:
+    radial-gradient(ellipse at 50% 78%,rgba(80,110,70,.12),transparent 55%),
+    linear-gradient(165deg,#f8faf5 0%,#eef3ea 100%)!important;
+  border-radius:28px!important;
+  border:1px solid rgba(255,255,255,.75)!important;
+  box-shadow:
+    0 20px 50px rgba(25,60,46,.08),
+    inset 0 1px 0 rgba(255,255,255,.9)!important;
+  padding:28px 20px 36px!important;
+  cursor:grab!important;
+  user-select:none!important;
+  touch-action:none!important
+}
+.spin-stage.is-spinning{cursor:grabbing!important}
+.spin-stage-inner{
+  perspective:1100px;
+  perspective-origin:50% 45%;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:320px
+}
+.spin-turntable{
+  position:relative;
+  transform-style:preserve-3d;
+  will-change:transform;
+  transition:none;
+  display:flex;
+  align-items:center;
+  justify-content:center
+}
+.spin-turntable img{
+  display:block!important;
+  width:min(100%,400px)!important;
+  max-width:400px!important;
+  max-height:min(58vh,460px)!important;
+  height:auto!important;
+  object-fit:contain!important;
+  background:transparent!important;
+  border:none!important;
+  border-radius:0!important;
+  /* cut the “pasted white box” feel */
+  mix-blend-mode:multiply;
+  filter:drop-shadow(0 28px 40px rgba(30,50,35,.22));
+  pointer-events:none;
+  -webkit-user-drag:none
+}
+.hero-photo .spin-turntable img{max-width:440px!important;max-height:min(62vh,500px)!important}
+.spin-shadow{
+  position:absolute;
+  left:50%;
+  bottom:4%;
+  width:62%;
+  height:18px;
+  transform:translateX(-50%) rotateX(70deg);
+  background:radial-gradient(ellipse,rgba(30,50,35,.28),transparent 70%);
+  filter:blur(6px);
+  pointer-events:none;
+  z-index:0
+}
+.spin-badge{
+  margin-top:14px;
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  padding:8px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.72);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.85);
+  box-shadow:0 6px 18px rgba(25,60,46,.08);
+  font-family:Manrope,system-ui,sans-serif;
+  pointer-events:none
+}
+.spin-badge span{
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.12em;
+  color:#1f3328
+}
+.spin-badge small{
+  font-size:10px;
+  color:#647064;
+  letter-spacing:.04em
+}
+.spin-stage .image-label{position:relative;z-index:2}
+.spin-stage .image-hint{position:relative;z-index:2;margin-top:8px}
+.spin-stage .photo-caption{position:relative;z-index:2;margin-top:8px;width:auto}
 
-/* Hero word shift */
+/* Word shift */
 .word-shift{display:inline-block;transition:opacity .32s ease,transform .32s ease}
 .word-shift.is-out{opacity:0;transform:translateY(12px)}
 .word-shift.is-in{opacity:1;transform:translateY(0)}
 
-/* Ingredient cards with hover photo */
-.ingredient-card.has-photo{
-  position:relative!important;
-  overflow:hidden!important;
-  min-height:168px!important;
-  transition:transform .35s ease,box-shadow .35s ease!important
-}
-.ingredient-card .ingredient-media{
-  position:absolute;
-  inset:0;
-  background-size:cover;
-  background-position:center;
-  opacity:0;
-  transform:scale(1.08);
-  transition:opacity .4s ease,transform .5s ease;
-  z-index:0
-}
-.ingredient-card.has-photo:hover .ingredient-media,
-.ingredient-card.has-photo:focus-within .ingredient-media{
-  opacity:1;
-  transform:scale(1)
-}
-.ingredient-card.has-photo > span,
-.ingredient-card.has-photo > h3,
-.ingredient-card.has-photo > p{
-  position:relative;
-  z-index:1;
-  transition:color .3s ease,text-shadow .3s ease
-}
-.ingredient-card.has-photo:hover > span,
-.ingredient-card.has-photo:hover > h3,
-.ingredient-card.has-photo:hover > p{
-  color:#fff!important;
-  text-shadow:0 2px 12px rgba(0,0,0,.45)
-}
-.ingredient-card.has-photo:hover{
-  transform:translateY(-6px)!important;
-  box-shadow:0 20px 48px rgba(25,60,46,.18)!important
-}
-.ingredient-card.has-photo:after{
-  content:'';
-  position:absolute;inset:0;z-index:0;
-  background:linear-gradient(180deg,rgba(20,40,28,.15),rgba(15,30,22,.72));
-  opacity:0;transition:opacity .35s ease;pointer-events:none
-}
+/* Ingredient hover photos */
+.ingredient-card.has-photo{position:relative!important;overflow:hidden!important;min-height:168px!important;transition:transform .35s ease,box-shadow .35s ease!important}
+.ingredient-card .ingredient-media{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.08);transition:opacity .4s ease,transform .5s ease;z-index:0}
+.ingredient-card.has-photo:hover .ingredient-media,.ingredient-card.has-photo:focus-within .ingredient-media{opacity:1;transform:scale(1)}
+.ingredient-card.has-photo > span,.ingredient-card.has-photo > h3,.ingredient-card.has-photo > p{position:relative;z-index:1;transition:color .3s ease,text-shadow .3s ease}
+.ingredient-card.has-photo:hover > span,.ingredient-card.has-photo:hover > h3,.ingredient-card.has-photo:hover > p{color:#fff!important;text-shadow:0 2px 12px rgba(0,0,0,.45)}
+.ingredient-card.has-photo:hover{transform:translateY(-6px)!important;box-shadow:0 20px 48px rgba(25,60,46,.18)!important}
+.ingredient-card.has-photo:after{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(20,40,28,.15),rgba(15,30,22,.72));opacity:0;transition:opacity .35s ease;pointer-events:none}
 .ingredient-card.has-photo:hover:after{opacity:1}
 
-/* Video: a bit larger, still full view */
+/* Video */
 .video-section{display:grid!important;grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr)!important;gap:clamp(20px,4vw,40px)!important;align-items:center!important}
-.video-section video{
-  display:block!important;width:100%!important;
-  max-width:560px!important;max-height:min(52vh,440px)!important;
-  height:auto!important;margin:0 auto!important;
-  object-fit:contain!important;object-position:center!important;
-  border-radius:18px!important;background:#1a221c!important;
-  box-shadow:0 16px 44px rgba(25,60,46,.14)!important;
-  border:1px solid rgba(255,255,255,.55)!important
-}
-@media(max-width:900px){
-  .video-section{grid-template-columns:1fr!important}
-  .video-section video{max-width:420px!important;max-height:360px!important}
-}
+.video-section video{display:block!important;width:100%!important;max-width:560px!important;max-height:min(52vh,440px)!important;height:auto!important;margin:0 auto!important;object-fit:contain!important;border-radius:18px!important;background:#1a221c!important;box-shadow:0 16px 44px rgba(25,60,46,.14)!important;border:1px solid rgba(255,255,255,.55)!important}
+@media(max-width:900px){.video-section{grid-template-columns:1fr!important}.video-section video{max-width:420px!important;max-height:360px!important}}
 
 /* Brand footer */
 .site-footer{background:radial-gradient(ellipse at 15% 0%,rgba(104,120,77,.18),transparent 45%),linear-gradient(180deg,#1f3328 0%,#16241d 100%)!important;color:#e8efe4!important;margin-top:0!important;border-top:none!important}
