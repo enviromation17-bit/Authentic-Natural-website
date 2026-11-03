@@ -104,14 +104,41 @@ $('#year').textContent = new Date().getFullYear();
 renderBag(); renderQuantity(); renderIngredients();
 
 let usageStep = 0;
-function showUsageStep(index) {
-  usageStep = Math.max(0, Math.min(5, index));
-  document.querySelectorAll('.usage-panel').forEach((panel, i) => { panel.hidden = i !== usageStep; });
-  document.querySelectorAll('[data-step]').forEach((button, i) => { button.setAttribute('aria-pressed', String(i === usageStep)); });
-  document.getElementById('usage-prev').disabled = usageStep === 0;
-  document.getElementById('usage-next').disabled = usageStep === 5;
-  document.getElementById('usage-status').textContent = 'Step ' + (usageStep + 1) + ' of 6';
+const usageTrack = document.getElementById('usage-panels');
+const usagePanels = [...usageTrack.querySelectorAll('.usage-panel')];
+const usageButtons = [...document.querySelectorAll('[data-step]')];
+const usagePrev = document.getElementById('usage-prev');
+const usageNext = document.getElementById('usage-next');
+const usageStatus = document.getElementById('usage-status');
+
+function updateUsageControls(index) {
+  usageStep = Math.max(0, Math.min(usagePanels.length - 1, index));
+  usageButtons.forEach((button, i) => button.setAttribute('aria-pressed', String(i === usageStep)));
+  usagePrev.disabled = usageStep === 0;
+  usageNext.disabled = usageStep === usagePanels.length - 1;
+  usageStatus.textContent = 'Step ' + (usageStep + 1) + ' of ' + usagePanels.length;
 }
-document.querySelectorAll('[data-step]').forEach((button) => button.addEventListener('click', () => showUsageStep(Number(button.dataset.step))));
-document.getElementById('usage-prev').addEventListener('click', () => showUsageStep(usageStep - 1));
-document.getElementById('usage-next').addEventListener('click', () => showUsageStep(usageStep + 1));
+function showUsageStep(index) {
+  updateUsageControls(index);
+  const target = usagePanels[usageStep];
+  usageTrack.scrollTo({left: target.offsetLeft - usageTrack.offsetLeft, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+}
+usageButtons.forEach((button, i) => button.addEventListener('click', () => showUsageStep(i)));
+usagePrev.addEventListener('click', () => showUsageStep(usageStep - 1));
+usageNext.addEventListener('click', () => showUsageStep(usageStep + 1));
+let usageScrollFrame = 0;
+usageTrack.addEventListener('scroll', () => {
+  if (usageScrollFrame) cancelAnimationFrame(usageScrollFrame);
+  usageScrollFrame = requestAnimationFrame(() => {
+    const x = usageTrack.scrollLeft;
+    const left = usageTrack.getBoundingClientRect().left;
+    let index = 0;
+    let closest = Infinity;
+    usagePanels.forEach((panel, i) => {
+      const distance = Math.abs(panel.getBoundingClientRect().left - left);
+      if (distance < closest) { closest = distance; index = i; }
+    });
+    updateUsageControls(index);
+  });
+}, {passive:true});
+updateUsageControls(0);
