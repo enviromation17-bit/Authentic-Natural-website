@@ -111,34 +111,40 @@ const usagePrev = document.getElementById('usage-prev');
 const usageNext = document.getElementById('usage-next');
 const usageStatus = document.getElementById('usage-status');
 
-function updateUsageControls(index) {
-  usageStep = Math.max(0, Math.min(usagePanels.length - 1, index));
+function updateUsageUI() {
+  usageTrack.style.transform = 'translateX(-' + (usageStep * 100) + '%)';
   usageButtons.forEach((button, i) => button.setAttribute('aria-pressed', String(i === usageStep)));
+  usagePanels.forEach((panel, i) => {
+    panel.setAttribute('aria-hidden', String(i !== usageStep));
+    if ('inert' in panel) panel.inert = i !== usageStep;
+  });
   usagePrev.disabled = usageStep === 0;
   usageNext.disabled = usageStep === usagePanels.length - 1;
   usageStatus.textContent = 'Step ' + (usageStep + 1) + ' of ' + usagePanels.length;
 }
 function showUsageStep(index) {
-  updateUsageControls(index);
-  const target = usagePanels[usageStep];
-  usageTrack.scrollTo({left: target.offsetLeft - usageTrack.offsetLeft, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+  usageStep = Math.max(0, Math.min(index, usagePanels.length - 1));
+  updateUsageUI();
 }
 usageButtons.forEach((button, i) => button.addEventListener('click', () => showUsageStep(i)));
 usagePrev.addEventListener('click', () => showUsageStep(usageStep - 1));
 usageNext.addEventListener('click', () => showUsageStep(usageStep + 1));
-let usageScrollFrame = 0;
-usageTrack.addEventListener('scroll', () => {
-  if (usageScrollFrame) cancelAnimationFrame(usageScrollFrame);
-  usageScrollFrame = requestAnimationFrame(() => {
-    const x = usageTrack.scrollLeft;
-    const left = usageTrack.getBoundingClientRect().left;
-    let index = 0;
-    let closest = Infinity;
-    usagePanels.forEach((panel, i) => {
-      const distance = Math.abs(panel.getBoundingClientRect().left - left);
-      if (distance < closest) { closest = distance; index = i; }
-    });
-    updateUsageControls(index);
-  });
-}, {passive:true});
-updateUsageControls(0);
+
+let gestureStartX = 0;
+let gestureStartY = 0;
+usageTrack.addEventListener('touchstart', (event) => {
+  gestureStartX = event.changedTouches[0].clientX;
+  gestureStartY = event.changedTouches[0].clientY;
+}, { passive: true });
+usageTrack.addEventListener('touchend', (event) => {
+  const dx = gestureStartX - event.changedTouches[0].clientX;
+  const dy = gestureStartY - event.changedTouches[0].clientY;
+  if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+    showUsageStep(usageStep + (dx > 0 ? 1 : -1));
+  }
+}, { passive: true });
+usageTrack.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowRight') { event.preventDefault(); showUsageStep(usageStep + 1); }
+  if (event.key === 'ArrowLeft') { event.preventDefault(); showUsageStep(usageStep - 1); }
+});
+updateUsageUI();
