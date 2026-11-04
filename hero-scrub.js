@@ -27,11 +27,17 @@
   const copy = stage.querySelector('.scrub-copy');
   if (![firstLayer,secondLayer,progressFill,progressCount,headline,description,copy].every(Boolean)) return;
 
-  const chapters = [
-    ['Give your hair', 'a little more care.', 'Discover a more beautiful way to make botanical hair care part of your everyday routine.'],
-    ['Inspired by', 'the natural world.', 'A thoughtful blend of familiar oils and botanicals for conditioning care.'],
-    ['Your ritual.', 'Your moment.', 'Make time for your hair with a simple, nourishing weekly routine.'],
-    ['Discover the', 'Authentic difference.', 'Explore the blend, learn the ritual and find your everyday essential.']
+  // Distinct storytelling typography for each of the nine verified photographs.
+  const stories = [
+    ['Give your hair','a little more care.','A simple daily-care essential, inspired by nature.'],
+    ['From nature,','with intention.','Discover the botanical inspiration behind every ritual.'],
+    ['Small moments.','Beautiful care.','Make space for a routine that feels like your own.'],
+    ['A little oil.','A lot of care.','Take the time to nourish and condition your hair.'],
+    ['Thoughtfully','botanical.','Familiar oils and plants, brought together for everyday care.'],
+    ['Your hair.','Your ritual.','Build a consistent routine with care that feels good.'],
+    ['Take time','for yourself.','A few quiet moments can make your routine feel special.'],
+    ['Nature in','every detail.','Explore the botanicals that inspire Authentic Naturals.'],
+    ['Meet your','everyday essential.','Discover Hair Repair & Revive Growth Oil and how to use it.']
   ];
   // URLs, not image objects, are retained; on phones only the current and nearest frames are decoded.
   const ready = new Set();
@@ -39,8 +45,7 @@
   const inFlight = new Map();
   let latestProgress = 0;
   let currentIndex = -1;
-  let chapter = 0;
-  let textTween = null;
+  let displayedStory = 0;
   let trigger = null;
   let mobile = window.matchMedia('(max-width: 900px)').matches;
 
@@ -66,23 +71,23 @@
     inFlight.set(i,pending);
     return pending;
   }
-  function captionFor(progress) {
-    return Math.min(chapters.length - 1,Math.floor(progress * chapters.length));
-  }
-  function showChapter(index) {
-    if (index === chapter) return;
-    chapter = index;
-    if (textTween) textTween.kill();
-    // Kill earlier opacity tweens to prevent rapid-scroll race conditions.
-    gsap.killTweensOf(copy);
-    textTween = gsap.to(copy,{opacity:0.65,duration:0.12,overwrite:true,onComplete:()=>{
-      headline.replaceChildren(document.createTextNode(chapters[index][0]+' '));
-      const italic = document.createElement('em');
-      italic.textContent = chapters[index][1];
-      headline.appendChild(italic);
-      description.textContent = chapters[index][2];
-      textTween = gsap.to(copy,{opacity:1,duration:0.25,overwrite:true});
-    }});
+  function showStory(index) {
+    if (index === displayedStory) return;
+    displayedStory = index;
+    const story = stories[index];
+    const reverse = index % 2 === 1;
+    gsap.killTweensOf([copy,headline,description]);
+    // Change copy synchronously so fast forward/reverse scroll never reveals stale text.
+    headline.replaceChildren(document.createTextNode(story[0] + ' '));
+    const emphasis = document.createElement('em');
+    emphasis.textContent = story[1];
+    headline.appendChild(emphasis);
+    description.textContent = story[2];
+    stage.dataset.story = String(index+1);
+    const mobileNow = window.matchMedia('(max-width: 900px)').matches;
+    gsap.fromTo(headline,{autoAlpha:0,x:mobileNow?0:(reverse?22:-22),y:mobileNow?14:0},
+      {autoAlpha:1,x:0,y:0,duration:0.48,ease:'power2.out',overwrite:true});
+    gsap.fromTo(description,{autoAlpha:0,y:16},{autoAlpha:1,y:0,duration:0.6,delay:0.09,ease:'power2.out',overwrite:true});
   }
   function render(progress) {
     const p = Math.min(1,Math.max(0,progress));
@@ -109,7 +114,7 @@
     }
     progressFill.style.width = (p*100).toFixed(3) + '%';
     progressCount.textContent = String(lower+1).padStart(2,'0') + ' / ' + String(frames.length).padStart(2,'0');
-    showChapter(captionFor(p));
+    showStory(lower);
   }
 
   preload(0).then(ok => {
