@@ -34,7 +34,6 @@ const ingredients = [
   ['Cinnamon Oil', 'Warm aromatic oil used in traditional scalp blends.', 'scalp']
 ];
 
-// Your uploaded photos in public/assets (mapped by content)
 const A = 'public/assets/';
 const ingredientPhotos = {
   'Rosemary Oil': A + 'david-clode-cDu0ZO4vfNw-unsplash.jpg',
@@ -219,6 +218,7 @@ const usageTrack = document.getElementById('usage-panels');
 const usageButtons = $$('[data-step]');
 function setUsageStep(step) {
   usageStep = Math.max(0, Math.min(5, step));
+  window.usageStep = usageStep;
   if (usageTrack) usageTrack.style.transform = 'translateX(-' + usageStep * 100 + '%)';
   usageButtons.forEach((b) => {
     const active = Number(b.dataset.step) === usageStep;
@@ -231,6 +231,11 @@ function setUsageStep(step) {
   if (prev) prev.disabled = usageStep === 0;
   if (next) next.disabled = usageStep === 5;
 }
+// Expose for scrub.js + polish.js autoplay
+window.setUsageStep = setUsageStep;
+window.showUsageStep = setUsageStep;
+window.usageStep = usageStep;
+
 usageButtons.forEach((b) => b.addEventListener('click', () => setUsageStep(Number(b.dataset.step))));
 $('#usage-prev') && $('#usage-prev').addEventListener('click', () => setUsageStep(usageStep - 1));
 $('#usage-next') && $('#usage-next').addEventListener('click', () => setUsageStep(usageStep + 1));

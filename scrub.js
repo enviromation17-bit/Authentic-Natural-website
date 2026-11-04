@@ -1,11 +1,18 @@
 'use strict';
-/* Pin ritual section: wheel changes step, page does not scroll until steps done */
+/* Pin ritual section: wheel changes step */
 (function () {
+  function getSetter() {
+    if (typeof window.showUsageStep === 'function') return window.showUsageStep;
+    if (typeof window.setUsageStep === 'function') return window.setUsageStep;
+    return null;
+  }
+
   function start() {
     var section = document.getElementById('ritual');
     if (!section || section.dataset.scrubReady) return;
-    if (typeof showUsageStep !== 'function') {
-      setTimeout(start, 50);
+    var setter = getSetter();
+    if (!setter) {
+      setTimeout(start, 60);
       return;
     }
     section.dataset.scrubReady = '1';
@@ -13,7 +20,6 @@
     var total = document.querySelectorAll('#usage-panels .usage-panel').length || 6;
     var locked = false;
 
-    // Move main ritual UI into sticky wrap
     var sticky = document.createElement('div');
     sticky.className = 'ritual-sticky-wrap';
     var move = [];
@@ -28,7 +34,6 @@
     move.forEach(function (el) { sticky.appendChild(el); });
     section.insertBefore(sticky, section.firstChild);
 
-    // Progress + hint
     var nav = sticky.querySelector('.usage-nav');
     var barWrap = document.createElement('div');
     barWrap.className = 'ritual-scrub-progress';
@@ -43,7 +48,7 @@
     }
 
     function currentStep() {
-      return typeof usageStep === 'number' ? usageStep : 0;
+      return typeof window.usageStep === 'number' ? window.usageStep : 0;
     }
     function setBar() {
       if (bar) bar.style.width = ((currentStep() + 1) / total * 100) + '%';
@@ -55,13 +60,12 @@
       var next = Math.max(0, Math.min(total - 1, step + delta));
       if (next === step) return false;
       locked = true;
-      showUsageStep(next);
+      setter(next);
       setBar();
       setTimeout(function () { locked = false; }, 380);
       return true;
     }
 
-    // When ritual is in view, intercept wheel so page stays put and steps change
     function inRitualZone() {
       var r = sticky.getBoundingClientRect();
       return r.top <= 120 && r.bottom >= window.innerHeight * 0.45;
@@ -81,11 +85,7 @@
         e.preventDefault();
         go(-1);
       }
-      // at last step scrolling down → allow normal page scroll
-      // at first step scrolling up → allow normal page scroll
     }, { passive: false });
-
-    // Touch swipe still handled by app.js on the track
 
     document.querySelectorAll('[data-step], #usage-prev, #usage-next').forEach(function (el) {
       el.addEventListener('click', function () { setTimeout(setBar, 50); });
