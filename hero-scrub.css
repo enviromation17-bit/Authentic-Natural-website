@@ -307,3 +307,118 @@ html body .site-footer.footer-redesigned .footer-bottom .footer-top-link{color:#
  }
 }
 @media(prefers-reduced-motion:reduce){.site-footer.footer-redesigned .footer-social-icon{transition:none!important}}
+
+
+/* Final visual corrections — moving delivery ticker, reduced image scale, zero stray white bands. */
+/* enhance.css assigned position:relative to *every* body child, overriding fixed controls
+   and creating unintended flow height above the header and after the footer. */
+html,body{margin:0!important;padding:0!important}
+body>a.skip{
+ position:absolute!important;left:-10000px!important;top:0!important;
+ width:1px!important;height:1px!important;margin:0!important;padding:0!important;
+ overflow:hidden!important;
+}
+body>a.skip:focus{
+ position:fixed!important;left:14px!important;top:14px!important;
+ width:auto!important;height:auto!important;padding:12px 16px!important;
+ z-index:1000!important;overflow:visible!important;background:#fff!important;
+}
+body>a.floating-whatsapp{
+ position:fixed!important;right:clamp(12px,2vw,24px)!important;
+ bottom:max(12px,env(safe-area-inset-bottom,0px))!important;
+ z-index:80!important;margin:0!important;
+}
+body>.toast{position:fixed!important;left:50%!important;bottom:24px!important;z-index:100!important}
+body>.announcement-ticker{
+ position:relative!important;top:auto!important;left:auto!important;
+ display:block!important;width:100%!important;height:40px!important;
+ padding:0!important;margin:0!important;overflow:hidden!important;
+ background:#143e2c!important;color:#eff7e7!important;
+ border:0!important;box-sizing:border-box!important;
+}
+.announcement-ticker .announcement-track{
+ width:max-content;height:100%;display:flex;align-items:center;
+ animation:authentic-delivery-marquee 28s linear infinite;
+ will-change:transform;
+}
+.announcement-ticker .announcement-set{
+ display:inline-flex;flex:0 0 auto;align-items:center;gap:clamp(14px,3vw,45px);
+ height:100%;white-space:nowrap;
+ padding-right:clamp(14px,3vw,45px);
+ font:700 clamp(10px,.85vw,12px)/1.35 'Manrope',sans-serif;
+ letter-spacing:.11em;
+}
+.announcement-ticker .ticker-sep{color:#adc995;font-size:15px}
+@keyframes authentic-delivery-marquee{to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){
+ .announcement-ticker .announcement-track{animation:none!important;width:100%;justify-content:center}
+ .announcement-ticker .announcement-set:nth-child(2){display:none}
+ .announcement-ticker .announcement-set{font-size:10px;letter-spacing:0;gap:14px}
+}
+html.has-gsap-hero main>.hero .hero-scrub-stage{
+ background:#152f24!important;
+}
+html.has-gsap-hero .hero-scrub-stage .scrub-art{
+ inset:clamp(10px,2.6vh,24px) clamp(10px,2.5vw,40px)!important;
+ width:auto!important;height:auto!important;
+ border-radius:clamp(13px,1.5vw,23px)!important;
+ box-shadow:0 15px 40px rgba(5,20,13,.28)!important;
+}
+html.has-gsap-hero .hero-scrub-stage .scrub-frame{
+ object-fit:cover!important;object-position:50% 50%!important;
+}
+html.has-gsap-hero .hero-scrub-stage:before{
+ inset:clamp(10px,2.6vh,24px) clamp(10px,2.5vw,40px)!important;
+ border-radius:clamp(13px,1.5vw,23px)!important;
+}
+html.has-gsap-hero .hero-scrub-stage .scrub-copy{
+ left:clamp(35px,8.5vw,130px)!important;
+}
+html.has-gsap-hero .hero-scrub-stage .scrub-title{
+ font-size:clamp(3rem,5.4vw,6.15rem)!important;
+}
+html.has-gsap-hero .hero-scrub-stage .scrub-progress{
+ left:clamp(35px,8.5vw,130px)!important;right:clamp(35px,8.5vw,130px)!important;
+}
+html.has-gsap-hero .hero-scrub-stage .scrub-hint{
+ left:clamp(35px,8.5vw,130px)!important;
+}
+/* The icon group now belongs to the right customer-care column. */
+html body .site-footer.footer-redesigned .footer-contact-group{
+ align-items:flex-start!important;
+}
+html body .site-footer.footer-redesigned .footer-contact-group .footer-social-row{
+ display:flex!important;flex-direction:row!important;justify-content:flex-end!important;
+ align-items:center!important;align-self:stretch!important;
+ width:100%!important;gap:12px!important;margin:20px 0 0!important;
+}
+html body .site-footer.footer-redesigned .footer-social-row a.footer-social-icon{
+ flex:0 0 48px!important;width:48px!important;height:48px!important;
+}
+html body .site-footer.footer-redesigned{
+ margin-bottom:0!important;padding-bottom:0!important;
+}
+html body .site-footer.footer-redesigned .footer-bottom{margin-bottom:0!important}
+@media(max-width:900px){
+ html.has-gsap-hero .hero-scrub-stage .scrub-art{
+  inset:8px!important;border-radius:15px!important;
+ }
+ html.has-gsap-hero .hero-scrub-stage:before{inset:8px!important;border-radius:15px!important}
+ html.has-gsap-hero .hero-scrub-stage .scrub-copy{
+  left:clamp(24px,5vw,38px)!important;right:clamp(24px,5vw,38px)!important;
+ }
+ html.has-gsap-hero .hero-scrub-stage .scrub-title{
+  font-size:clamp(2.35rem,8.2vw,4rem)!important;
+ }
+ html.has-gsap-hero .hero-scrub-stage .scrub-hint{left:24px!important}
+ html.has-gsap-hero .hero-scrub-stage .scrub-progress{left:24px!important;right:24px!important}
+}
+@media(max-width:550px){
+ html body .site-footer.footer-redesigned .footer-contact-group .footer-social-row{
+  justify-content:flex-start!important;
+ }
+ body>.announcement-ticker{height:36px!important}
+ .announcement-ticker .announcement-set{font-size:10px;letter-spacing:.05em}
+ html.has-gsap-hero .hero-scrub-stage .scrub-art{inset:6px!important;border-radius:13px!important}
+ html.has-gsap-hero .hero-scrub-stage:before{inset:6px!important;border-radius:13px!important}
+}
