@@ -1,5 +1,5 @@
 'use strict';
-/* Smooth scroll + parallax + ambient + subtle reveals + hero slider */
+/* Smooth scroll + parallax + ambient + reveals + hero + ritual autoplay */
 (function () {
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var mqMobile = window.matchMedia ? window.matchMedia('(max-width: 720px)') : null;
@@ -94,6 +94,71 @@
     root.addEventListener('mouseleave', start);
     go(0);
     start();
+  }
+
+  /* Ritual steps autoplay */
+  function setupRitualAutoplay() {
+    var buttons = document.querySelectorAll('.usage-nav [data-step]');
+    var section = document.getElementById('ritual');
+    var track = document.getElementById('usage-panels');
+    if (!buttons.length) return;
+
+    var step = 0;
+    var timer = null;
+    var total = buttons.length;
+
+    function go(i) {
+      step = ((i % total) + total) % total;
+      var btn = buttons[step];
+      if (btn) btn.click();
+    }
+
+    function start() {
+      stop();
+      if (reduceMotion) return;
+      timer = setInterval(function () {
+        go(step + 1);
+      }, 5200);
+    }
+
+    function stop() {
+      if (timer) clearInterval(timer);
+      timer = null;
+    }
+
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        step = Number(b.getAttribute('data-step')) || 0;
+        // restart timer after manual pick
+        start();
+      });
+    });
+
+    var prev = document.getElementById('usage-prev');
+    var next = document.getElementById('usage-next');
+    if (prev) prev.addEventListener('click', function () { start(); });
+    if (next) next.addEventListener('click', function () { start(); });
+
+    if (section) {
+      section.addEventListener('mouseenter', stop);
+      section.addEventListener('mouseleave', start);
+      section.addEventListener('touchstart', function () { stop(); }, { passive: true });
+    }
+
+    // only autoplay while ritual is near viewport
+    if ('IntersectionObserver' in window && section) {
+      var visible = false;
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          visible = entry.isIntersecting;
+          if (visible) start();
+          else stop();
+        });
+      }, { threshold: 0.2 });
+      io.observe(section);
+    } else {
+      start();
+    }
   }
 
   function setupAmbient() {
@@ -209,39 +274,23 @@
     onScroll();
   }
 
-  /* Subtle scroll-in reveals */
   function setupReveals() {
     var selectors = [
-      '.section',
-      '.benefit-strip',
-      '.section-heading',
-      '.ingredient-card',
-      '.usage-panel',
-      '.story-layout',
-      '.video-section',
-      '.faq details',
-      '.closing',
-      '.product-info',
-      '.gallery'
+      '.section', '.benefit-strip', '.section-heading', '.ingredient-card',
+      '.usage-panel', '.story-layout', '.video-section', '.faq details',
+      '.closing', '.product-info', '.gallery'
     ];
-
     var nodes = document.querySelectorAll(selectors.join(','));
     if (!nodes.length) return;
 
     nodes.forEach(function (el, i) {
       el.classList.add('reveal');
-      // slight stagger for cards in a group
       if (el.classList.contains('ingredient-card') || el.classList.contains('usage-panel')) {
         el.style.transitionDelay = ((i % 8) * 0.05) + 's';
       }
     });
 
-    if (reduceMotion) {
-      nodes.forEach(function (el) { el.classList.add('is-visible'); });
-      return;
-    }
-
-    if (!('IntersectionObserver' in window)) {
+    if (reduceMotion || !('IntersectionObserver' in window)) {
       nodes.forEach(function (el) { el.classList.add('is-visible'); });
       return;
     }
@@ -257,19 +306,16 @@
 
     nodes.forEach(function (el) { io.observe(el); });
 
-    // Hero always visible
     var hero = document.querySelector('.hero');
     if (hero) {
       hero.classList.add('reveal', 'is-visible');
-      var heroKids = hero.querySelectorAll('.hero-copy, .hero-slider, .hero-photo');
-      heroKids.forEach(function (k, idx) {
+      hero.querySelectorAll('.hero-copy, .hero-slider, .hero-photo').forEach(function (k, idx) {
         k.classList.add('reveal', 'is-visible');
         k.style.transitionDelay = (0.1 + idx * 0.12) + 's';
       });
     }
   }
 
-  /* Re-run reveal when ingredient grid is rebuilt */
   function watchIngredientGrid() {
     var grid = document.getElementById('ingredient-grid');
     if (!grid || !('MutationObserver' in window)) return;
@@ -283,9 +329,7 @@
           return;
         }
         requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            card.classList.add('is-visible');
-          });
+          requestAnimationFrame(function () { card.classList.add('is-visible'); });
         });
       });
     });
@@ -327,6 +371,7 @@
     setupAmbient();
     setupWordShift();
     setupHeroSlider();
+    setupRitualAutoplay();
     setupFooterLeaves();
     setupParallax();
     setupReveals();
