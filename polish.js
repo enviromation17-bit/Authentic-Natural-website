@@ -1,5 +1,5 @@
 'use strict';
-/* Hero word shift + footer leaves (ingredient photos now handled in app.js from your assets) */
+/* Hero slider + word shift + footer leaves */
 (function () {
   function setupWordShift() {
     var h1 = document.getElementById('hero-title');
@@ -19,6 +19,65 @@
         setTimeout(function () { em.classList.remove('is-in'); }, 450);
       }, 320);
     }, 3200);
+  }
+
+  function setupHeroSlider() {
+    var root = document.getElementById('hero-slider');
+    if (!root) return;
+    var slides = root.querySelectorAll('.hero-slide');
+    var dots = root.querySelectorAll('[data-dot]');
+    var prev = root.querySelector('.hero-prev');
+    var next = root.querySelector('.hero-next');
+    if (!slides.length) return;
+    var index = 0;
+    var timer = null;
+    var total = slides.length;
+
+    function go(i) {
+      index = (i + total) % total;
+      slides.forEach(function (s, n) {
+        s.classList.toggle('is-active', n === index);
+      });
+      dots.forEach(function (d, n) {
+        d.classList.toggle('is-active', n === index);
+      });
+    }
+
+    function start() {
+      stop();
+      timer = setInterval(function () { go(index + 1); }, 4500);
+    }
+    function stop() {
+      if (timer) clearInterval(timer);
+      timer = null;
+    }
+
+    if (prev) prev.addEventListener('click', function () { go(index - 1); start(); });
+    if (next) next.addEventListener('click', function () { go(index + 1); start(); });
+    dots.forEach(function (d) {
+      d.addEventListener('click', function () {
+        go(Number(d.getAttribute('data-dot')) || 0);
+        start();
+      });
+    });
+
+    // swipe
+    var startX = 0;
+    root.addEventListener('touchstart', function (e) {
+      startX = e.changedTouches[0].clientX;
+      stop();
+    }, { passive: true });
+    root.addEventListener('touchend', function (e) {
+      var dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 40) go(index + (dx < 0 ? 1 : -1));
+      start();
+    }, { passive: true });
+
+    root.addEventListener('mouseenter', stop);
+    root.addEventListener('mouseleave', start);
+
+    go(0);
+    start();
   }
 
   function setupFooterLeaves() {
@@ -53,6 +112,7 @@
 
   function start() {
     setupWordShift();
+    setupHeroSlider();
     setupFooterLeaves();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
