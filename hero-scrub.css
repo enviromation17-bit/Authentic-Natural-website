@@ -569,3 +569,43 @@ html body .product.section#shop > *{
   animation:none!important;transform:none!important;
  }
 }
+
+
+/* Botanical light-and-leaf shadows — soft editorial accent in ingredient section.
+   SVG is embedded in CSS, so no additional image or animation library is loaded. */
+html body #ingredients.ingredients.section{
+ position:relative!important;
+ isolation:isolate;
+ overflow:hidden;
+ background-color:#f4f7f0;
+}
+html body #ingredients.ingredients.section::before{
+ content:"";
+ position:absolute;
+ z-index:0;
+ inset:-12% -4%;
+ pointer-events:none;
+ opacity:.18;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 850'%3E%3Cg fill='%233b6f4b'%3E%3Cpath d='M55 74C104 46 169 62 193 123 155 165 108 150 55 74Z'/%3E%3Cpath d='M182 144C230 95 310 92 350 150 311 215 234 211 182 144Z'/%3E%3Cpath d='M742 160C778 80 876 62 923 127 890 206 810 222 742 160Z'/%3E%3Cpath d='M672 307C722 253 799 259 829 324 778 388 703 377 672 307Z'/%3E%3Cpath d='M88 620C157 559 226 582 250 651 188 714 126 699 88 620Z'/%3E%3Cpath d='M758 693C805 619 891 635 927 703 884 768 811 771 758 693Z'/%3E%3C/g%3E%3Cg stroke='%233b6f4b' stroke-width='7' opacity='.65' fill='none'%3E%3Cpath d='M0 0Q174 92 350 150M1000 50Q850 185 672 307M0 800Q138 724 250 651M1000 850Q853 760 758 693'/%3E%3C/g%3E%3C/svg%3E");
+ background-position:center;
+ background-size:cover;
+ background-repeat:no-repeat;
+ transform:translate3d(-1.2%,0,0) rotate(-.5deg);
+ animation:an-botanical-shadow-drift 23s ease-in-out infinite alternate;
+}
+html body #ingredients.ingredients.section::after{
+ content:"";
+ position:absolute;
+ z-index:0;
+ inset:0;
+ pointer-events:none;
+ background:linear-gradient(90deg,rgba(247,249,244,.36),rgba(247,249,244,.05) 55%,rgba(247,249,244,.33));
+}
+html body #ingredients.ingredients.section > *{position:relative;z-index:1}
+@keyframes an-botanical-shadow-drift{
+ from{transform:translate3d(-1.2%,0,0) rotate(-.5deg)}
+ to{transform:translate3d(1.2%,-1%,0) rotate(1deg)}
+}
+@media(max-width:900px),(prefers-reduced-motion:reduce){
+ html body #ingredients.ingredients.section::before{animation:none!important;transform:none!important;opacity:.12}
+}
