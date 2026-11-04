@@ -63,7 +63,10 @@
     function start() {
       stop();
       if (reduceMotion) return;
-      timer = setInterval(function () { go(index + 1); }, 4800);
+      timer = setInterval(function () {
+        if (document.documentElement.classList.contains('has-gsap-hero')) { stop(); return; }
+        if (!document.hidden) go(index + 1);
+      }, 4800);
     }
     function stop() {
       if (timer) clearInterval(timer);
@@ -350,44 +353,40 @@
   }
 
   function setupFooterLeaves() {
-    if (isMobile || reduceMotion) return;
-    var footer = document.querySelector('.site-footer');
-    if (!footer || footer.querySelector('.leaf-field') || reduceMotion) return;
+    if (reduceMotion || !('IntersectionObserver' in window)) return;
+    var footer = document.querySelector('.site-footer.footer-redesigned');
+    if (!footer || footer.querySelector('.premium-leaf-field')) return;
     var field = document.createElement('div');
-    field.className = 'leaf-field';
+    field.className = 'premium-leaf-field';
     field.setAttribute('aria-hidden', 'true');
-    var paths = [
-      'M12 2C8 8 4 12 12 22C20 12 16 8 12 2Z',
-      'M10 3C6 9 3 14 12 21C18 13 16 7 10 3Z'
-    ];
-    var count = isMobile ? 6 : 12;
+    var count = isMobile ? 3 : 6;
     for (var i = 0; i < count; i++) {
-      var leaf = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      leaf.setAttribute('class', 'footer-leaf');
-      leaf.setAttribute('viewBox', '0 0 24 24');
-      leaf.setAttribute('width', String(14 + (i % 4) * 5));
-      leaf.setAttribute('height', String(14 + (i % 4) * 5));
-      var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', paths[i % paths.length]);
-      path.setAttribute('fill', i % 2 === 0 ? '#a8c48a' : '#7a9a5c');
-      leaf.appendChild(path);
-      leaf.style.left = Math.random() * 100 + '%';
-      leaf.style.animationDelay = (Math.random() * 10).toFixed(1) + 's';
-      leaf.style.animationDuration = (9 + Math.random() * 12).toFixed(1) + 's';
-      leaf.style.opacity = String(0.2 + Math.random() * 0.35);
+      var leaf = document.createElement('span');
+      leaf.className = 'premium-leaf';
+      leaf.textContent = '❧';
+      leaf.style.left = (8 + (i * 79 / count)) + '%';
+      leaf.style.setProperty('--leaf-delay', '-' + (i * 2.9) + 's');
+      leaf.style.setProperty('--leaf-duration', (12 + i * 1.4) + 's');
+      leaf.style.setProperty('--leaf-size', (19 + (i%3)*5) + 'px');
       field.appendChild(leaf);
     }
     footer.insertBefore(field, footer.firstChild);
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        footer.classList.toggle('footer-leaves-playing', entry.isIntersecting);
+      });
+    }, {rootMargin:'80px 0px 80px 0px'});
+    observer.observe(footer);
+    document.addEventListener('visibilitychange', function() {
+      if(document.hidden) footer.classList.remove('footer-leaves-playing');
+    });
   }
 
   function start() {
     setupSmoothScroll();
-    setupAmbient();
-    setupWordShift();
+    // The GSAP story already provides the main motion; skip costly ambient and parallax loops.
     setupHeroSlider();
-    setupRitualAutoplay();
-    // Keep the brand footer still and readable; floating leaves overlap its columns.
-    setupParallax();
+    setupFooterLeaves();
     setupReveals();
     watchIngredientGrid();
   }
