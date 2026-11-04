@@ -34,6 +34,34 @@ const ingredients = [
   ['Cinnamon Oil', 'Warm aromatic oil used in traditional scalp blends.', 'scalp']
 ];
 
+// Your uploaded photos in public/assets (mapped by content)
+const A = 'public/assets/';
+const ingredientPhotos = {
+  'Rosemary Oil': A + 'david-clode-cDu0ZO4vfNw-unsplash.jpg',
+  'Peppermint Oil': A + 'anna-hliamshyna-VDR-uVIHP_8-unsplash.jpg',
+  'Tea Tree Oil': A + 'rashid-New8EgKnSds-unsplash.jpg',
+  'Lavender Oil': A + 'olga-volkovitskaia-SCBaOBxjGCY-unsplash.jpg',
+  'Castor Oil': A + 'images.jfif',
+  'Coconut Oil': A + 'image_20261104_094311.jpg',
+  'Olive Oil': A + 'roberta-sorge-uOBApnN_K7w-unsplash.jpg',
+  'Jojoba Oil': A + 'jojoba_oil_image_e1028b7f-e55d-4c58-ba71-e66bddcb721c.webp',
+  'Almond Oil': A + 'elisabeth-rosenak-kAWWYOq1cIs-unsplash.jpg',
+  'Moringa Oil': A + 'botanicals.png',
+  'Rosehip Oil': A + 'image_20261104_094311.jpg',
+  'Onion Oil': A + 'abhishek-hajare-D9h2-RxM1rE-unsplash.jpg',
+  'Black Seed Oil': A + 'ginger-jordan-l6J3yLLtXO8-unsplash.jpg',
+  'Pumpkin Seed Oil': A + 'ginger-jordan-l6J3yLLtXO8-unsplash.jpg',
+  'Fenugreek Oil': A + 'ginger-jordan-l6J3yLLtXO8-unsplash.jpg',
+  'Amla Oil': A + 'image_20261104_094311.jpg',
+  'Sesame Oil': A + 'roberta-sorge-uOBApnN_K7w-unsplash.jpg',
+  'Flaxseed Oil': A + 'ginger-jordan-l6J3yLLtXO8-unsplash.jpg',
+  'Egg Oil': A + 'gfdc5-1.jpg',
+  'Garlic & Ginger Extracts': A + 'image_20261104_094311.jpg',
+  'Curry Leaves': A + 'rashid-New8EgKnSds-unsplash.jpg',
+  'Henna Leaves': A + 'botanicals.png',
+  'Cinnamon Oil': A + 'marta-matyszczyk-yGFJqsMKeJ4-unsplash.jpg'
+};
+
 function money(n) {
   return 'Rs. ' + Number(n).toLocaleString('en-PK');
 }
@@ -41,20 +69,13 @@ function renderBag() {
   $('#bag-count').textContent = String(bagQty);
   const empty = $('#empty-bag');
   const filled = $('#filled-bag');
-  if (bagQty <= 0) {
-    empty.hidden = false;
-    filled.hidden = true;
-    return;
-  }
-  empty.hidden = true;
-  filled.hidden = false;
+  if (bagQty <= 0) { empty.hidden = false; filled.hidden = true; return; }
+  empty.hidden = true; filled.hidden = false;
   $('#cart-quantity').textContent = String(bagQty);
   $('#subtotal').textContent = money(bagQty * PRICE);
   $('#total').textContent = money(bagQty * PRICE);
 }
-function renderQuantity() {
-  $('#quantity').textContent = String(qty);
-}
+function renderQuantity() { $('#quantity').textContent = String(qty); }
 function toast(msg) {
   const t = $('#toast');
   t.textContent = msg;
@@ -72,7 +93,19 @@ function renderIngredients() {
   grid.replaceChildren();
   filtered.forEach(([name, description], index) => {
     const card = document.createElement('article');
-    card.className = 'ingredient-card';
+    card.className = 'ingredient-card has-photo';
+    card.dataset.ingredient = name;
+
+    const media = document.createElement('div');
+    media.className = 'ingredient-media';
+    media.setAttribute('aria-hidden', 'true');
+    const img = document.createElement('img');
+    img.src = ingredientPhotos[name] || (A + 'botanicals.png');
+    img.alt = name;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    media.appendChild(img);
+
     const number = document.createElement('span');
     number.textContent = String(index + 1).padStart(2, '0');
     number.setAttribute('aria-hidden', 'true');
@@ -85,11 +118,14 @@ function renderIngredients() {
     details.className = 'ingredient-explore';
     details.textContent = 'Explore benefits ↗';
     details.setAttribute('aria-label', 'Explore ' + name + ' in hair care');
-    details.addEventListener('click', () => openIngredientDetail(name, description));
+    details.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openIngredientDetail(name, description);
+    });
     card.addEventListener('click', (event) => {
       if (!event.target.closest('button')) openIngredientDetail(name, description);
     });
-    card.append(number, title, p, details);
+    card.append(media, number, title, p, details);
     grid.append(card);
   });
   $('#ingredient-count').textContent = filtered.length
@@ -97,48 +133,26 @@ function renderIngredients() {
     : 'No matching ingredients. Try another name or choose all ingredients.';
 }
 
-const ingredientPhotos = {
-  'Rosemary Oil': 'https://commons.wikimedia.org/wiki/Special:FilePath/Rosmarinus%20officinalis%20(1).jpg?width=800',
-  'Peppermint Oil': 'https://commons.wikimedia.org/wiki/Special:FilePath/Peppermint%20leaves%20with%20scale.jpg?width=800',
-  'Tea Tree Oil': 'https://commons.wikimedia.org/wiki/Special:FilePath/Melaleuca%20alternifolia%20flowers.jpg?width=800',
-  'Lavender Oil': 'https://commons.wikimedia.org/wiki/Special:FilePath/Lavender%20Field%20Provence%20France%20021.JPG?width=800',
-  'Castor Oil': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=950&q=80',
-  'Coconut Oil': 'https://images.unsplash.com/photo-1550505095-81378a674395?auto=format&fit=crop&w=950&q=80',
-  'Olive Oil': 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=950&q=80',
-  'Jojoba Oil': 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=950&q=80',
-  'Almond Oil': 'https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=950&q=80',
-  'Moringa Oil': 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=950&q=80',
-  'Rosehip Oil': 'https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=950&q=80',
-  'Onion Oil': 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?auto=format&fit=crop&w=950&q=80',
-  'Black Seed Oil': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=950&q=80',
-  'Pumpkin Seed Oil': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=950&q=80',
-  'Fenugreek Oil': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=950&q=80',
-  'Amla Oil': 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=950&q=80',
-  'Sesame Oil': 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=950&q=80',
-  'Flaxseed Oil': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=950&q=80',
-  'Egg Oil': 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=950&q=80',
-  'Garlic & Ginger Extracts': 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=950&q=80',
-  'Curry Leaves': 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=950&q=80',
-  'Henna Leaves': 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=950&q=80',
-  'Cinnamon Oil': 'https://images.unsplash.com/photo-1606914469633-bd39206ea739?auto=format&fit=crop&w=950&q=80'
-};
 function openIngredientDetail(name, description) {
   const ingredientDialog = document.getElementById('ingredient-dialog');
+  if (!ingredientDialog) return;
   const lower = name.toLowerCase();
-  const image = ingredientPhotos[name] || 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=950&q=80';
+  const image = ingredientPhotos[name] || (A + 'botanicals.png');
   document.getElementById('ingredient-detail-title').textContent = name;
   document.getElementById('ingredient-detail-benefit').textContent = description;
   document.getElementById('ingredient-detail-description').textContent =
     'In cosmetic hair care, ' + name.toLowerCase() + ' is featured as part of a botanical oil blend. ' +
     (lower.includes('coconut') ? 'Coconut oil is commonly used to condition hair and help reduce dryness.' :
-    lower.includes('rosemary') ? 'Rosemary provides an aromatic botanical element. Research on hair growth is limited and does not establish that this finished blend grows hair.' :
+    lower.includes('rosemary') ? 'Rosemary provides an aromatic botanical element for scalp care rituals.' :
     lower.includes('almond') ? 'Almond oil is valued for its light conditioning feel and natural shine support.' :
-    lower.includes('olive') ? 'Olive oil is a classic conditioning oil used to soften dry hair and improve manageability.' :
+    lower.includes('olive') ? 'Olive oil is a classic conditioning oil used to soften dry hair.' :
     lower.includes('lavender') ? 'Lavender adds a calming botanical aroma often used in scalp-care rituals.' :
+    lower.includes('jojoba') ? 'Jojoba closely resembles natural skin oils and is used to condition the scalp.' :
+    lower.includes('castor') ? 'Castor oil is a rich traditional oil used to coat and condition strands.' :
     'The ingredient is included for traditional hair or scalp-care use; specific results are not guaranteed.');
   const photo = document.getElementById('ingredient-detail-image');
   photo.src = image;
-  photo.alt = 'Photograph related to ' + name;
+  photo.alt = 'Photograph of ' + name;
   ingredientDialog.showModal();
 }
 
@@ -200,7 +214,6 @@ $('#clear-data') && $('#clear-data').addEventListener('click', () => {
   toast('Saved bag cleared');
 });
 
-/* Usage steps */
 let usageStep = 0;
 const usageTrack = document.getElementById('usage-panels');
 const usageButtons = $$('[data-step]');
@@ -223,17 +236,12 @@ $('#usage-prev') && $('#usage-prev').addEventListener('click', () => setUsageSte
 $('#usage-next') && $('#usage-next').addEventListener('click', () => setUsageStep(usageStep + 1));
 setUsageStep(0);
 
-/* Video autoplay when visible */
 const video = document.querySelector('.video-section video');
 if (video && 'IntersectionObserver' in window) {
   const io = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        video.muted = true;
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
+      if (entry.isIntersecting) { video.muted = true; video.play().catch(() => {}); }
+      else video.pause();
     });
   }, { threshold: 0.45 });
   io.observe(video);
