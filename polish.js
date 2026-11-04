@@ -97,6 +97,8 @@
   }
 
   function setupRitualAutoplay() {
+    // The ritual is scroll/user-controlled. Autoplay fights the scrub and adds timers.
+    return;
     var section = document.getElementById('ritual');
     var total = 6;
     var step = 0;
@@ -167,6 +169,8 @@
   }
 
   function setupAmbient() {
+    // Avoid continuous blur/leaf compositing on small devices.
+    if (isMobile || reduceMotion) return;
     if (document.querySelector('.ambient-nature')) return;
 
     var layer = document.createElement('div');
@@ -244,7 +248,7 @@
   }
 
   function setupParallax() {
-    if (reduceMotion) return;
+    if (reduceMotion || isMobile) return;
     var far = document.querySelector('.parallax-far');
     var mid = document.querySelector('.parallax-mid');
     var near = document.querySelector('.parallax-near');
@@ -346,6 +350,7 @@
   }
 
   function setupFooterLeaves() {
+    if (isMobile || reduceMotion) return;
     var footer = document.querySelector('.site-footer');
     if (!footer || footer.querySelector('.leaf-field') || reduceMotion) return;
     var field = document.createElement('div');
