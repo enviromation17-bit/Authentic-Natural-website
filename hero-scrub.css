@@ -133,96 +133,177 @@ html.has-gsap-hero main>.hero .hero-scrub-stage{
  html.has-gsap-hero main>.hero.gsap-hero-enabled>.hero-photo{display:flex!important}
  html.has-gsap-hero main>.hero .hero-scrub-stage{display:none!important}
 }
-/* Footer: one clean baseline and consistent spacing, overriding legacy !important rules. */
-.site-footer{background:#172e22!important;isolation:isolate}
-.site-footer .footer-shell{
+
+/* New editorial lookbook — uses the owner's additional uploaded image collection. */
+.botanical-lookbook{
+ position:relative;isolation:isolate;padding:clamp(65px,7vw,110px) clamp(18px,5vw,76px);
+ background:linear-gradient(155deg,#f5f7ef,#e9f0e5);color:#234533;
+ overflow:hidden;
+}
+.botanical-lookbook .lookbook-heading{max-width:1300px;margin:0 auto clamp(30px,4vw,50px);display:flex;gap:30px;align-items:end;justify-content:space-between}
+.botanical-lookbook .lookbook-heading>div{min-width:0}
+.botanical-lookbook .lookbook-heading h2{font:400 clamp(2.8rem,5vw,5.5rem)/1.12 'Playfair Display',Georgia,serif;letter-spacing:-.045em;margin:8px 0 0;color:#22442f}
+.botanical-lookbook .lookbook-heading h2 em{color:#708e61}
+.botanical-lookbook .lookbook-heading>p{max-width:310px;font:400 14px/1.8 'DM Sans',sans-serif;color:#637665;margin:0 0 7px}
+.botanical-lookbook .botanical-look-track{
+ display:flex;gap:clamp(13px,2vw,25px);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
+ scrollbar-color:#8fad88 transparent;scrollbar-width:thin;overscroll-behavior-x:contain;
+ -webkit-overflow-scrolling:touch;padding:0 max(0px,calc((100vw - 1380px)/2)) 15px;
+}
+.botanical-lookbook .botanical-look-item{
+ position:relative;flex:0 0 clamp(260px,35vw,480px);min-width:0;margin:0;
+ aspect-ratio:3/4;overflow:hidden;scroll-snap-align:start;background:#dbe6d5;
+ border-radius:clamp(16px,2vw,24px);box-shadow:0 18px 44px #1737251c;
+}
+.botanical-lookbook .botanical-look-item img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .45s ease}
+.botanical-lookbook .botanical-look-item:hover img{transform:scale(1.025)}
+.botanical-lookbook .botanical-look-item figcaption{position:absolute;bottom:16px;left:18px;padding:5px 10px;border-radius:99px;background:#183b2bcb;color:#fff;font:700 11px 'Manrope',sans-serif}
+.botanical-lookbook .lookbook-caption{max-width:1300px;margin:13px auto 0;font:400 11px/1.6 'DM Sans',sans-serif;color:#738875}
+@media(max-width:720px){
+ .botanical-lookbook{padding:52px 14px}
+ .botanical-lookbook .lookbook-heading{display:block;margin-bottom:22px}
+ .botanical-lookbook .lookbook-heading h2{font-size:clamp(2.3rem,9vw,3.6rem)}
+ .botanical-lookbook .lookbook-heading>p{font-size:12px;margin-top:13px}
+ .botanical-lookbook .botanical-look-item{flex-basis:min(77vw,400px);border-radius:17px}
+ .botanical-lookbook .botanical-look-track{gap:12px}
+}
+@media(prefers-reduced-motion:reduce){.botanical-lookbook .botanical-look-item img{transition:none!important}}
+
+/* The footer is its own brand composition. These scoped rules beat older broad selectors. */
+html body .site-footer.footer-redesigned{
+ position:relative!important;display:block!important;background:#112e21!important;
+ color:#ecf5ec!important;isolation:isolate;overflow:hidden!important;
+}
+html body .site-footer.footer-redesigned .footer-shell{
+ position:relative!important;display:block!important;width:100%!important;
  max-width:1260px!important;margin:0 auto!important;
- padding:0 clamp(20px,5vw,70px) 0!important;
+ padding:0 clamp(22px,5vw,72px)!important;box-sizing:border-box!important;
 }
-.site-footer .footer-intro{
+html body .site-footer.footer-redesigned .footer-intro{
  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
- align-items:end!important;justify-content:stretch!important;
- gap:clamp(20px,4vw,60px)!important;
- padding:clamp(55px,7vw,86px) 0 42px!important;
- border-bottom:1px solid rgba(255,255,255,.16)!important;
+ gap:clamp(22px,4vw,64px)!important;align-items:end!important;
+ justify-content:stretch!important;padding:clamp(65px,7vw,95px) 0 45px!important;
+ margin:0!important;border-bottom:1px solid #ffffff30!important;
 }
-.site-footer .footer-intro>div{min-width:0!important}
-.site-footer .footer-intro h2{
- font-size:clamp(2.6rem,4.2vw,4.6rem)!important;max-width:770px!important;
- line-height:1.15!important;margin:0 0 12px!important;
+html body .site-footer.footer-redesigned .footer-intro-copy{min-width:0!important;max-width:770px!important}
+html body .site-footer.footer-redesigned .footer-intro .footer-kicker{
+ margin:0 0 15px!important;color:#c4dcb9!important;
+ font:700 10px/1.5 'Manrope',sans-serif!important;letter-spacing:.2em!important;
 }
-.site-footer .footer-intro .footer-kicker{font-size:10px!important;margin:0 0 13px!important}
-.site-footer .footer-intro p:not(.footer-kicker){margin:0!important;max-width:550px!important}
-.site-footer .footer-shop-button{white-space:normal!important;align-self:end!important;justify-self:end!important}
-.site-footer .footer-main.brand-footer-grid{
- display:grid!important;grid-template-columns:minmax(260px,1.5fr) minmax(155px,.75fr) minmax(230px,1fr)!important;
- gap:clamp(32px,5vw,84px)!important;align-items:start!important;
- padding:50px 0 55px!important;
+html body .site-footer.footer-redesigned .footer-intro h2{
+ color:#fff!important;font:400 clamp(2.7rem,4.5vw,5.2rem)/1.14 'Playfair Display',Georgia,serif!important;
+ letter-spacing:-.045em!important;margin:0 0 16px!important;max-width:740px!important;
 }
-.site-footer .footer-brand-block,.site-footer .footer-nav-group,.site-footer .footer-contact-group{
- min-width:0!important;max-width:none!important;margin:0!important;padding:0!important;
+html body .site-footer.footer-redesigned .footer-intro h2 em{color:#b8d5aa!important}
+html body .site-footer.footer-redesigned .footer-intro p:not(.footer-kicker){
+ font:400 14px/1.75 'DM Sans',sans-serif!important;color:#bcd0bd!important;margin:0!important;
 }
-.site-footer .footer-brand-block .footer-brand{
+html body .site-footer.footer-redesigned .footer-shop-button{
  display:inline-flex!important;align-items:center!important;justify-content:center!important;
- width:80px!important;height:80px!important;margin:0 0 18px!important;
- background:#fff!important;padding:5px!important;border-radius:18px!important;
+ gap:12px!important;align-self:end!important;justify-self:end!important;
+ padding:16px 22px!important;border-radius:999px!important;
+ background:#eaf3df!important;color:#1d4230!important;white-space:normal!important;
+ font:700 12px/1.35 'Manrope',sans-serif!important;
 }
-.site-footer .footer-brand-block .footer-brand img{width:68px!important;height:68px!important;object-fit:contain!important}
-.site-footer .footer-brand-block .footer-name{
- color:#fff!important;font:500 27px/1.24 'Playfair Display',Georgia,serif!important;
- letter-spacing:-.025em!important;margin:0 0 15px!important;
+html body .site-footer.footer-redesigned .footer-main.brand-footer-grid{
+ display:grid!important;grid-template-columns:minmax(250px,1.4fr) minmax(150px,.7fr) minmax(225px,1fr)!important;
+ gap:clamp(40px,5.5vw,90px)!important;align-items:start!important;
+ padding:54px 0 61px!important;margin:0!important;
 }
-.site-footer .footer-brand-block>p:not(.footer-name),.site-footer .footer-contact-group>p{
- max-width:330px!important;font-size:13px!important;line-height:1.75!important;
- color:#bdcebf!important;margin:5px 0!important;
+html body .site-footer.footer-redesigned .footer-brand-block,
+html body .site-footer.footer-redesigned .footer-nav-group,
+html body .site-footer.footer-redesigned .footer-contact-group{
+ display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ justify-content:flex-start!important;min-width:0!important;max-width:none!important;
+ gap:0!important;margin:0!important;padding:0!important;
 }
-.site-footer .footer-nav-group,.site-footer .footer-contact-group{
- display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:0!important;
-}
-.site-footer .footer-nav-group h3,.site-footer .footer-contact-group h3{
- color:#d1e0c8!important;margin:4px 0 23px!important;font:800 11px/1.5 'Manrope',sans-serif!important;letter-spacing:.13em!important;
-}
-.site-footer .footer-nav-group a,.site-footer .footer-contact-group>a,.site-footer .footer-contact-group .footer-link{
- color:#edf4e8!important;font:500 13px/1.65 'DM Sans',sans-serif!important;
- margin:0 0 15px!important;padding:0!important;max-width:100%!important;
- overflow-wrap:anywhere!important;
-}
-.site-footer .footer-contact-group .footer-link{background:none!important;border:0!important;text-align:left!important}
-.site-footer .footer-social-row{display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:11px!important;margin:24px 0 0!important}
-.site-footer .footer-main .footer-social-row a.footer-social-icon{
+html body .site-footer.footer-redesigned .footer-brand-block .footer-brand{
  display:inline-flex!important;align-items:center!important;justify-content:center!important;
- flex:0 0 46px!important;width:46px!important;height:46px!important;
- margin:0!important;padding:0!important;border-radius:13px!important;
- background:#ffffff20!important;border:1px solid #ffffff35!important;
- transition:background .2s,transform .2s!important;
+ flex:none!important;width:76px!important;height:76px!important;
+ margin:0 0 20px!important;padding:4px!important;background:#fff!important;
+ border-radius:18px!important;border:0!important;
 }
-.site-footer .footer-social-icon img{width:22px!important;height:22px!important;filter:invert(1)!important}
-.site-footer .footer-social-icon span{position:absolute!important;clip-path:inset(50%)!important;width:1px!important;height:1px!important;overflow:hidden!important}
-.site-footer .footer-main .footer-social-row .footer-instagram:hover{background:#ad397b!important}
-.site-footer .footer-main .footer-social-row .footer-tiktok:hover{background:#2d2d31!important}
-.site-footer .footer-main .footer-social-row .footer-whatsapp:hover{background:#118d4c!important}
-.site-footer .footer-social-icon:focus-visible{outline:3px solid #c4e0aa!important;outline-offset:3px}
-.site-footer .footer-bottom{
+html body .site-footer.footer-redesigned .footer-brand img{
+ width:68px!important;height:68px!important;max-width:100%!important;object-fit:contain!important;
+}
+html body .site-footer.footer-redesigned .footer-brand-block .footer-name{
+ color:#fff!important;font:400 28px/1.2 'Playfair Display',Georgia,serif!important;
+ margin:0 0 12px!important;letter-spacing:-.025em!important;
+}
+html body .site-footer.footer-redesigned .footer-brand-block>p:not(.footer-name),
+html body .site-footer.footer-redesigned .footer-contact-group>p{
+ color:#b8cbbd!important;font:400 13px/1.7 'DM Sans',sans-serif!important;
+ max-width:330px!important;margin:3px 0!important;
+}
+html body .site-footer.footer-redesigned .footer-nav-group h3,
+html body .site-footer.footer-redesigned .footer-contact-group h3{
+ color:#d4e1c9!important;font:800 11px/1.5 'Manrope',sans-serif!important;
+ letter-spacing:.14em!important;text-transform:uppercase!important;
+ margin:4px 0 22px!important;
+}
+html body .site-footer.footer-redesigned .footer-nav-group a,
+html body .site-footer.footer-redesigned .footer-contact-group a,
+html body .site-footer.footer-redesigned .footer-contact-group .footer-link{
+ display:block!important;position:relative!important;width:fit-content!important;
+ max-width:100%!important;color:#eef4e9!important;
+ font:500 13px/1.6 'DM Sans',sans-serif!important;
+ text-decoration:none!important;overflow-wrap:anywhere!important;
+ margin:0 0 15px!important;padding:0!important;background:none!important;border:0!important;
+ text-align:left!important;cursor:pointer;
+}
+html body .site-footer.footer-redesigned .footer-social-row{
+ display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;
+ flex-wrap:wrap!important;gap:12px!important;width:100%!important;margin:22px 0 0!important;
+}
+html body .site-footer.footer-redesigned .footer-social-row a.footer-social-icon{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 48px!important;width:48px!important;height:48px!important;
+ min-width:48px!important;min-height:48px!important;
+ margin:0!important;padding:0!important;border-radius:14px!important;
+ background:#ffffff1e!important;border:1px solid #ffffff42!important;
+ color:#fff!important;box-shadow:none!important;
+ transition:transform .2s ease,background .2s ease!important;
+}
+html body .site-footer.footer-redesigned .footer-social-icon svg{
+ display:block!important;flex:none!important;width:23px!important;height:23px!important;
+ stroke:#fff!important;color:#fff!important;opacity:1!important;
+}
+html body .site-footer.footer-redesigned .footer-social-icon .footer-icon-label{
+ position:absolute!important;width:1px!important;height:1px!important;
+ clip-path:inset(50%)!important;overflow:hidden!important;white-space:nowrap!important;
+}
+html body .site-footer.footer-redesigned .footer-social-icon:hover{background:#396a48!important;transform:translateY(-2px)!important}
+html body .site-footer.footer-redesigned .footer-social-icon:focus-visible{outline:3px solid #a9daa5!important;outline-offset:3px}
+html body .site-footer.footer-redesigned .footer-bottom{
  display:flex!important;justify-content:space-between!important;align-items:center!important;
- flex-wrap:wrap!important;gap:15px!important;border-top:1px solid #ffffff25!important;
- padding:22px 0 30px!important;line-height:1.55!important;
+ gap:16px!important;flex-wrap:wrap!important;width:100%!important;
+ border-top:1px solid #ffffff2d!important;padding:24px 0 34px!important;
+ margin:0!important;color:#a9bdac!important;
+ font:400 12px/1.7 'DM Sans',sans-serif!important;
 }
-.site-footer .footer-top-link{color:#d0e3c8!important;text-decoration:none!important;font-size:12px!important}
-@media(max-width:850px){
- .site-footer .footer-intro{grid-template-columns:minmax(0,1fr)!important;align-items:start!important;gap:22px!important}
- .site-footer .footer-shop-button{justify-self:start!important}
- .site-footer .footer-main.brand-footer-grid{
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:42px 26px!important;
+html body .site-footer.footer-redesigned .footer-bottom .footer-top-link{color:#dcebd4!important;text-decoration:none!important}
+@media(max-width:900px){
+ html body .site-footer.footer-redesigned .footer-intro{
+  grid-template-columns:minmax(0,1fr)!important;align-items:start!important;gap:24px!important;
  }
- .site-footer .footer-brand-block{grid-column:1/-1!important}
-}
-@media(max-width:560px){
- .site-footer .footer-intro{padding:50px 0 34px!important}
- .site-footer .footer-intro h2{font-size:clamp(2.5rem,9vw,3.4rem)!important}
- .site-footer .footer-main.brand-footer-grid{
-  grid-template-columns:minmax(0,1fr)!important;gap:32px!important;padding:38px 0!important;
+ html body .site-footer.footer-redesigned .footer-shop-button{justify-self:start!important}
+ html body .site-footer.footer-redesigned .footer-main.brand-footer-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:38px 28px!important;
  }
- .site-footer .footer-brand-block{grid-column:auto!important}
- .site-footer .footer-nav-group h3,.site-footer .footer-contact-group h3{margin-bottom:14px!important}
- .site-footer .footer-bottom{flex-direction:column!important;align-items:flex-start!important;gap:9px!important}
+ html body .site-footer.footer-redesigned .footer-brand-block{grid-column:1/-1!important}
 }
+@media(max-width:550px){
+ html body .site-footer.footer-redesigned .footer-shell{padding-inline:22px!important}
+ html body .site-footer.footer-redesigned .footer-intro{padding:54px 0 36px!important}
+ html body .site-footer.footer-redesigned .footer-intro h2{font-size:clamp(2.4rem,10vw,3.5rem)!important}
+ html body .site-footer.footer-redesigned .footer-main.brand-footer-grid{
+  grid-template-columns:minmax(0,1fr)!important;gap:32px!important;padding:42px 0!important;
+ }
+ html body .site-footer.footer-redesigned .footer-brand-block{grid-column:auto!important}
+ html body .site-footer.footer-redesigned .footer-nav-group h3,
+ html body .site-footer.footer-redesigned .footer-contact-group h3{margin-bottom:15px!important}
+ html body .site-footer.footer-redesigned .footer-bottom{
+  flex-direction:column!important;align-items:flex-start!important;gap:8px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){.site-footer.footer-redesigned .footer-social-icon{transition:none!important}}
