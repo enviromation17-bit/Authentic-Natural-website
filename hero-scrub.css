@@ -63,3 +63,86 @@ html.has-gsap-hero .hero-scrub-stage{
 }
 html.has-gsap-hero .hero-scrub-stage .scrub-copy{will-change:auto}
 html.has-gsap-hero .hero-scrub-stage .scrub-frame{transform:none;transition:none}
+
+
+/* 2026-11-04 mobile polish: maintain readable geometry with low render cost. */
+@media(max-width:900px){
+  .ambient-nature,.leaf-field,.footer-leaf,.ambient-orb,.ambient-leaf,.ambient-shape{display:none!important}
+  .hero-scrub-stage{filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .hero-scrub-stage .scrub-art:before{filter:none!important;opacity:.35}
+  .hero-scrub-stage .scrub-frame{filter:none!important;will-change:auto}
+  .hero-scrub-stage .scrub-copy{opacity:1}
+  .orbit-stage-inner,.orbit-object{will-change:auto}
+  .ingredient-card{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .section-heading,.section-heading>div,.product-info,.gallery,.video-section>div{min-width:0}
+  .product.section,.video-section,.story-layout{grid-template-columns:minmax(0,1fr)!important}
+  .product.section,.ingredients.section,.usage-section.section{padding-inline:clamp(14px,4vw,25px)!important}
+  .video-section video{max-width:100%!important;height:auto!important}
+}
+@media(max-width:640px){
+ .hero-scrub-stage .scrub-copy{min-width:0;padding-inline:2px}
+ .hero-scrub-stage .scrub-title{overflow-wrap:normal}
+ .hero-scrub-stage .scrub-art{min-width:0}
+ .ingredient-grid{grid-template-columns:minmax(0,1fr)!important}
+ .ingredient-card{min-width:0}
+ .usage-pagination{gap:8px}
+ .usage-pagination button{white-space:nowrap}
+ .usage-track,.usage-panel{min-width:0}
+ .usage-panel figure,.usage-panel figure a{min-width:0;max-width:100%}
+ .usage-panel figure img{width:100%!important;height:auto!important;object-fit:contain}
+ .closing,.section-heading{max-width:100%}
+}
+@media(max-width:420px){
+ .hero-scrub-stage .scrub-title{font-size:clamp(2rem,9vw,2.65rem)}
+ .footer-social-row{gap:8px}
+}
+/* Footer: scoped overrides defeat old broad !important rules without affecting header links. */
+.site-footer .footer-shell{max-width:1200px!important;padding-inline:clamp(18px,4vw,52px)!important}
+.site-footer .footer-main.brand-footer-grid{
+ display:grid!important;
+ grid-template-columns:minmax(220px,1.4fr) minmax(130px,.8fr) minmax(230px,1fr)!important;
+ align-items:start!important;gap:clamp(24px,4vw,66px)!important;
+ padding:clamp(32px,4.5vw,65px) 0!important;
+}
+.site-footer .footer-brand-block,.site-footer .footer-nav-group,.site-footer .footer-contact-group{min-width:0}
+.site-footer .footer-brand-block .footer-brand{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ margin:0 0 18px!important;padding:5px!important;background:#fff!important;
+ width:78px;height:78px;border-radius:17px
+}
+.site-footer .footer-brand-block .footer-brand img{width:64px;height:64px;max-width:100%;object-fit:contain}
+.site-footer .footer-name{font:500 27px/1.2 'Playfair Display',Georgia,serif;color:#fff!important;margin:0 0 12px}
+.site-footer .footer-brand-block>p:not(.footer-name),.site-footer .footer-contact-group>p{font-size:12px;color:#bcd0bf;line-height:1.75;margin:6px 0}
+.site-footer .footer-nav-group,.site-footer .footer-contact-group{display:flex;flex-direction:column;align-items:flex-start}
+.site-footer .footer-nav-group h3,.site-footer .footer-contact-group h3{font-size:12px!important;margin:7px 0 22px!important}
+.site-footer .footer-nav-group a,.site-footer .footer-contact-group>a,.site-footer .footer-contact-group .footer-link{font-size:13px!important;line-height:1.6!important;margin:0 0 15px!important;overflow-wrap:anywhere;max-width:100%}
+.site-footer .footer-social-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px;align-items:center}
+.site-footer .footer-main .footer-social-row a.footer-social-icon{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 auto;width:46px!important;height:46px!important;min-height:46px;
+ padding:0!important;margin:0!important;border-radius:14px!important;
+ background:rgba(255,255,255,.11)!important;border:1px solid rgba(255,255,255,.2)!important;
+ text-decoration:none!important;
+}
+.site-footer .footer-social-icon img{display:block;width:22px;height:22px;filter:invert(1)}
+.site-footer .footer-social-icon span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.site-footer .footer-main .footer-social-row .footer-instagram:hover{background:#b23d80!important}
+.site-footer .footer-main .footer-social-row .footer-tiktok:hover{background:#28282b!important}
+.site-footer .footer-main .footer-social-row .footer-whatsapp:hover{background:#16894c!important}
+.site-footer .footer-social-row a:focus-visible{outline:3px solid #bfdc9e;outline-offset:3px}
+.site-footer .footer-order-note{opacity:.8}
+.site-footer .footer-bottom a.footer-top-link{font-size:12px;color:#c4dcbf;text-decoration:none}
+@media(max-width:850px){
+ .site-footer .footer-main.brand-footer-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:35px 22px!important}
+ .site-footer .footer-brand-block{grid-column:1/-1}
+}
+@media(max-width:480px){
+ .site-footer .footer-main.brand-footer-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:30px 14px!important}
+ .site-footer .footer-brand-block{grid-column:1/-1}
+ .site-footer .footer-nav-group a,.site-footer .footer-contact-group>a{font-size:12px!important}
+ .site-footer .footer-bottom{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:340px){
+ .site-footer .footer-main.brand-footer-grid{grid-template-columns:minmax(0,1fr)!important}
+ .site-footer .footer-brand-block{grid-column:auto}
+}
