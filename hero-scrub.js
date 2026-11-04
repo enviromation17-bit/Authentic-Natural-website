@@ -82,7 +82,26 @@
     const emphasis = document.createElement('em');
     emphasis.textContent = story[1];
     headline.appendChild(emphasis);
-    description.textContent = story[2];
+    // Highlight one meaningful phrase without parsing dynamic text as HTML.
+    const highlightPhrases = [
+      'daily-care essential','botanical inspiration','routine that feels like your own',
+      'nourish and condition','everyday care','consistent routine',
+      'quiet moments','botanicals','Hair Repair & Revive Growth Oil'
+    ];
+    const phrase = highlightPhrases[index] || '';
+    const position = phrase ? story[2].indexOf(phrase) : -1;
+    if (position < 0) {
+      description.textContent = story[2];
+    } else {
+      const accent = document.createElement('strong');
+      accent.className = 'copy-accent';
+      accent.textContent = phrase;
+      description.replaceChildren(
+        document.createTextNode(story[2].slice(0,position)),
+        accent,
+        document.createTextNode(story[2].slice(position+phrase.length))
+      );
+    }
     stage.dataset.story = String(index+1);
     const mobileNow = window.matchMedia('(max-width: 900px)').matches;
     gsap.fromTo(headline,{autoAlpha:0,x:mobileNow?0:(reverse?22:-22),y:mobileNow?14:0},
