@@ -12,8 +12,12 @@
   if (motion.matches) return;
 
   const lightMobile = window.matchMedia('(max-width: 900px)').matches;
-  // Three representative frames on phones: avoids decoding seven 1408×1760 images.
-  const paths = (lightMobile ? [1,4,8] : [1,2,3,4,5,6,8]).map(n => 'public/assets/process-' + String(n).padStart(2,'0') + '.png');
+  // Append two verified existing photos after the seven sequence frames.
+  // Keep a smaller set of representative photographs on phones for performance.
+  const processPath = n => 'public/assets/process-' + String(n).padStart(2,'0') + '.png';
+  const paths = lightMobile
+    ? [processPath(1), processPath(4), processPath(8), 'public/assets/botanicals.png', 'public/assets/ritual.png']
+    : [1,2,3,4,5,6,8].map(processPath).concat(['public/assets/botanicals.png', 'public/assets/ritual.png']);
   const base = document.getElementById('scrub-current');
   const next = document.getElementById('scrub-next');
   const fill = document.getElementById('scrub-progress-fill');
@@ -90,11 +94,11 @@
     const trigger = window.ScrollTrigger.create({
       trigger:stage,
       start:'top top',
-      end:()=>'+='+Math.max(lightMobile ? 650 : 1000, Math.round(window.innerHeight*(lightMobile ? 1.8 : 3.3))),
+      end:()=>'+='+Math.max(lightMobile ? 1100 : 1900, Math.round(window.innerHeight*(lightMobile ? 2.4 : 4.5))),
       pin:stage,
       pinSpacing:true,
       pinType:'fixed',
-      scrub:lightMobile ? 0.12 : true,
+      scrub:lightMobile ? .18 : .32,
       anticipatePin:1,
       fastScrollEnd:true,
       invalidateOnRefresh:true,
