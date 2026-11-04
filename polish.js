@@ -96,26 +96,27 @@
     start();
   }
 
-  /* Ritual steps autoplay */
   function setupRitualAutoplay() {
-    var buttons = document.querySelectorAll('.usage-nav [data-step]');
     var section = document.getElementById('ritual');
-    var track = document.getElementById('usage-panels');
-    if (!buttons.length) return;
-
+    var total = 6;
     var step = 0;
     var timer = null;
-    var total = buttons.length;
+    var manual = false;
+
+    function setter() {
+      return window.setUsageStep || window.showUsageStep || null;
+    }
 
     function go(i) {
+      var fn = setter();
+      if (!fn) return;
       step = ((i % total) + total) % total;
-      var btn = buttons[step];
-      if (btn) btn.click();
+      fn(step);
     }
 
     function start() {
       stop();
-      if (reduceMotion) return;
+      if (reduceMotion || manual) return;
       timer = setInterval(function () {
         go(step + 1);
       }, 5200);
@@ -126,39 +127,43 @@
       timer = null;
     }
 
-    buttons.forEach(function (b) {
-      b.addEventListener('click', function () {
-        step = Number(b.getAttribute('data-step')) || 0;
-        // restart timer after manual pick
-        start();
+    document.querySelectorAll('.usage-nav [data-step], #usage-prev, #usage-next').forEach(function (el) {
+      el.addEventListener('click', function () {
+        step = typeof window.usageStep === 'number' ? window.usageStep : step;
+        stop();
+        manual = true;
+        setTimeout(function () {
+          manual = false;
+          start();
+        }, 8000);
       });
     });
 
-    var prev = document.getElementById('usage-prev');
-    var next = document.getElementById('usage-next');
-    if (prev) prev.addEventListener('click', function () { start(); });
-    if (next) next.addEventListener('click', function () { start(); });
-
     if (section) {
       section.addEventListener('mouseenter', stop);
-      section.addEventListener('mouseleave', start);
-      section.addEventListener('touchstart', function () { stop(); }, { passive: true });
+      section.addEventListener('mouseleave', function () {
+        if (!manual) start();
+      });
     }
 
-    // only autoplay while ritual is near viewport
-    if ('IntersectionObserver' in window && section) {
-      var visible = false;
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          visible = entry.isIntersecting;
-          if (visible) start();
-          else stop();
-        });
-      }, { threshold: 0.2 });
-      io.observe(section);
-    } else {
-      start();
+    function tryStart() {
+      if (!setter()) {
+        setTimeout(tryStart, 80);
+        return;
+      }
+      if ('IntersectionObserver' in window && section) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) start();
+            else stop();
+          });
+        }, { threshold: 0.25 });
+        io.observe(section);
+      } else {
+        start();
+      }
     }
+    tryStart();
   }
 
   function setupAmbient() {
