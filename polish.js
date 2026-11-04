@@ -386,7 +386,7 @@
     setupWordShift();
     setupHeroSlider();
     setupRitualAutoplay();
-    setupFooterLeaves();
+    // Keep the brand footer still and readable; floating leaves overlap its columns.
     setupParallax();
     setupReveals();
     watchIngredientGrid();
