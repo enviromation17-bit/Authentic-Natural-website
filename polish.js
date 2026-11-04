@@ -265,7 +265,11 @@
         if (far) far.style.transform = 'translate3d(0,' + Math.min(clamped * speedFar, maxY * 0.5) + 'px,0)';
         if (mid) mid.style.transform = 'translate3d(0,' + Math.min(clamped * speedMid, maxY * 0.7) + 'px,0)';
         if (near) near.style.transform = 'translate3d(0,' + (-Math.min(clamped * speedNear * 0.5, maxY * 0.4)) + 'px,0)';
-        if (!isMobile && y < 700) {
+        // GSAP owns the new hero stage. Never apply competing scroll transforms.
+        if (document.documentElement.classList.contains('has-gsap-hero')) {
+          if (heroCopy) heroCopy.style.transform = '';
+          if (heroSlider) heroSlider.style.transform = '';
+        } else if (!isMobile && y < 700) {
           if (heroCopy) heroCopy.style.transform = 'translate3d(0,' + (clamped * 0.06) + 'px,0)';
           if (heroSlider) heroSlider.style.transform = 'translate3d(0,' + (clamped * 0.03) + 'px,0)';
         } else {
