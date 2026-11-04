@@ -1,9 +1,31 @@
 'use strict';
-/* Clean premium ambient: leaves + soft glow + scroll parallax + hero slider */
+/* Smooth scroll anchors + multi-layer parallax + premium ambient + hero slider */
 (function () {
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var mqMobile = window.matchMedia ? window.matchMedia('(max-width: 720px)') : null;
   var isMobile = mqMobile ? mqMobile.matches : false;
+
+  /* Smooth anchor navigation */
+  function setupSmoothScroll() {
+    document.documentElement.style.scrollBehavior = reduceMotion ? 'auto' : 'smooth';
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = a.getAttribute('href');
+      if (!id || id === '#') return;
+      var target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      var header = document.querySelector('.header');
+      var offset = header ? header.offsetHeight + 12 : 80;
+      var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({
+        top: top,
+        behavior: reduceMotion ? 'auto' : 'smooth'
+      });
+    });
+  }
 
   function setupWordShift() {
     var h1 = document.getElementById('hero-title');
@@ -86,7 +108,15 @@
     layer.className = 'ambient-nature' + (isMobile ? ' is-mobile' : ' is-desktop');
     layer.setAttribute('aria-hidden', 'true');
 
-    // Soft brand glow orbs
+    // Depth layers for parallax
+    var far = document.createElement('div');
+    far.className = 'parallax-layer parallax-far';
+    var mid = document.createElement('div');
+    mid.className = 'parallax-layer parallax-mid';
+    var near = document.createElement('div');
+    near.className = 'parallax-layer parallax-near';
+
+    // Soft orbs in far layer
     var orbs = document.createElement('div');
     orbs.className = 'ambient-orbs';
     for (var o = 1; o <= 3; o++) {
@@ -94,11 +124,21 @@
       orb.className = 'ambient-orb ambient-orb-' + o;
       orbs.appendChild(orb);
     }
-    layer.appendChild(orbs);
+    far.appendChild(orbs);
 
-    // Leaves — optimized counts
+    // Soft botanical vignette shapes in mid
+    var shapes = document.createElement('div');
+    shapes.className = 'ambient-shapes';
+    for (var s = 1; s <= 4; s++) {
+      var sh = document.createElement('span');
+      sh.className = 'ambient-shape ambient-shape-' + s;
+      shapes.appendChild(sh);
+    }
+    mid.appendChild(shapes);
+
+    // Leaves in near layer
     if (!reduceMotion) {
-      var count = isMobile ? 8 : 14;
+      var count = isMobile ? 8 : 15;
       var paths = [
         'M12 2C8 8 4 12 12 22C20 12 16 8 12 2Z',
         'M10 3C6 9 3 14 12 21C18 13 16 7 10 3Z',
@@ -117,19 +157,20 @@
         path.setAttribute('d', paths[i % paths.length]);
         path.setAttribute('fill', colors[i % colors.length]);
         leaf.appendChild(path);
-
-        var left = Math.random() * 100;
-        leaf.style.left = left + '%';
-        leaf.style.bottom = (-8 - Math.random() * 20) + '%';
-        leaf.style.setProperty('--delay', (Math.random() * 14).toFixed(1) + 's');
-        leaf.style.setProperty('--dur', (12 + Math.random() * 14).toFixed(1) + 's');
-        leaf.style.setProperty('--x', ((Math.random() - 0.5) * 80).toFixed(0) + 'px');
-        leaf.style.setProperty('--rot', (80 + Math.random() * 200).toFixed(0) + 'deg');
-        leaf.style.setProperty('--op', (0.22 + Math.random() * 0.28).toFixed(2));
-        layer.appendChild(leaf);
+        leaf.style.left = Math.random() * 100 + '%';
+        leaf.style.bottom = (-10 - Math.random() * 25) + '%';
+        leaf.style.setProperty('--delay', (Math.random() * 16).toFixed(1) + 's');
+        leaf.style.setProperty('--dur', (14 + Math.random() * 16).toFixed(1) + 's');
+        leaf.style.setProperty('--x', ((Math.random() - 0.5) * 90).toFixed(0) + 'px');
+        leaf.style.setProperty('--rot', (90 + Math.random() * 220).toFixed(0) + 'deg');
+        leaf.style.setProperty('--op', (0.2 + Math.random() * 0.3).toFixed(2));
+        near.appendChild(leaf);
       }
     }
 
+    layer.appendChild(far);
+    layer.appendChild(mid);
+    layer.appendChild(near);
     document.body.prepend(layer);
 
     if (mqMobile) {
@@ -141,31 +182,53 @@
     }
   }
 
-  function setupScrollParallax() {
+  /* Multi-layer parallax on scroll */
+  function setupParallax() {
     if (reduceMotion) return;
-    var layer = document.querySelector('.ambient-nature');
-    if (!layer) return;
+
+    var far = document.querySelector('.parallax-far');
+    var mid = document.querySelector('.parallax-mid');
+    var near = document.querySelector('.parallax-near');
+    var heroCopy = document.querySelector('.hero-copy');
+    var heroSlider = document.querySelector('.hero-slider, .hero-photo');
     var ticking = false;
-    var maxShift = isMobile ? 60 : 120;
+
+    var speedFar = isMobile ? 0.04 : 0.08;
+    var speedMid = isMobile ? 0.07 : 0.14;
+    var speedNear = isMobile ? 0.1 : 0.2;
+    var maxY = isMobile ? 80 : 160;
 
     function onScroll() {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(function () {
         var y = window.scrollY || 0;
-        var shift = Math.min(y * (isMobile ? 0.06 : 0.1), maxShift);
-        layer.style.transform = 'translate3d(0,' + (-shift) + 'px,0)';
+        var clamped = Math.min(y, 1200);
+
+        if (far) far.style.transform = 'translate3d(0,' + Math.min(clamped * speedFar, maxY * 0.5) + 'px,0)';
+        if (mid) mid.style.transform = 'translate3d(0,' + Math.min(clamped * speedMid, maxY * 0.7) + 'px,0)';
+        if (near) near.style.transform = 'translate3d(0,' + (-Math.min(clamped * speedNear * 0.5, maxY * 0.4)) + 'px,0)';
+
+        // Hero content slight opposing parallax (desktop only)
+        if (!isMobile && y < 700) {
+          if (heroCopy) heroCopy.style.transform = 'translate3d(0,' + (clamped * 0.06) + 'px,0)';
+          if (heroSlider) heroSlider.style.transform = 'translate3d(0,' + (clamped * 0.03) + 'px,0)';
+        } else {
+          if (heroCopy) heroCopy.style.transform = '';
+          if (heroSlider) heroSlider.style.transform = '';
+        }
+
         ticking = false;
       });
     }
+
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
   }
 
   function setupFooterLeaves() {
     var footer = document.querySelector('.site-footer');
-    if (!footer || footer.querySelector('.leaf-field')) return;
-    if (reduceMotion) return;
+    if (!footer || footer.querySelector('.leaf-field') || reduceMotion) return;
     var field = document.createElement('div');
     field.className = 'leaf-field';
     field.setAttribute('aria-hidden', 'true');
@@ -194,11 +257,12 @@
   }
 
   function start() {
+    setupSmoothScroll();
     setupAmbient();
     setupWordShift();
     setupHeroSlider();
     setupFooterLeaves();
-    setupScrollParallax();
+    setupParallax();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();

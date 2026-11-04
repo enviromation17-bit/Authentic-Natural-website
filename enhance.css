@@ -1,92 +1,36 @@
-/* Premium clean ambient — leaves + soft glow + mobile-safe motion */
+/* Smooth feel + multi-layer parallax background */
 
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:100px
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+}
+
+/* Ambient stack */
 .ambient-nature{
   position:fixed;
   inset:0;
   z-index:0;
   pointer-events:none;
-  overflow:hidden;
-  transform:translate3d(0,0,0);
-  will-change:transform
-}
-
-/* Soft sage orbs */
-.ambient-orbs{
-  position:absolute;
-  inset:-20%;
   overflow:hidden
 }
-.ambient-orb{
+.parallax-layer{
   position:absolute;
-  border-radius:50%;
-  filter:blur(64px);
-  opacity:.45;
-  animation:orb-move 22s ease-in-out infinite alternate;
+  inset:0;
+  will-change:transform;
   transform:translate3d(0,0,0)
 }
-.ambient-orb-1{
-  width:min(52vw,460px);
-  height:min(52vw,460px);
-  left:-12%;
-  top:5%;
-  background:radial-gradient(circle,rgba(122,154,92,.38),transparent 68%);
-  animation-duration:26s
-}
-.ambient-orb-2{
-  width:min(42vw,380px);
-  height:min(42vw,380px);
-  right:-10%;
-  top:28%;
-  background:radial-gradient(circle,rgba(184,201,154,.42),transparent 68%);
-  animation-duration:20s;
-  animation-delay:-5s
-}
-.ambient-orb-3{
-  width:min(48vw,400px);
-  height:min(48vw,400px);
-  left:28%;
-  bottom:-5%;
-  background:radial-gradient(circle,rgba(37,60,41,.12),transparent 68%);
-  animation-duration:28s;
-  animation-delay:-11s
-}
-@keyframes orb-move{
-  0%{transform:translate3d(0,0,0) scale(1)}
-  100%{transform:translate3d(24px,-32px,0) scale(1.06)}
-}
 
-/* Floating leaves — rise from bottom */
-.ambient-leaf{
-  position:absolute;
-  opacity:var(--op,.3);
-  animation-name:leaf-rise;
-  animation-duration:var(--dur,16s);
-  animation-delay:var(--delay,0s);
-  animation-timing-function:linear;
-  animation-iteration-count:infinite;
-  filter:drop-shadow(0 1px 3px rgba(37,60,41,.12));
-  transform:translate3d(0,0,0);
-  will-change:transform,opacity
-}
-@keyframes leaf-rise{
-  0%{
-    transform:translate3d(0,0,0) rotate(0deg);
-    opacity:0
-  }
-  8%{
-    opacity:var(--op,.3)
-  }
-  100%{
-    transform:translate3d(var(--x,20px),-110vh,0) rotate(var(--rot,160deg));
-    opacity:0
-  }
-}
-
+/* Soft sage background base */
 body{
   position:relative;
   background:
-    radial-gradient(ellipse 90% 50% at 50% -10%, rgba(122,154,92,.1), transparent 55%),
-    linear-gradient(180deg, #f8f6f0 0%, #f3f0e8 45%, #eef2e9 100%)!important
+    radial-gradient(ellipse 100% 60% at 50% -15%, rgba(122,154,92,.14), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 100% 20%, rgba(184,201,154,.12), transparent 50%),
+    radial-gradient(ellipse 40% 35% at 0% 70%, rgba(37,60,41,.06), transparent 45%),
+    linear-gradient(180deg, #f9f7f1 0%, #f3f0e8 40%, #eef2e9 100%)!important
 }
 body > *:not(.ambient-nature){
   position:relative;
@@ -94,28 +38,112 @@ body > *:not(.ambient-nature){
 }
 .header{z-index:50!important}
 
+/* Far: soft glowing orbs */
+.ambient-orbs{
+  position:absolute;
+  inset:-25%;
+  overflow:hidden
+}
+.ambient-orb{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(70px);
+  opacity:.5;
+  animation:orb-move 24s ease-in-out infinite alternate;
+  transform:translate3d(0,0,0)
+}
+.ambient-orb-1{
+  width:min(55vw,500px);height:min(55vw,500px);
+  left:-14%;top:0;
+  background:radial-gradient(circle,rgba(122,154,92,.42),transparent 70%);
+  animation-duration:28s
+}
+.ambient-orb-2{
+  width:min(44vw,400px);height:min(44vw,400px);
+  right:-12%;top:30%;
+  background:radial-gradient(circle,rgba(184,201,154,.48),transparent 70%);
+  animation-duration:22s;animation-delay:-6s
+}
+.ambient-orb-3{
+  width:min(50vw,440px);height:min(50vw,440px);
+  left:30%;bottom:-8%;
+  background:radial-gradient(circle,rgba(37,60,41,.14),transparent 70%);
+  animation-duration:30s;animation-delay:-12s
+}
+@keyframes orb-move{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  100%{transform:translate3d(28px,-36px,0) scale(1.07)}
+}
+
+/* Mid: soft botanical blobs */
+.ambient-shapes{
+  position:absolute;
+  inset:0
+}
+.ambient-shape{
+  position:absolute;
+  border-radius:40% 60% 55% 45% / 50% 40% 60% 50%;
+  opacity:.07;
+  background:#7a9a5c;
+  filter:blur(40px);
+  animation:shape-drift 30s ease-in-out infinite alternate
+}
+.ambient-shape-1{width:280px;height:220px;left:5%;top:15%;animation-duration:26s}
+.ambient-shape-2{width:200px;height:260px;right:8%;top:45%;background:#9bb87e;animation-duration:32s;animation-delay:-8s}
+.ambient-shape-3{width:240px;height:180px;left:40%;bottom:20%;background:#b8c99a;animation-duration:28s;animation-delay:-4s}
+.ambient-shape-4{width:160px;height:200px;right:25%;top:10%;background:#8fad70;animation-duration:34s;animation-delay:-14s}
+@keyframes shape-drift{
+  0%{transform:translate3d(0,0,0) rotate(0deg)}
+  100%{transform:translate3d(20px,-24px,0) rotate(12deg)}
+}
+
+/* Near: floating leaves */
+.ambient-leaf{
+  position:absolute;
+  opacity:var(--op,.28);
+  animation-name:leaf-rise;
+  animation-duration:var(--dur,16s);
+  animation-delay:var(--delay,0s);
+  animation-timing-function:linear;
+  animation-iteration-count:infinite;
+  filter:drop-shadow(0 1px 3px rgba(37,60,41,.1));
+  transform:translate3d(0,0,0);
+  will-change:transform,opacity
+}
+@keyframes leaf-rise{
+  0%{transform:translate3d(0,0,0) rotate(0deg);opacity:0}
+  8%{opacity:var(--op,.28)}
+  100%{transform:translate3d(var(--x,20px),-115vh,0) rotate(var(--rot,160deg));opacity:0}
+}
+
 /* Hero */
 .hero{
   position:relative!important;
-  background:transparent!important
+  background:transparent!important;
+  overflow:visible!important
 }
-.hero-copy{position:relative;z-index:2}
+.hero-copy{
+  position:relative;
+  z-index:2;
+  will-change:transform;
+  transition:transform .15s linear
+}
 .hero-photo,
 .hero-slider{
   position:relative!important;
   z-index:2!important;
+  will-change:transform;
   padding:18px 14px 10px!important;
   display:flex!important;
   flex-direction:column!important;
   align-items:center!important;
   justify-content:center!important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.75) 0%, rgba(255,255,255,.42) 100%)!important;
-  border:1px solid rgba(255,255,255,.85)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.45) 100%)!important;
+  border:1px solid rgba(255,255,255,.88)!important;
   border-radius:26px!important;
-  box-shadow:0 28px 56px rgba(37,60,41,.11), inset 0 1px 0 #fff!important;
-  backdrop-filter:blur(14px) saturate(140%)!important;
-  -webkit-backdrop-filter:blur(14px) saturate(140%)!important;
+  box-shadow:0 28px 56px rgba(37,60,41,.11),inset 0 1px 0 #fff!important;
+  backdrop-filter:blur(16px) saturate(150%)!important;
+  -webkit-backdrop-filter:blur(16px) saturate(150%)!important;
   width:100%!important;
   max-width:540px!important;
   margin:20px auto!important
@@ -133,7 +161,7 @@ body > *:not(.ambient-nature){
   margin:0!important;
   opacity:0!important;
   transform:translate3d(28px,0,0) scale(.98)!important;
-  transition:opacity .6s ease, transform .6s ease!important;
+  transition:opacity .6s ease,transform .6s ease!important;
   pointer-events:none!important;
   display:flex!important;
   align-items:center!important;
@@ -155,7 +183,7 @@ body > *:not(.ambient-nature){
 }
 .hero-slider .photo-caption{
   margin-top:12px!important;
-  background:rgba(255,255,255,.82)!important;
+  background:rgba(255,255,255,.84)!important;
   backdrop-filter:blur(12px)!important;
   border-radius:999px!important;
   padding:8px 16px!important;
@@ -203,7 +231,7 @@ body > *:not(.ambient-nature){
   flex-direction:column!important;
   overflow:hidden!important;
   margin:0!important;padding:0!important;
-  background:rgba(255,255,255,.94)!important;
+  background:rgba(255,255,255,.95)!important;
   border:1px solid rgba(37,60,41,.08)!important;
   border-radius:20px!important;
   box-shadow:0 10px 28px rgba(37,60,41,.07)!important;
@@ -274,12 +302,12 @@ body > *:not(.ambient-nature){
 .cart-item img{width:70px!important;height:78px!important;object-fit:contain!important}
 
 .header{
-  background:rgba(247,245,239,.86)!important;
+  background:rgba(247,245,239,.88)!important;
   backdrop-filter:blur(18px)!important;
   border-bottom:1px solid rgba(37,60,41,.06)!important
 }
 .filters button,.usage-nav button,.usage-pagination button,.search-label input,.tags span{
-  background:rgba(255,255,255,.8)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,.85)!important
+  background:rgba(255,255,255,.82)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,.88)!important
 }
 .bag,.filters button.active,.usage-nav button[aria-pressed=true]{background:rgba(37,60,41,.92)!important;color:#fff!important}
 
@@ -327,34 +355,32 @@ body > *:not(.ambient-nature){
 .footer-main h3{font-size:11px!important;letter-spacing:.12em!important;text-transform:uppercase!important;color:#a8b896!important}
 .footer-bottom{display:flex!important;flex-wrap:wrap!important;justify-content:space-between!important;gap:10px!important;padding:16px 0 6px!important;border-top:1px solid rgba(255,255,255,.08)!important;font-size:12px!important;color:rgba(232,239,228,.5)!important}
 
-/* Mobile fixes */
 @media(max-width:900px){
   .video-section{grid-template-columns:1fr!important}
   .footer-main{grid-template-columns:1fr 1fr!important}
 }
 @media(max-width:720px){
-  .ambient-orb{filter:blur(48px);opacity:.32}
-  .ambient-orb-1{width:70vw;height:70vw}
-  .ambient-orb-2{width:55vw;height:55vw}
-  .ambient-orb-3{width:60vw;height:60vw}
+  .ambient-orb{filter:blur(48px);opacity:.34}
+  .ambient-shape{opacity:.05;filter:blur(28px)}
   .hero{grid-template-columns:1fr!important}
   .hero-slider{max-width:100%!important;margin:12px auto!important;padding:12px 10px 8px!important}
   .hero-slides{min-height:min(42vh,320px)!important}
   .hero-slide img{max-width:min(100%,300px)!important;max-height:38vh!important}
+  .hero-copy,.hero-slider{will-change:auto;transition:none}
   .product.section,.product{grid-template-columns:1fr!important}
   .ingredient-grid{grid-template-columns:1fr 1fr!important;gap:12px!important}
   .ingredient-card .ingredient-media{height:120px!important;flex-basis:120px!important}
   .footer-main{grid-template-columns:1fr!important}
   #ingredient-detail-image{height:170px!important}
-  .hero-slider-controls{gap:10px!important}
   .hero-prev,.hero-next{width:36px!important;height:36px!important;font-size:20px!important}
 }
 @media(max-width:420px){
   .ingredient-grid{grid-template-columns:1fr!important}
 }
 @media(prefers-reduced-motion:reduce){
-  .ambient-leaf,.ambient-orb,.footer-leaf,.hero-slide,.ingredient-card{
+  .ambient-leaf,.ambient-orb,.ambient-shape,.footer-leaf,.hero-slide,.ingredient-card{
     animation:none!important;transition:none!important
   }
   .ambient-leaf{display:none!important}
+  .parallax-layer{transform:none!important}
 }
