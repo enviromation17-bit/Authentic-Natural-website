@@ -99,7 +99,8 @@
     // Load only the frames needed immediately; prefetch their neighbours.
     preload(lower);
     preload(upper);
-    if (lower+2 < frames.length) preload(lower+2);
+    // On phones, limit speculative decoding to the immediate next frame.
+    if (!mobile && lower+2 < frames.length) preload(lower+2);
 
     const displayIndex = ready.has(lower) ? lower : currentIndex;
     if (displayIndex >= 0 && displayIndex !== currentIndex) {
@@ -112,7 +113,8 @@
     } else {
       secondLayer.style.opacity = '0';
     }
-    progressFill.style.width = (p*100).toFixed(3) + '%';
+    // Composite-only progress animation: no repeated width/layout calculations.
+    progressFill.style.transform = 'scaleX(' + p.toFixed(4) + ')';
     progressCount.textContent = String(lower+1).padStart(2,'0') + ' / ' + String(frames.length).padStart(2,'0');
     showStory(lower);
   }
@@ -139,7 +141,7 @@
       pinSpacing:true,
       anticipatePin:1,
       invalidateOnRefresh:true,
-      scrub:0.2,
+      scrub:mobile ? 0.12 : 0.2,
       onUpdate:self=>render(self.progress),
       onRefresh:self=>render(self.progress)
     });
