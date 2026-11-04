@@ -8,6 +8,8 @@
   }
 
   function start() {
+    // Native touch scrolling should never be wheel-trapped or pinned by this legacy script.
+    if (window.matchMedia('(max-width: 900px), (prefers-reduced-motion: reduce)').matches) return;
     var section = document.getElementById('ritual');
     if (!section || section.dataset.scrubReady) return;
     var setter = getSetter();
