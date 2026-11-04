@@ -81,13 +81,18 @@
     hero.classList.remove('reveal');
     hero.classList.add('gsap-hero-enabled');
     hero.style.removeProperty('transform');
+    // Older site styles use 'position:relative !important' on .hero.
+    // Pin the dedicated child stage instead, so GSAP can actually use position:fixed.
+    stage.style.willChange = 'auto';
 
     const trigger = window.ScrollTrigger.create({
-      trigger:hero,
+      trigger:stage,
       start:'top top',
-      end:()=>'+='+Math.max(900,Math.round(window.innerHeight*3.25)),
-      pin:true,
-      scrub:.35,
+      end:()=>'+='+Math.max(1000,Math.round(window.innerHeight*3.3)),
+      pin:stage,
+      pinSpacing:true,
+      pinType:'fixed',
+      scrub:true,
       anticipatePin:1,
       invalidateOnRefresh:true,
       onUpdate:self=>render(self.progress),
@@ -95,8 +100,8 @@
     });
 
     // Keep large images crisp, with no automatic autoplay or forced zoom.
-    window.addEventListener('pageshow',()=>{trigger.refresh();render(trigger.progress);});
-    window.addEventListener('load',()=>window.ScrollTrigger.refresh(),{once:true});
-    window.ScrollTrigger.refresh();
+    window.addEventListener('pageshow',()=>{window.ScrollTrigger.refresh(true);render(trigger.progress);});
+    window.addEventListener('load',()=>window.ScrollTrigger.refresh(true),{once:true});
+    window.ScrollTrigger.refresh(true);
   }).catch(()=>{/* Original hero stays visible on failure. */});
 })();
