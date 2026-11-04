@@ -8,8 +8,8 @@
   <link rel="icon" href="public/assets/logo-transparent.png">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="enhance.css">
-  <script src="app.js" defer></script><script src="scrub.js" defer></script><script src="product360.js" defer></script><script src="polish.js" defer></script>
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="enhance.css"><link rel="stylesheet" href="hero-scrub.css">
+  <script src="app.js" defer></script><script src="scrub.js" defer></script><script src="product360.js" defer></script><script src="polish.js" defer></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js" defer></script><script src="hero-scrub.js" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -22,6 +22,21 @@
 <nav class="mobile-nav" aria-label="Mobile navigation"><a href="#shop">Shop</a><a href="#ingredients">Ingredients</a><a href="#ritual">How to use</a><a href="#story">Our story</a></nav>
 <main id="main">
   <section class="hero" aria-labelledby="hero-title">
+    <div id="gsap-hero-stage" class="hero-scrub-stage" aria-label="Scroll through the Authentic Naturals product story">
+      <div class="scrub-copy">
+        <span class="scrub-kicker">AUTHENTIC NATURALS · BOTANICAL HAIR CARE</span>
+        <h2 id="scrub-title" class="scrub-title">Give your hair <em>a little more care.</em></h2>
+        <p id="scrub-description" class="scrub-description">Discover our Hair Repair &amp; Revive Growth Oil, created for an everyday conditioning ritual.</p>
+        <a class="scrub-cta" href="#shop">Explore the hair oil <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="scrub-art" aria-label="Authentic Naturals product story frames">
+        <img id="scrub-current" class="scrub-frame" src="public/assets/process-01.png" alt="Authentic Naturals product story image sequence" width="1408" height="1760" decoding="async">
+        <img id="scrub-next" class="scrub-frame scrub-next" src="public/assets/process-02.png" alt="" aria-hidden="true" width="1408" height="1760" decoding="async">
+      </div>
+      <span id="scrub-frame-counter" class="scrub-counter" aria-live="off">01 / 07</span>
+      <span class="scrub-hint">Scroll to discover the story</span>
+      <div class="scrub-progress" aria-hidden="true"><span class="scrub-progress-fill" id="scrub-progress-fill"></span></div>
+    </div>
     <div class="hero-copy"><p class="eyebrow">NATURAL CARE FOR YOUR EVERYDAY ROUTINE</p><h1 id="hero-title">Give your hair<br><em>a little more care.</em></h1><p>Dry ends? Frizz that won’t settle? Make time for a little nourishment with our blend of oils and botanicals. Simple hair care at a price that feels right.</p><a class="button" href="#shop">Take a closer look <span aria-hidden="true">↗</span></a><div class="hero-note">❧ Creating value through natural purity.</div></div>
     <div class="hero-photo hero-slider" id="hero-slider" aria-roledescription="carousel" aria-label="Product photos">
       <div class="hero-slides">
