@@ -52,3 +52,14 @@ html.has-gsap-hero .hero-scrub-stage{
  html.has-gsap-hero .hero>.hero-copy,html.has-gsap-hero .hero>.hero-photo{display:flex!important}
  html.has-gsap-hero .hero-scrub-stage{display:none!important}
 }
+
+
+/* GSAP owns the pin and interpolation: do not let CSS smooth scrolling fight it. */
+html.has-gsap-hero,html.has-gsap-hero body{scroll-behavior:auto!important}
+html.has-gsap-hero .hero.gsap-hero-enabled{transform:none!important;transition:none!important;animation:none!important}
+html.has-gsap-hero .hero-scrub-stage{
+  transform:none;transition:none;animation:none;
+  backface-visibility:visible;
+}
+html.has-gsap-hero .hero-scrub-stage .scrub-copy{will-change:auto}
+html.has-gsap-hero .hero-scrub-stage .scrub-frame{transform:none;transition:none}
