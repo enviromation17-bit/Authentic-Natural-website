@@ -1,60 +1,13 @@
+/* Authentic Naturals static storefront */
 'use strict';
-const $ = (s) => document.querySelector(s);
-const price = 1499;
-const storageKey = 'authentic-naturals-bag-v1';
-const clamp = (n) => Math.max(0, Math.min(20, Number.isFinite(Number(n)) ? Math.trunc(Number(n)) : 0));
-let bag = 0;
-try { bag = clamp(localStorage.getItem(storageKey)); } catch {}
-let quantity = 1;
-const money = (n) => 'Rs. ' + n.toLocaleString('en-PK');
-let toastTimer;
-function toast(message) { $('#toast').textContent = message; $('#toast').classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').classList.remove('visible'), 3000); }
-function renderBag() {
-  $('#bag-count').textContent = String(bag);
-  $('#empty-bag').hidden = bag > 0;
-  $('#filled-bag').hidden = bag === 0;
-  $('#cart-quantity').textContent = String(bag);
-  $('#subtotal').textContent = money(bag * price);
-  $('#total').textContent = money(bag * price);
-  $('#cart-plus').disabled = bag >= 20;
-  try { localStorage.setItem(storageKey, String(bag)); } catch {}
-}
-function renderQuantity() {
-  $('#quantity').textContent = String(quantity);
-  $('#minus').disabled = quantity <= 1;
-  $('#plus').disabled = quantity >= 20;
-  const text = `Hello Authentic Naturals, I’d like to order ${quantity} ${quantity === 1 ? 'bottle' : 'bottles'} of Hair Repair & Revive Growth Oil, 100 ml. The total is ${money(quantity * price)} with free delivery across Pakistan. Please confirm availability and payment details.`;
-  $('#direct-whatsapp').href = 'https://wa.me/923248019501?text=' + encodeURIComponent(text);
-}
-$('#minus').addEventListener('click', () => { quantity = Math.max(1, quantity - 1); renderQuantity(); });
-$('#plus').addEventListener('click', () => { quantity = Math.min(20, quantity + 1); renderQuantity(); });
-$('#add-cart').addEventListener('click', () => { if (bag + quantity > 20) { toast('Your bag can hold up to 20 bottles. Contact us for larger orders.'); return; } bag += quantity; renderBag(); $('#cart-dialog').showModal(); });
-$('#open-cart').addEventListener('click', () => $('#cart-dialog').showModal());
-$('#cart-minus').addEventListener('click', () => { bag = clamp(bag - 1); renderBag(); });
-$('#cart-plus').addEventListener('click', () => { bag = clamp(bag + 1); renderBag(); });
-$('#remove-item').addEventListener('click', () => { bag = 0; renderBag(); $('#order-form').reset(); });
-document.querySelectorAll('[data-close]').forEach((button) => button.addEventListener('click', () => document.getElementById(button.dataset.close).close()));
-document.querySelectorAll('dialog').forEach((dialog) => dialog.addEventListener('click', (e) => { if (e.target === dialog) { const r = dialog.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close(); } }));
-document.querySelectorAll('.thumbs button').forEach((button) => button.addEventListener('click', () => {
-  document.querySelectorAll('.thumbs button').forEach((b) => { b.classList.remove('selected'); b.setAttribute('aria-pressed', 'false'); });
-  button.classList.add('selected'); button.setAttribute('aria-pressed', 'true');
-  $('#gallery-image').src = 'public/assets/' + button.dataset.image;
-  $('#gallery-image').alt = button.querySelector('img').alt;
-}));
-$('#zoom-image').addEventListener('click', () => { $('#large-image').src = $('#gallery-image').src; $('#large-image').alt = $('#gallery-image').alt; $('#image-dialog').classList.remove('original-size'); $('#toggle-image-size').textContent = 'Zoom to original size'; $('#toggle-image-size').setAttribute('aria-pressed', 'false'); $('#image-dialog').showModal(); });
-$('#toggle-image-size').addEventListener('click', () => { const full = $('#image-dialog').classList.toggle('original-size'); $('#toggle-image-size').textContent = full ? 'Fit photo to screen' : 'Zoom to original size'; $('#toggle-image-size').setAttribute('aria-pressed', String(full)); const pane = document.querySelector('.image-scroll'); pane.scrollLeft = full ? Math.max(0, 1254 * 0.36 - pane.clientWidth / 2) : 0; pane.scrollTop = full ? 420 : 0; });
-$('#privacy-open').addEventListener('click', () => $('#privacy-dialog').showModal());
-$('#clear-data').addEventListener('click', () => { bag = 0; renderBag(); try { localStorage.removeItem(storageKey); } catch {} $('#order-form').reset(); toast('Saved bag cleared.'); });
-$('#order-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  if (!bag || !event.currentTarget.reportValidity()) return;
-  const data = new FormData(event.currentTarget);
-  const clean = (key) => String(data.get(key) || '').trim().replace(/[\u0000-\u001f\u007f]/g, ' ');
-  if (['customer', 'phone', 'city', 'address'].some((key) => !clean(key))) { toast('Please complete your delivery details.'); return; }
-  const message = `Hello Authentic Naturals, I would like to request an order.\n\nHair Repair & Revive Growth Oil, 100 ml\nQuantity: ${bag}\nUnit price: ${money(price)}\nDelivery: Free across Pakistan\nTotal: ${money(bag * price)}\n\nName: ${clean('customer')}\nPhone: ${clean('phone')}\nCity: ${clean('city')}\nAddress: ${clean('address')}\nPreferred payment: ${clean('payment')}\n\nPlease confirm availability, delivery timing, payment instructions and return terms. I understand this is an order request awaiting your confirmation.`;
-  const url = 'https://wa.me/923248019501?text=' + encodeURIComponent(message);
-  window.open(url, '_blank', 'noopener,noreferrer');
-});
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+const PRICE = 1499;
+let qty = 1;
+let bagQty = Number(localStorage.getItem('an-bag') || 0);
+let filter = 'all';
+
 const ingredients = [
   ['Rosemary Oil', 'Supports scalp care and healthier looking hair.', 'scalp'],
   ['Peppermint Oil', 'A cooling sensation for a refreshed, clean feeling scalp.', 'scalp'],
@@ -69,158 +22,223 @@ const ingredients = [
   ['Rosehip Oil', 'Nourishes the scalp and helps improve softness.', 'scalp'],
   ['Onion Oil', 'Traditionally used to nourish roots and support stronger looking hair.', 'scalp'],
   ['Black Seed Oil', 'Traditionally valued for scalp nourishment and healthy looking hair.', 'scalp'],
-  ['Pumpkin Seed Oil', 'Contributes to scalp conditioning and a hair care routine.', 'scalp'],
-  ['Fenugreek Oil', 'Traditional nourishment for conditioned, stronger looking hair.', 'scalp'],
-  ['Amla Oil', 'A traditional Ayurvedic ingredient for shine and stronger looking hair.', 'softness'],
-  ['Sesame Oil', 'Conditions hair and supports moisture retention.', 'softness'],
-  ['Flaxseed Oil', 'Helps smooth strands, manage frizz and support shine.', 'softness'],
-  ['Egg Oil', 'Conditions and nourishes hair for a smoother looking texture.', 'softness'],
-  ['Garlic & Ginger Extracts', 'Traditionally used to support a nourished scalp care routine.', 'scalp'],
-  ['Curry Leaves', 'A traditional ingredient for hair and scalp nourishment.', 'scalp'],
-  ['Henna Leaves', 'Natural conditioning care for shine and smoothness.', 'softness'],
-  ['Cinnamon Oil', 'A warming sensory experience in scalp care routines.', 'scalp']
+  ['Pumpkin Seed Oil', 'Contributes conditioning support for softer strands.', 'softness'],
+  ['Fenugreek Oil', 'Supports scalp comfort and softer feeling hair.', 'scalp'],
+  ['Amla Oil', 'Traditional botanical care for healthier looking hair.', 'scalp'],
+  ['Sesame Oil', 'Helps condition and soften dry hair.', 'softness'],
+  ['Flaxseed Oil', 'Supports softness and manageable strands.', 'softness'],
+  ['Egg Oil', 'Traditional conditioning support for hair feel.', 'softness'],
+  ['Garlic & Ginger Extracts', 'Aromatic botanicals used in traditional hair rituals.', 'scalp'],
+  ['Curry Leaves', 'Botanical leaves used in traditional hair care preparations.', 'scalp'],
+  ['Henna Leaves', 'Traditional botanical for hair care rituals.', 'softness'],
+  ['Cinnamon Oil', 'Warm aromatic oil used in traditional scalp blends.', 'scalp']
 ];
-let filter = 'all';
+
+function money(n) {
+  return 'Rs. ' + Number(n).toLocaleString('en-PK');
+}
+function renderBag() {
+  $('#bag-count').textContent = String(bagQty);
+  const empty = $('#empty-bag');
+  const filled = $('#filled-bag');
+  if (bagQty <= 0) {
+    empty.hidden = false;
+    filled.hidden = true;
+    return;
+  }
+  empty.hidden = true;
+  filled.hidden = false;
+  $('#cart-quantity').textContent = String(bagQty);
+  $('#subtotal').textContent = money(bagQty * PRICE);
+  $('#total').textContent = money(bagQty * PRICE);
+}
+function renderQuantity() {
+  $('#quantity').textContent = String(qty);
+}
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
 function renderIngredients() {
-  const query = $('#ingredient-search').value.toLowerCase().trim();
-  const filtered = ingredients.filter(([name, , category]) => (filter === 'all' || category === filter) && name.toLowerCase().includes(query));
-  const grid = $('#ingredient-grid'); grid.replaceChildren();
+  const query = ($('#ingredient-search').value || '').trim().toLowerCase();
+  const filtered = ingredients.filter(([name, , tag]) => {
+    const matchFilter = filter === 'all' || tag === filter;
+    const matchQuery = !query || name.toLowerCase().includes(query);
+    return matchFilter && matchQuery;
+  });
+  const grid = $('#ingredient-grid');
+  grid.replaceChildren();
   filtered.forEach(([name, description], index) => {
-    const card = document.createElement('article'); card.className = 'ingredient-card';
-    const number = document.createElement('span'); number.textContent = String(index + 1).padStart(2, '0'); number.setAttribute('aria-hidden', 'true');
-    const title = document.createElement('h3'); title.textContent = name;
-    const p = document.createElement('p'); p.textContent = description;
+    const card = document.createElement('article');
+    card.className = 'ingredient-card';
+    const number = document.createElement('span');
+    number.textContent = String(index + 1).padStart(2, '0');
+    number.setAttribute('aria-hidden', 'true');
+    const title = document.createElement('h3');
+    title.textContent = name;
+    const p = document.createElement('p');
+    p.textContent = description;
     const details = document.createElement('button');
-    details.type = 'button'; details.className = 'ingredient-explore';
+    details.type = 'button';
+    details.className = 'ingredient-explore';
     details.textContent = 'Explore benefits ↗';
     details.setAttribute('aria-label', 'Explore ' + name + ' in hair care');
     details.addEventListener('click', () => openIngredientDetail(name, description));
-    card.addEventListener('click', (event) => { if (!event.target.closest('button')) openIngredientDetail(name, description); });
-    card.append(number, title, p, details); grid.append(card);
+    card.addEventListener('click', (event) => {
+      if (!event.target.closest('button')) openIngredientDetail(name, description);
+    });
+    card.append(number, title, p, details);
+    grid.append(card);
   });
-  $('#ingredient-count').textContent = filtered.length ? `${filtered.length} ingredient guides` : 'No matching ingredients. Try another name or choose all ingredients.';
+  $('#ingredient-count').textContent = filtered.length
+    ? `${filtered.length} ingredient guides`
+    : 'No matching ingredients. Try another name or choose all ingredients.';
 }
-const ingredientPhotoSet = {
-  rosemary: 'https://images.unsplash.com/photo-1582745741856-1a5d68158ba3?auto=format&fit=crop&w=950&q=80',
-  coconut: 'https://images.unsplash.com/photo-1646230153819-2f1a3651a6d4?auto=format&fit=crop&w=950&q=80',
-  oils: 'https://images.unsplash.com/photo-1781552163129-3643d42d84ab?auto=format&fit=crop&w=950&q=80'
+
+const ingredientPhotos = {
+  'Rosemary Oil': 'https://commons.wikimedia.org/wiki/Special:FilePath/Rosmarinus%20officinalis%20(1).jpg?width=800',
+  'Peppermint Oil': 'https://commons.wikimedia.org/wiki/Special:FilePath/Peppermint%20leaves%20with%20scale.jpg?width=800',
+  'Tea Tree Oil': 'https://commons.wikimedia.org/wiki/Special:FilePath/Melaleuca%20alternifolia%20flowers.jpg?width=800',
+  'Lavender Oil': 'https://commons.wikimedia.org/wiki/Special:FilePath/Lavender%20Field%20Provence%20France%20021.JPG?width=800',
+  'Castor Oil': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=950&q=80',
+  'Coconut Oil': 'https://images.unsplash.com/photo-1550505095-81378a674395?auto=format&fit=crop&w=950&q=80',
+  'Olive Oil': 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=950&q=80',
+  'Jojoba Oil': 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=950&q=80',
+  'Almond Oil': 'https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=950&q=80',
+  'Moringa Oil': 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=950&q=80',
+  'Rosehip Oil': 'https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=950&q=80',
+  'Onion Oil': 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?auto=format&fit=crop&w=950&q=80',
+  'Black Seed Oil': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=950&q=80',
+  'Pumpkin Seed Oil': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=950&q=80',
+  'Fenugreek Oil': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=950&q=80',
+  'Amla Oil': 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=950&q=80',
+  'Sesame Oil': 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=950&q=80',
+  'Flaxseed Oil': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=950&q=80',
+  'Egg Oil': 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=950&q=80',
+  'Garlic & Ginger Extracts': 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=950&q=80',
+  'Curry Leaves': 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=950&q=80',
+  'Henna Leaves': 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=950&q=80',
+  'Cinnamon Oil': 'https://images.unsplash.com/photo-1606914469633-bd39206ea739?auto=format&fit=crop&w=950&q=80'
 };
 function openIngredientDetail(name, description) {
   const ingredientDialog = document.getElementById('ingredient-dialog');
   const lower = name.toLowerCase();
-  let image = ingredientPhotoSet.oils;
-  if (lower.includes('rosemary') || lower.includes('mint') || lower.includes('herb')) image = ingredientPhotoSet.rosemary;
-  if (lower.includes('coconut')) image = ingredientPhotoSet.coconut;
+  const image = ingredientPhotos[name] || 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=950&q=80';
   document.getElementById('ingredient-detail-title').textContent = name;
   document.getElementById('ingredient-detail-benefit').textContent = description;
   document.getElementById('ingredient-detail-description').textContent =
     'In cosmetic hair care, ' + name.toLowerCase() + ' is featured as part of a botanical oil blend. ' +
     (lower.includes('coconut') ? 'Coconut oil is commonly used to condition hair and help reduce dryness.' :
     lower.includes('rosemary') ? 'Rosemary provides an aromatic botanical element. Research on hair growth is limited and does not establish that this finished blend grows hair.' :
+    lower.includes('almond') ? 'Almond oil is valued for its light conditioning feel and natural shine support.' :
+    lower.includes('olive') ? 'Olive oil is a classic conditioning oil used to soften dry hair and improve manageability.' :
+    lower.includes('lavender') ? 'Lavender adds a calming botanical aroma often used in scalp-care rituals.' :
     'The ingredient is included for traditional hair or scalp-care use; specific results are not guaranteed.');
   const photo = document.getElementById('ingredient-detail-image');
   photo.src = image;
-  photo.alt = lower.includes('rosemary') ? 'Illustrative photograph of rosemary herbs' : lower.includes('coconut') ? 'Illustrative photograph of fresh coconuts' : 'Illustrative photograph of botanical oil and herbs';
+  photo.alt = 'Photograph related to ' + name;
   ingredientDialog.showModal();
 }
+
 $('#ingredient-search').addEventListener('input', renderIngredients);
 document.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', () => {
   filter = button.dataset.filter;
-  document.querySelectorAll('[data-filter]').forEach((b) => { b.classList.toggle('active', b === button); b.setAttribute('aria-pressed', String(b === button)); });
+  document.querySelectorAll('[data-filter]').forEach((b) => {
+    b.classList.toggle('active', b === button);
+    b.setAttribute('aria-pressed', String(b === button));
+  });
   renderIngredients();
 }));
 $('#year').textContent = new Date().getFullYear();
-renderBag(); renderQuantity(); renderIngredients();
 
-let usageStep = 0;
-const ritualSection = document.getElementById('ritual');
-const ritualStage = ritualSection.querySelector('.ritual-sticky');
-const usageTrack = document.getElementById('usage-panels');
-const usagePanels = [...usageTrack.querySelectorAll('.usage-panel')];
-const usageButtons = [...document.querySelectorAll('[data-step]')];
-const usagePrev = document.getElementById('usage-prev');
-const usageNext = document.getElementById('usage-next');
-const usageStatus = document.getElementById('usage-status');
-const ritualProgressFill = document.getElementById('ritual-progress-fill');
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-let ritualFrame = 0;
-function updateUsageUI(index) {
-  usageStep = Math.max(0, Math.min(usagePanels.length - 1, index));
-  usageTrack.style.transform = 'translate3d(-' + (usageStep * 100) + '%,0,0)';
-  usageButtons.forEach((button,i) => button.setAttribute('aria-pressed', String(i === usageStep)));
-  usagePanels.forEach((panel,i) => {
-    panel.setAttribute('aria-hidden',String(i !== usageStep));
-    if ('inert' in panel) panel.inert = i !== usageStep;
-  });
-  usagePrev.disabled = usageStep === 0;
-  usageNext.disabled = usageStep === usagePanels.length - 1;
-  usageStatus.textContent = 'Step ' + (usageStep + 1) + ' of ' + usagePanels.length;
-  ritualProgressFill.style.width = ((usageStep+1) / usagePanels.length * 100) + '%';
-  const activeTab = usageButtons[usageStep];
-  const tabStrip = activeTab.parentElement;
-  if (tabStrip && tabStrip.scrollWidth > tabStrip.clientWidth) {
-    tabStrip.scrollTo({left: activeTab.offsetLeft - tabStrip.offsetLeft - tabStrip.clientWidth / 3, behavior:'instant'});
-  }
-}
-function ritualScrollRange() {
-  return Math.max(1, ritualSection.offsetHeight - ritualStage.offsetHeight);
-}
-function syncRitualToScroll() {
-  ritualFrame = 0;
-  if (reducedMotion.matches) return;
-  const progress = Math.max(0, Math.min(1, -ritualSection.getBoundingClientRect().top / ritualScrollRange()));
-  const index = Math.min(usagePanels.length - 1, Math.floor(progress * usagePanels.length));
-  if (index !== usageStep) updateUsageUI(index);
-}
-function requestRitualSync() {
-  if (!ritualFrame) ritualFrame = requestAnimationFrame(syncRitualToScroll);
-}
-function showUsageStep(index) {
-  const target = Math.max(0, Math.min(index, usagePanels.length - 1));
-  if (reducedMotion.matches) { updateUsageUI(target); return; }
-  const position = ritualSection.getBoundingClientRect().top + window.scrollY +
-    ritualScrollRange() * (target === usagePanels.length - 1 ? .99 : (target + .14) / usagePanels.length);
-  window.scrollTo({top:position,behavior:'smooth'});
-  updateUsageUI(target);
-}
-usageButtons.forEach((button,i) => button.addEventListener('click', () => showUsageStep(i)));
-usagePrev.addEventListener('click', () => showUsageStep(usageStep - 1));
-usageNext.addEventListener('click', () => showUsageStep(usageStep + 1));
-let gestureStartX=0, gestureStartY=0;
-usageTrack.addEventListener('touchstart',e => {
-  gestureStartX=e.changedTouches[0].clientX; gestureStartY=e.changedTouches[0].clientY;
-},{passive:true});
-usageTrack.addEventListener('touchend',e => {
-  const dx=gestureStartX-e.changedTouches[0].clientX;
-  const dy=gestureStartY-e.changedTouches[0].clientY;
-  if(Math.abs(dx)>45 && Math.abs(dx)>Math.abs(dy)*1.25) showUsageStep(usageStep+(dx>0?1:-1));
-},{passive:true});
-usageTrack.addEventListener('keydown',e => {
-  if(e.key==='ArrowRight'){e.preventDefault();showUsageStep(usageStep+1);}
-  if(e.key==='ArrowLeft'){e.preventDefault();showUsageStep(usageStep-1);}
+$('#plus').addEventListener('click', () => { qty = Math.min(10, qty + 1); renderQuantity(); });
+$('#minus').addEventListener('click', () => { qty = Math.max(1, qty - 1); renderQuantity(); });
+$('#add-cart').addEventListener('click', () => {
+  bagQty = Math.min(20, bagQty + qty);
+  localStorage.setItem('an-bag', String(bagQty));
+  renderBag();
+  toast('Added to bag');
 });
-window.addEventListener('scroll',requestRitualSync,{passive:true});
-window.addEventListener('resize',requestRitualSync,{passive:true});
-updateUsageUI(0);
-requestRitualSync();
-
-/* Lightweight progressive enhancement: reveal elements only when an observer is available.
-   The shopping bag, ingredient filters, and ritual carousel remain untouched. */
-(() => {
-  const motionAllowed = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!motionAllowed || !('IntersectionObserver' in window)) return;
-  const targets = document.querySelectorAll(
-    '.section-heading, .product-info, .gallery, .story-layout, .video-section > div, .faq > div, .footer-intro, .footer-main'
+$('#open-cart').addEventListener('click', () => $('#cart-dialog').showModal());
+$$('[data-close]').forEach((btn) => btn.addEventListener('click', () => {
+  const id = btn.getAttribute('data-close');
+  const el = document.getElementById(id);
+  if (el && el.close) el.close();
+}));
+$('#cart-plus') && $('#cart-plus').addEventListener('click', () => {
+  bagQty = Math.min(20, bagQty + 1);
+  localStorage.setItem('an-bag', String(bagQty));
+  renderBag();
+});
+$('#cart-minus') && $('#cart-minus').addEventListener('click', () => {
+  bagQty = Math.max(0, bagQty - 1);
+  localStorage.setItem('an-bag', String(bagQty));
+  renderBag();
+});
+$('#remove-item') && $('#remove-item').addEventListener('click', () => {
+  bagQty = 0;
+  localStorage.setItem('an-bag', '0');
+  renderBag();
+});
+$('#order-form') && $('#order-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const text = encodeURIComponent(
+    'Hello Authentic Naturals, I would like to order Hair Repair & Revive Growth Oil.\n' +
+    'Qty: ' + bagQty + '\nName: ' + fd.get('customer') + '\nPhone: ' + fd.get('phone') +
+    '\nCity: ' + fd.get('city') + '\nAddress: ' + fd.get('address') + '\nPayment: ' + fd.get('payment')
   );
-  const observer = new IntersectionObserver((entries, instance) => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      entry.target.classList.add('is-visible');
-      instance.unobserve(entry.target);
-    }
-  }, {threshold:0.06, rootMargin:'0px 0px 40px 0px'});
-  targets.forEach((element) => {
-    element.classList.add('reveal-ready');
-    observer.observe(element);
+  window.open('https://wa.me/923248019501?text=' + text, '_blank');
+});
+$('#privacy-open') && $('#privacy-open').addEventListener('click', () => $('#privacy-dialog').showModal());
+$('#clear-data') && $('#clear-data').addEventListener('click', () => {
+  localStorage.removeItem('an-bag');
+  bagQty = 0;
+  renderBag();
+  toast('Saved bag cleared');
+});
+
+/* Usage steps */
+let usageStep = 0;
+const usageTrack = document.getElementById('usage-panels');
+const usageButtons = $$('[data-step]');
+function setUsageStep(step) {
+  usageStep = Math.max(0, Math.min(5, step));
+  if (usageTrack) usageTrack.style.transform = 'translateX(-' + usageStep * 100 + '%)';
+  usageButtons.forEach((b) => {
+    const active = Number(b.dataset.step) === usageStep;
+    b.setAttribute('aria-pressed', String(active));
   });
-})();
+  const status = $('#usage-status');
+  if (status) status.textContent = 'Step ' + (usageStep + 1) + ' of 6';
+  const prev = $('#usage-prev');
+  const next = $('#usage-next');
+  if (prev) prev.disabled = usageStep === 0;
+  if (next) next.disabled = usageStep === 5;
+}
+usageButtons.forEach((b) => b.addEventListener('click', () => setUsageStep(Number(b.dataset.step))));
+$('#usage-prev') && $('#usage-prev').addEventListener('click', () => setUsageStep(usageStep - 1));
+$('#usage-next') && $('#usage-next').addEventListener('click', () => setUsageStep(usageStep + 1));
+setUsageStep(0);
+
+/* Video autoplay when visible */
+const video = document.querySelector('.video-section video');
+if (video && 'IntersectionObserver' in window) {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        video.muted = true;
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, { threshold: 0.45 });
+  io.observe(video);
+}
+
+renderBag();
+renderQuantity();
+renderIngredients();
