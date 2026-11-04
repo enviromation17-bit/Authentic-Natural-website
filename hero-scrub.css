@@ -507,3 +507,27 @@ html body .site-footer.footer-redesigned.footer-leaves-playing .premium-leaf{
  html body .site-footer.footer-redesigned .premium-leaf{display:none!important;animation:none!important}
  html body .header nav a,.hero-scrub-stage .scrub-cta{transition:none!important}
 }
+
+
+/* Small-copy hierarchy: selective highlights, no heavy marker effect. */
+.copy-accent{
+ color:#426d3e!important;font-weight:750!important;
+ text-decoration:none!important;
+ background:linear-gradient(transparent 69%,rgba(154,189,125,.17) 69%)!important;
+ -webkit-box-decoration-break:clone;box-decoration-break:clone;
+}
+.hero-scrub-stage .scrub-description .copy-accent{
+ color:#f3ffcf!important;font-weight:750!important;
+ background:linear-gradient(transparent 70%,rgba(220,248,177,.26) 70%)!important;
+ text-shadow:0 1px 8px rgba(0,0,0,.2);
+}
+.site-footer.footer-redesigned .copy-accent{
+ color:#d5efbc!important;font-weight:750!important;
+ background:linear-gradient(transparent 72%,rgba(192,231,152,.14) 72%)!important;
+}
+.product-info .copy-accent,.usage-caption .copy-accent,.faq .copy-accent{
+ color:#375f39!important;
+}
+@media(prefers-contrast:more){
+ .copy-accent{background:none!important;text-decoration:underline!important;text-decoration-thickness:2px!important}
+}
