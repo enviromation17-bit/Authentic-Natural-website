@@ -1,14 +1,12 @@
 'use strict';
-/* Smooth scroll anchors + multi-layer parallax + premium ambient + hero slider */
+/* Smooth scroll + parallax + ambient + subtle reveals + hero slider */
 (function () {
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var mqMobile = window.matchMedia ? window.matchMedia('(max-width: 720px)') : null;
   var isMobile = mqMobile ? mqMobile.matches : false;
 
-  /* Smooth anchor navigation */
   function setupSmoothScroll() {
     document.documentElement.style.scrollBehavior = reduceMotion ? 'auto' : 'smooth';
-
     document.addEventListener('click', function (e) {
       var a = e.target.closest('a[href^="#"]');
       if (!a) return;
@@ -20,10 +18,7 @@
       var header = document.querySelector('.header');
       var offset = header ? header.offsetHeight + 12 : 80;
       var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
-      window.scrollTo({
-        top: top,
-        behavior: reduceMotion ? 'auto' : 'smooth'
-      });
+      window.scrollTo({ top: top, behavior: reduceMotion ? 'auto' : 'smooth' });
     });
   }
 
@@ -108,7 +103,6 @@
     layer.className = 'ambient-nature' + (isMobile ? ' is-mobile' : ' is-desktop');
     layer.setAttribute('aria-hidden', 'true');
 
-    // Depth layers for parallax
     var far = document.createElement('div');
     far.className = 'parallax-layer parallax-far';
     var mid = document.createElement('div');
@@ -116,7 +110,6 @@
     var near = document.createElement('div');
     near.className = 'parallax-layer parallax-near';
 
-    // Soft orbs in far layer
     var orbs = document.createElement('div');
     orbs.className = 'ambient-orbs';
     for (var o = 1; o <= 3; o++) {
@@ -126,7 +119,6 @@
     }
     far.appendChild(orbs);
 
-    // Soft botanical vignette shapes in mid
     var shapes = document.createElement('div');
     shapes.className = 'ambient-shapes';
     for (var s = 1; s <= 4; s++) {
@@ -136,7 +128,6 @@
     }
     mid.appendChild(shapes);
 
-    // Leaves in near layer
     if (!reduceMotion) {
       var count = isMobile ? 8 : 15;
       var paths = [
@@ -182,17 +173,14 @@
     }
   }
 
-  /* Multi-layer parallax on scroll */
   function setupParallax() {
     if (reduceMotion) return;
-
     var far = document.querySelector('.parallax-far');
     var mid = document.querySelector('.parallax-mid');
     var near = document.querySelector('.parallax-near');
     var heroCopy = document.querySelector('.hero-copy');
     var heroSlider = document.querySelector('.hero-slider, .hero-photo');
     var ticking = false;
-
     var speedFar = isMobile ? 0.04 : 0.08;
     var speedMid = isMobile ? 0.07 : 0.14;
     var speedNear = isMobile ? 0.1 : 0.2;
@@ -204,12 +192,9 @@
       requestAnimationFrame(function () {
         var y = window.scrollY || 0;
         var clamped = Math.min(y, 1200);
-
         if (far) far.style.transform = 'translate3d(0,' + Math.min(clamped * speedFar, maxY * 0.5) + 'px,0)';
         if (mid) mid.style.transform = 'translate3d(0,' + Math.min(clamped * speedMid, maxY * 0.7) + 'px,0)';
         if (near) near.style.transform = 'translate3d(0,' + (-Math.min(clamped * speedNear * 0.5, maxY * 0.4)) + 'px,0)';
-
-        // Hero content slight opposing parallax (desktop only)
         if (!isMobile && y < 700) {
           if (heroCopy) heroCopy.style.transform = 'translate3d(0,' + (clamped * 0.06) + 'px,0)';
           if (heroSlider) heroSlider.style.transform = 'translate3d(0,' + (clamped * 0.03) + 'px,0)';
@@ -217,13 +202,94 @@
           if (heroCopy) heroCopy.style.transform = '';
           if (heroSlider) heroSlider.style.transform = '';
         }
-
         ticking = false;
       });
     }
-
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+  }
+
+  /* Subtle scroll-in reveals */
+  function setupReveals() {
+    var selectors = [
+      '.section',
+      '.benefit-strip',
+      '.section-heading',
+      '.ingredient-card',
+      '.usage-panel',
+      '.story-layout',
+      '.video-section',
+      '.faq details',
+      '.closing',
+      '.product-info',
+      '.gallery'
+    ];
+
+    var nodes = document.querySelectorAll(selectors.join(','));
+    if (!nodes.length) return;
+
+    nodes.forEach(function (el, i) {
+      el.classList.add('reveal');
+      // slight stagger for cards in a group
+      if (el.classList.contains('ingredient-card') || el.classList.contains('usage-panel')) {
+        el.style.transitionDelay = ((i % 8) * 0.05) + 's';
+      }
+    });
+
+    if (reduceMotion) {
+      nodes.forEach(function (el) { el.classList.add('is-visible'); });
+      return;
+    }
+
+    if (!('IntersectionObserver' in window)) {
+      nodes.forEach(function (el) { el.classList.add('is-visible'); });
+      return;
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    nodes.forEach(function (el) { io.observe(el); });
+
+    // Hero always visible
+    var hero = document.querySelector('.hero');
+    if (hero) {
+      hero.classList.add('reveal', 'is-visible');
+      var heroKids = hero.querySelectorAll('.hero-copy, .hero-slider, .hero-photo');
+      heroKids.forEach(function (k, idx) {
+        k.classList.add('reveal', 'is-visible');
+        k.style.transitionDelay = (0.1 + idx * 0.12) + 's';
+      });
+    }
+  }
+
+  /* Re-run reveal when ingredient grid is rebuilt */
+  function watchIngredientGrid() {
+    var grid = document.getElementById('ingredient-grid');
+    if (!grid || !('MutationObserver' in window)) return;
+    var mo = new MutationObserver(function () {
+      var cards = grid.querySelectorAll('.ingredient-card:not(.reveal)');
+      cards.forEach(function (card, i) {
+        card.classList.add('reveal');
+        card.style.transitionDelay = (i % 8) * 0.04 + 's';
+        if (reduceMotion) {
+          card.classList.add('is-visible');
+          return;
+        }
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            card.classList.add('is-visible');
+          });
+        });
+      });
+    });
+    mo.observe(grid, { childList: true });
   }
 
   function setupFooterLeaves() {
@@ -263,6 +329,8 @@
     setupHeroSlider();
     setupFooterLeaves();
     setupParallax();
+    setupReveals();
+    watchIngredientGrid();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
