@@ -422,3 +422,88 @@ html body .site-footer.footer-redesigned .footer-bottom{margin-bottom:0!importan
  html.has-gsap-hero .hero-scrub-stage .scrub-art{inset:6px!important;border-radius:13px!important}
  html.has-gsap-hero .hero-scrub-stage:before{inset:6px!important;border-radius:13px!important}
 }
+
+
+/* Premium restrained glass and compositor-friendly finishing touches. */
+html body .header{
+ position:sticky!important;top:0!important;z-index:70!important;
+ background:rgba(245,248,240,.78)!important;
+ backdrop-filter:blur(14px) saturate(155%)!important;
+ -webkit-backdrop-filter:blur(14px) saturate(155%)!important;
+ border-bottom:1px solid rgba(255,255,255,.76)!important;
+ box-shadow:0 8px 25px rgba(27,57,37,.07),inset 0 1px 0 rgba(255,255,255,.75)!important;
+ isolation:isolate;
+}
+html body .header:before{
+ content:'';position:absolute;inset:0;pointer-events:none;z-index:-1;
+ background:linear-gradient(110deg,rgba(255,255,255,.36),transparent 60%)!important;
+}
+html body .header nav{display:flex;align-items:center;gap:clamp(12px,2vw,31px)}
+html body .header nav a{
+ position:relative;display:inline-flex;align-items:center;justify-content:center;
+ min-height:42px;border-radius:999px;padding:7px 11px;
+ color:#254631;transition:background .2s ease,color .2s ease,transform .2s ease;
+}
+html body .header nav a:hover,html body .header nav a:focus-visible{
+ background:rgba(255,255,255,.74);color:#123b25;transform:translateY(-1px);
+}
+html body .header .bag{
+ border:1px solid rgba(255,255,255,.22)!important;
+ box-shadow:0 6px 16px rgba(26,66,40,.1),inset 0 1px 0 rgba(255,255,255,.19);
+ transition:transform .18s ease,box-shadow .18s ease!important;
+}
+html body .header .bag:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(26,66,40,.16)}
+html body .mobile-nav{
+ background:rgba(244,248,239,.86)!important;
+ backdrop-filter:blur(10px) saturate(140%)!important;
+ -webkit-backdrop-filter:blur(10px) saturate(140%)!important;
+ border-bottom:1px solid #ffffffba!important;
+ box-shadow:0 6px 13px rgba(32,71,42,.05);
+}
+html body .mobile-nav a{border-radius:9px;padding:5px 9px}
+html body .mobile-nav a:focus-visible{outline:2px solid #557a53;outline-offset:2px}
+.hero-scrub-stage .scrub-cta{
+ background:rgba(248,252,242,.88)!important;
+ color:#1f4630!important;
+ backdrop-filter:blur(10px) saturate(155%)!important;
+ -webkit-backdrop-filter:blur(10px) saturate(155%)!important;
+ border:1px solid rgba(255,255,255,.92)!important;
+ box-shadow:0 15px 30px rgba(12,33,20,.22),inset 0 1px 0 #fff!important;
+}
+.hero-scrub-stage .scrub-cta:hover{background:#fff!important;box-shadow:0 18px 36px rgba(12,33,20,.27)!important}
+.hero-scrub-stage .scrub-progress-fill{
+ width:100%!important;transform:scaleX(0);transform-origin:left center!important;
+ will-change:transform;transition:none!important;
+}
+html body .site-footer.footer-redesigned{isolation:isolate}
+html body .site-footer.footer-redesigned .footer-shell{z-index:2!important}
+html body .site-footer.footer-redesigned .premium-leaf-field{
+ position:absolute!important;inset:0!important;overflow:hidden!important;
+ display:block;z-index:0!important;pointer-events:none!important;
+}
+html body .site-footer.footer-redesigned .premium-leaf{
+ position:absolute;top:-45px;display:block;font-family:Georgia,serif;
+ color:#9fc68f;opacity:0;font-size:var(--leaf-size,22px);
+ line-height:1;animation:premium-leaf-drift var(--leaf-duration,14s) linear infinite;
+ animation-delay:var(--leaf-delay,0s);animation-play-state:paused;
+ will-change:transform;filter:none!important;
+}
+html body .site-footer.footer-redesigned.footer-leaves-playing .premium-leaf{
+ animation-play-state:running;
+}
+@keyframes premium-leaf-drift{
+ 0%{transform:translate3d(0,-45px,0) rotate(-30deg);opacity:0}
+ 9%{opacity:.25}
+ 80%{opacity:.18}
+ 100%{transform:translate3d(65px,750px,0) rotate(235deg);opacity:0}
+}
+@media(max-width:900px){
+ html body .header{backdrop-filter:blur(8px) saturate(130%)!important;-webkit-backdrop-filter:blur(8px) saturate(130%)!important}
+ html body .mobile-nav{backdrop-filter:blur(6px)!important;-webkit-backdrop-filter:blur(6px)!important}
+ html body .site-footer.footer-redesigned .premium-leaf{will-change:auto}
+ .hero-scrub-stage .scrub-cta{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+ html body .site-footer.footer-redesigned .premium-leaf{display:none!important;animation:none!important}
+ html body .header nav a,.hero-scrub-stage .scrub-cta{transition:none!important}
+}
