@@ -139,6 +139,8 @@
   }
 
   function init() {
+    // Keep the standard product photograph on phones and tablets: no permanent RAF loop.
+    if (window.matchMedia('(max-width: 900px), (prefers-reduced-motion: reduce)').matches) return;
     // ONLY shop product — not hero
     var galleryImg = document.getElementById('gallery-image');
     var galleryBox = document.querySelector('.gallery .main-image');
