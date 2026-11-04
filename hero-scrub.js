@@ -1,114 +1,148 @@
 'use strict';
-/* Frame-based scroll hero for Authentic Naturals.
- * Uses the seven original files uploaded to public/assets, in numerical order.
- * process-07 is not present; it is intentionally NOT requested.
- * Existing hero slideshow remains the fallback if JS, CDN, or assets fail.
- */
+/* Authentic Naturals immersive photographic story.
+   Seven uploaded process frames + botanicals.png + ritual.png.
+   Full viewport imagery, scroll-linked typography, lazy frame decoding,
+   and an intact original-carousel fallback if GSAP or the first photo fails. */
 (function () {
   const hero = document.querySelector('main > .hero');
   const stage = document.getElementById('gsap-hero-stage');
-  if (!hero || !stage || !window.gsap || !window.ScrollTrigger) return;
+  const gsap = window.gsap;
+  const ScrollTrigger = window.ScrollTrigger;
+  if (!hero || !stage || !gsap || !ScrollTrigger) return;
+
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (motion.matches) return;
 
-  const lightMobile = window.matchMedia('(max-width: 900px)').matches;
-  // Append two verified existing photos after the seven sequence frames.
-  // Keep a smaller set of representative photographs on phones for performance.
-  const processPath = n => 'public/assets/process-' + String(n).padStart(2,'0') + '.png';
-  const paths = lightMobile
-    ? [processPath(1), processPath(4), processPath(8), 'public/assets/botanicals.png', 'public/assets/ritual.png']
-    : [1,2,3,4,5,6,8].map(processPath).concat(['public/assets/botanicals.png', 'public/assets/ritual.png']);
-  const base = document.getElementById('scrub-current');
-  const next = document.getElementById('scrub-next');
-  const fill = document.getElementById('scrub-progress-fill');
-  const counter = document.getElementById('scrub-frame-counter');
-  const title = document.getElementById('scrub-title');
-  const description = document.getElementById('scrub-description');
-  const reducedChange = () => { if (motion.matches) location.reload(); };
-  if (typeof motion.addEventListener === 'function') motion.addEventListener('change', reducedChange);
-
-  const narratives = [
-    ['Give your hair', 'a little more care.', 'Discover our Hair Repair & Revive Growth Oil, created for an everyday conditioning ritual.'],
-    ['Naturally inspired.', 'Thoughtfully made.', 'Explore the familiar botanical ingredients and oils behind the blend.'],
-    ['A ritual worth', 'making time for.', 'Six simple steps to make hair care part of your weekly routine.']
+  const filenames = [
+    'process-01.png','process-02.png','process-03.png','process-04.png',
+    'process-05.png','process-06.png','process-08.png','botanicals.png','ritual.png'
   ];
+  const frames = filenames.map(name => 'public/assets/' + name);
+  const firstLayer = document.getElementById('scrub-current');
+  const secondLayer = document.getElementById('scrub-next');
+  const progressFill = document.getElementById('scrub-progress-fill');
+  const progressCount = document.getElementById('scrub-frame-counter');
+  const headline = document.getElementById('scrub-title');
+  const description = document.getElementById('scrub-description');
+  const copy = stage.querySelector('.scrub-copy');
+  if (![firstLayer,secondLayer,progressFill,progressCount,headline,description,copy].every(Boolean)) return;
 
-  function loadFrame(path) {
-    return new Promise(resolve => {
-      const img = new Image();
-      img.onload = () => resolve({url:path, ok:true});
-      img.onerror = () => resolve({url:path, ok:false});
-      img.src = path;
+  const chapters = [
+    ['Give your hair', 'a little more care.', 'Discover a more beautiful way to make botanical hair care part of your everyday routine.'],
+    ['Inspired by', 'the natural world.', 'A thoughtful blend of familiar oils and botanicals for conditioning care.'],
+    ['Your ritual.', 'Your moment.', 'Make time for your hair with a simple, nourishing weekly routine.'],
+    ['Discover the', 'Authentic difference.', 'Explore the blend, learn the ritual and find your everyday essential.']
+  ];
+  // URLs, not image objects, are retained; on phones only the current and nearest frames are decoded.
+  const ready = new Set();
+  const failed = new Set();
+  const inFlight = new Map();
+  let latestProgress = 0;
+  let currentIndex = -1;
+  let chapter = 0;
+  let textTween = null;
+  let trigger = null;
+  let mobile = window.matchMedia('(max-width: 900px)').matches;
+
+  function preload(i) {
+    if (i < 0 || i >= frames.length || ready.has(i) || failed.has(i)) return Promise.resolve(ready.has(i));
+    if (inFlight.has(i)) return inFlight.get(i);
+    const pending = new Promise(resolve => {
+      const picture = new Image();
+      picture.onload = () => {
+        ready.add(i);
+        inFlight.delete(i);
+        resolve(true);
+        if (trigger) render(latestProgress);
+      };
+      picture.onerror = () => {
+        failed.add(i);
+        inFlight.delete(i);
+        resolve(false);
+        if (trigger) render(latestProgress);
+      };
+      picture.src = frames[i];
     });
+    inFlight.set(i,pending);
+    return pending;
+  }
+  function captionFor(progress) {
+    return Math.min(chapters.length - 1,Math.floor(progress * chapters.length));
+  }
+  function showChapter(index) {
+    if (index === chapter) return;
+    chapter = index;
+    if (textTween) textTween.kill();
+    // Kill earlier opacity tweens to prevent rapid-scroll race conditions.
+    gsap.killTweensOf(copy);
+    textTween = gsap.to(copy,{opacity:0.65,duration:0.12,overwrite:true,onComplete:()=>{
+      headline.replaceChildren(document.createTextNode(chapters[index][0]+' '));
+      const italic = document.createElement('em');
+      italic.textContent = chapters[index][1];
+      headline.appendChild(italic);
+      description.textContent = chapters[index][2];
+      textTween = gsap.to(copy,{opacity:1,duration:0.25,overwrite:true});
+    }});
+  }
+  function render(progress) {
+    const p = Math.min(1,Math.max(0,progress));
+    latestProgress = p;
+    const rawIndex = p * (frames.length - 1);
+    const lower = Math.min(frames.length-1,Math.floor(rawIndex));
+    const upper = Math.min(frames.length-1,lower+1);
+
+    // Load only the frames needed immediately; prefetch their neighbours.
+    preload(lower);
+    preload(upper);
+    if (lower+2 < frames.length) preload(lower+2);
+
+    const displayIndex = ready.has(lower) ? lower : currentIndex;
+    if (displayIndex >= 0 && displayIndex !== currentIndex) {
+      firstLayer.src = frames[displayIndex];
+      currentIndex = displayIndex;
+    }
+    if (ready.has(upper) && upper !== displayIndex && ready.has(lower)) {
+      if (secondLayer.getAttribute('src') !== frames[upper]) secondLayer.src = frames[upper];
+      secondLayer.style.opacity = String(rawIndex - lower);
+    } else {
+      secondLayer.style.opacity = '0';
+    }
+    progressFill.style.width = (p*100).toFixed(3) + '%';
+    progressCount.textContent = String(lower+1).padStart(2,'0') + ' / ' + String(frames.length).padStart(2,'0');
+    showChapter(captionFor(p));
   }
 
-  Promise.all(paths.map(loadFrame)).then(records => {
-    const frames = records.filter(record => record.ok).map(record => record.url);
-    if (frames.length < 2 || frames[0] !== paths[0]) return;
-    window.gsap.registerPlugin(window.ScrollTrigger);
-
-    let activeNarrative = 0;
-    let lastIndex = -1;
-    const total = frames.length;
-    const clamp = (v,min,max) => Math.max(min,Math.min(max,v));
-
-    // Preloaded image layers cross-dissolve as the user scrubs in either direction.
-    function render(progress) {
-      const p = clamp(progress,0,1);
-      const frameProgress = p * (total-1);
-      const index = Math.min(total-1,Math.floor(frameProgress));
-      const nextIndex = Math.min(index+1,total-1);
-      if (index !== lastIndex) {
-        base.src = frames[index];
-        next.src = frames[nextIndex];
-        lastIndex = index;
-      }
-      next.style.opacity = String(index === nextIndex ? 0 : frameProgress-index);
-      fill.style.width = (p*100).toFixed(2) + '%';
-      counter.textContent = String(index+1).padStart(2,'0') + ' / ' + String(total).padStart(2,'0');
-
-      const phase = Math.min(2,Math.floor(p*3));
-      if (phase !== activeNarrative) {
-        activeNarrative = phase;
-        const copy = stage.querySelector('.scrub-copy');
-        window.gsap.to(copy,{opacity:.55,duration:.12,onComplete:()=>{
-          title.replaceChildren(document.createTextNode(narratives[phase][0]+' '));
-          const emphasis = document.createElement('em');
-          emphasis.textContent = narratives[phase][1];
-          title.appendChild(emphasis);
-          description.textContent = narratives[phase][2];
-          window.gsap.to(copy,{opacity:1,duration:.28});
-        }});
-      }
-    }
-
-    render(0);
+  preload(0).then(ok => {
+    if (!ok || !gsap || !ScrollTrigger) return;
+    gsap.registerPlugin(ScrollTrigger);
+    firstLayer.src = frames[0];
+    currentIndex = 0;
+    firstLayer.removeAttribute('loading');
+    // Establish proper stage dimensions before ScrollTrigger measures positions.
     document.documentElement.classList.add('has-gsap-hero');
     hero.classList.remove('reveal');
     hero.classList.add('gsap-hero-enabled');
     hero.style.removeProperty('transform');
-    // Older site styles use 'position:relative !important' on .hero.
-    // Pin the dedicated child stage instead, so GSAP can actually use position:fixed.
     stage.style.willChange = 'auto';
+    render(0);
 
-    const trigger = window.ScrollTrigger.create({
+    trigger = ScrollTrigger.create({
       trigger:stage,
       start:'top top',
-      end:()=>'+='+Math.max(lightMobile ? 1100 : 1900, Math.round(window.innerHeight*(lightMobile ? 2.4 : 4.5))),
+      end:()=>'+='+Math.max(mobile ? 1500 : 2300, Math.round(window.innerHeight*(mobile ? 3.1 : 5))),
       pin:stage,
       pinSpacing:true,
-      pinType:'fixed',
-      scrub:lightMobile ? .18 : .32,
       anticipatePin:1,
-      fastScrollEnd:true,
       invalidateOnRefresh:true,
+      scrub:0.2,
       onUpdate:self=>render(self.progress),
       onRefresh:self=>render(self.progress)
     });
-
-    // Keep large images crisp, with no automatic autoplay or forced zoom.
-    window.addEventListener('pageshow',()=>{window.ScrollTrigger.refresh(true);render(trigger.progress);});
-    window.addEventListener('load',()=>window.ScrollTrigger.refresh(true),{once:true});
-    window.ScrollTrigger.refresh(true);
-  }).catch(()=>{/* Original hero stays visible on failure. */});
+    const refresh = () => ScrollTrigger.refresh(true);
+    window.addEventListener('pageshow',refresh);
+    window.addEventListener('load',refresh,{once:true});
+    // Re-evaluate pin distance on rotation; do not create duplicate triggers.
+    window.addEventListener('orientationchange',refresh);
+    refresh();
+  });
 })();
