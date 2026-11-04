@@ -11,7 +11,9 @@
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (motion.matches) return;
 
-  const paths = [1,2,3,4,5,6,8].map(n => 'public/assets/process-' + String(n).padStart(2,'0') + '.png');
+  const lightMobile = window.matchMedia('(max-width: 900px)').matches;
+  // Three representative frames on phones: avoids decoding seven 1408×1760 images.
+  const paths = (lightMobile ? [1,4,8] : [1,2,3,4,5,6,8]).map(n => 'public/assets/process-' + String(n).padStart(2,'0') + '.png');
   const base = document.getElementById('scrub-current');
   const next = document.getElementById('scrub-next');
   const fill = document.getElementById('scrub-progress-fill');
@@ -88,12 +90,13 @@
     const trigger = window.ScrollTrigger.create({
       trigger:stage,
       start:'top top',
-      end:()=>'+='+Math.max(1000,Math.round(window.innerHeight*3.3)),
+      end:()=>'+='+Math.max(lightMobile ? 650 : 1000, Math.round(window.innerHeight*(lightMobile ? 1.8 : 3.3))),
       pin:stage,
       pinSpacing:true,
       pinType:'fixed',
-      scrub:true,
+      scrub:lightMobile ? 0.12 : true,
       anticipatePin:1,
+      fastScrollEnd:true,
       invalidateOnRefresh:true,
       onUpdate:self=>render(self.progress),
       onRefresh:self=>render(self.progress)
