@@ -531,3 +531,41 @@ html body .site-footer.footer-redesigned.footer-leaves-playing .premium-leaf{
 @media(prefers-contrast:more){
  .copy-accent{background:none!important;text-decoration:underline!important;text-decoration-thickness:2px!important}
 }
+
+
+/* Botanical water reflections: a low-cost luxury alternative to a literal ocean scene.
+   Confined to product area; does not affect hero photographs, product controls or ordering. */
+html body .product.section#shop{
+ position:relative!important;isolation:isolate;overflow:hidden;
+ background-color:#eff4ed;
+}
+html body .product.section#shop::after{
+ content:"";display:block;position:absolute;inset:-16% -12%;
+ pointer-events:none;z-index:0;opacity:.26;
+ background:
+  radial-gradient(ellipse 26% 16% at 18% 26%,transparent 56%,rgba(146,192,168,.42) 61%,transparent 68%),
+  radial-gradient(ellipse 33% 18% at 68% 38%,transparent 55%,rgba(166,208,186,.55) 61%,transparent 70%),
+  radial-gradient(ellipse 28% 17% at 49% 77%,transparent 57%,rgba(129,180,164,.38) 62%,transparent 70%),
+  linear-gradient(125deg,rgba(230,247,236,.55),rgba(174,206,184,.08),rgba(247,252,242,.45));
+ background-size:110% 110%,110% 110%,120% 120%,100% 100%;
+ transform:translate3d(-1.5%,0,0) scale(1.02);
+ animation:an-water-drift 18s ease-in-out infinite alternate;
+}
+html body .product.section#shop > *{
+ position:relative;z-index:1;
+}
+@keyframes an-water-drift{
+ 0%{transform:translate3d(-1.5%,0,0) scale(1.02);opacity:.20}
+ 50%{transform:translate3d(1.7%,-1%,0) scale(1.045);opacity:.29}
+ 100%{transform:translate3d(-.8%,1%,0) scale(1.02);opacity:.23}
+}
+@media(max-width:900px){
+ html body .product.section#shop::after{
+  animation:none!important;transform:none!important;opacity:.18;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html body .product.section#shop::after{
+  animation:none!important;transform:none!important;
+ }
+}
