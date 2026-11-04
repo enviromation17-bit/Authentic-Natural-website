@@ -1,0 +1,54 @@
+/* Authentic Naturals: opt-in GSAP hero scrub. The existing carousel is a no-JS fallback. */
+.hero-scrub-stage{display:none}
+html.has-gsap-hero .hero{display:block!important;width:100%!important;min-height:0!important;padding:0!important;margin:0!important;background:#eaf0e3!important;overflow:visible!important;isolation:isolate}
+html.has-gsap-hero .hero>.hero-copy,html.has-gsap-hero .hero>.hero-photo{display:none!important}
+html.has-gsap-hero .hero-scrub-stage{
+  position:relative;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+  align-items:center;gap:clamp(15px,3vw,55px);width:100%;height:100svh;
+  min-height:560px;padding:clamp(102px,14vh,145px) clamp(22px,6.5vw,110px) clamp(35px,5vh,65px);
+  overflow:hidden;background:radial-gradient(ellipse at 80% 48%,#d6e5c7,transparent 53%),linear-gradient(125deg,#fafaf4,#e8efe2);
+}
+.hero-scrub-stage:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.43;background:radial-gradient(circle at 12% 10%,#fff 0,transparent 40%),radial-gradient(circle at 90% 110%,#aac69d 0,transparent 43%)}
+.hero-scrub-stage .scrub-copy{position:relative;z-index:2;min-width:0}
+.hero-scrub-stage .scrub-kicker{display:block;font:800 11px/1.5 'Manrope',sans-serif;color:#4c7549;letter-spacing:.21em;margin-bottom:18px}
+.hero-scrub-stage .scrub-title{font:400 clamp(3.2rem,6.7vw,7.4rem)/1.04 'Playfair Display',Georgia,serif;letter-spacing:-.065em;color:#1b422e;margin:0 0 22px}
+.hero-scrub-stage .scrub-title em{display:block;color:#6d8d61;font-weight:400}
+.hero-scrub-stage .scrub-description{font:400 clamp(15px,1.25vw,18px)/1.8 'DM Sans',sans-serif;color:#546b57;max-width:510px;margin:0 0 26px}
+.hero-scrub-stage .scrub-cta{display:inline-flex;align-items:center;gap:15px;border-radius:100px;padding:15px 23px;text-decoration:none;color:#fff;background:#1d4a34;font:700 13px 'Manrope',sans-serif;box-shadow:0 12px 27px #244d3326;transition:transform .25s}
+.hero-scrub-stage .scrub-cta:hover{transform:translateY(-3px)}
+.hero-scrub-stage .scrub-art{position:relative;z-index:1;min-width:0;height:min(73svh,760px);min-height:320px;display:grid;place-items:center}
+.hero-scrub-stage .scrub-art:before{content:"";position:absolute;width:min(74%,590px);aspect-ratio:1;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#fff9,transparent 68%);filter:blur(20px);pointer-events:none}
+.hero-scrub-stage .scrub-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;filter:drop-shadow(0 24px 35px rgba(29,66,44,.12));will-change:opacity;user-select:none;pointer-events:none}
+.hero-scrub-stage .scrub-frame.scrub-next{opacity:0}
+.hero-scrub-stage .scrub-progress{position:absolute;z-index:3;left:clamp(22px,6.5vw,110px);right:clamp(22px,6.5vw,110px);bottom:clamp(14px,2vh,30px);height:3px;background:#21492d2c;border-radius:6px;overflow:hidden}
+.hero-scrub-stage .scrub-progress-fill{display:block;width:0%;height:100%;background:#376948;transform-origin:left center}
+.hero-scrub-stage .scrub-counter{position:absolute;right:clamp(22px,6.5vw,110px);top:clamp(105px,15vh,155px);font:700 11px 'Manrope',sans-serif;color:#607b5d;letter-spacing:.15em}
+.hero-scrub-stage .scrub-hint{position:absolute;left:clamp(22px,6.5vw,110px);bottom:clamp(24px,4vh,53px);font:700 10px 'Manrope',sans-serif;letter-spacing:.13em;text-transform:uppercase;color:#64805e}
+@media(max-width:900px){
+ html.has-gsap-hero .hero-scrub-stage{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:5px;min-height:0;padding:calc(120px + env(safe-area-inset-top,0px)) 19px 45px;height:100svh}
+ .hero-scrub-stage .scrub-copy{text-align:center;align-self:end}
+ .hero-scrub-stage .scrub-kicker{font-size:9px;margin-bottom:7px}
+ .hero-scrub-stage .scrub-title{font-size:clamp(2.45rem,9vw,4rem);line-height:1.06;margin:0 0 10px}
+ .hero-scrub-stage .scrub-description{font-size:13px;line-height:1.52;margin:0 auto 12px;max-width:430px}
+ .hero-scrub-stage .scrub-cta{padding:11px 18px;font-size:12px}
+ .hero-scrub-stage .scrub-art{height:100%;min-height:0;width:100%;align-self:stretch}
+ .hero-scrub-stage .scrub-counter{top:calc(118px + env(safe-area-inset-top,0px));right:18px;font-size:9px}
+ .hero-scrub-stage .scrub-hint{bottom:22px;left:19px;font-size:9px}
+ .hero-scrub-stage .scrub-progress{bottom:11px;left:19px;right:19px}
+}
+@media(max-width:460px){
+ html.has-gsap-hero .hero-scrub-stage{padding-top:calc(118px + env(safe-area-inset-top,0px));padding-bottom:36px}
+ .hero-scrub-stage .scrub-title{font-size:clamp(2.15rem,9vw,3rem)}
+ .hero-scrub-stage .scrub-description{font-size:12px;margin-bottom:7px}
+ .hero-scrub-stage .scrub-art{min-height:0}
+ .hero-scrub-stage .scrub-hint{bottom:19px}
+}
+@media(max-height:640px) and (min-width:901px){
+ html.has-gsap-hero .hero-scrub-stage{min-height:500px;padding-top:90px;padding-bottom:32px}
+ .hero-scrub-stage .scrub-title{font-size:clamp(2.7rem,5vw,5rem)}
+ .hero-scrub-stage .scrub-art{height:70svh}
+}
+@media(prefers-reduced-motion:reduce){
+ html.has-gsap-hero .hero>.hero-copy,html.has-gsap-hero .hero>.hero-photo{display:flex!important}
+ html.has-gsap-hero .hero-scrub-stage{display:none!important}
+}
