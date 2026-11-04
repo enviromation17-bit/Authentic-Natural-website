@@ -1,24 +1,95 @@
-/* Premium brand look */
+/* Premium brand look + ambient nature background */
 
-body{
-  background:
-    radial-gradient(ellipse 80% 50% at 10% -10%, rgba(104,120,77,.12), transparent 55%),
-    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(66,37,84,.06), transparent 50%),
-    linear-gradient(180deg, #f8f6f0 0%, #f3f0e8 40%, #eef2e9 100%)!important
+/* Fixed ambient layer behind everything */
+.ambient-nature{
+  position:fixed!important;
+  inset:0!important;
+  z-index:0!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+  will-change:transform
+}
+.ambient-orbs{
+  position:absolute;
+  inset:-20%;
+  overflow:hidden
+}
+.ambient-orb{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(60px);
+  opacity:.55;
+  animation:orb-drift 22s ease-in-out infinite alternate
+}
+.ambient-orb-1{
+  width:min(55vw,480px);height:min(55vw,480px);
+  left:-8%;top:5%;
+  background:radial-gradient(circle,rgba(104,120,77,.35),transparent 70%);
+  animation-duration:26s
+}
+.ambient-orb-2{
+  width:min(45vw,400px);height:min(45vw,400px);
+  right:-5%;top:25%;
+  background:radial-gradient(circle,rgba(197,212,168,.4),transparent 70%);
+  animation-duration:20s;animation-delay:-6s
+}
+.ambient-orb-3{
+  width:min(50vw,420px);height:min(50vw,420px);
+  left:30%;bottom:5%;
+  background:radial-gradient(circle,rgba(37,60,41,.12),transparent 70%);
+  animation-duration:28s;animation-delay:-12s
+}
+@keyframes orb-drift{
+  0%{transform:translate(0,0) scale(1)}
+  100%{transform:translate(30px,-40px) scale(1.08)}
 }
 
-/* Hero premium panel + autoplay slider */
+.ambient-leaf{
+  position:absolute;
+  animation-name:leaf-float;
+  animation-timing-function:ease-in-out;
+  animation-iteration-count:infinite;
+  filter:drop-shadow(0 2px 4px rgba(37,60,41,.08));
+  will-change:transform,opacity
+}
+@keyframes leaf-float{
+  0%{
+    transform:translate3d(0,0,0) rotate(0deg);
+    opacity:0
+  }
+  8%{opacity:inherit}
+  50%{
+    transform:translate3d(var(--drift,24px),-40vh,0) rotate(calc(var(--spin,180deg) * .5))
+  }
+  100%{
+    transform:translate3d(calc(var(--drift,24px) * -0.6),-85vh,0) rotate(var(--spin,180deg));
+    opacity:0
+  }
+}
+
+body{
+  position:relative;
+  background:
+    linear-gradient(180deg, #f8f6f0 0%, #f3f0e8 45%, #eef2e9 100%)!important
+}
+body > *:not(.ambient-nature){
+  position:relative;
+  z-index:1
+}
+/* header stays above ambient */
+.header{z-index:50!important}
+
+/* Hero */
 .hero{
   position:relative!important;
-  background:
-    radial-gradient(ellipse at 80% 20%, rgba(104,120,77,.14), transparent 45%),
-    radial-gradient(ellipse at 0% 80%, rgba(37,60,41,.06), transparent 40%),
-    linear-gradient(135deg, #f7f5ef 0%, #eef3ea 55%, #e8efe3 100%)!important
+  background:transparent!important;
+  overflow:visible!important
 }
 .hero-copy{position:relative;z-index:2}
 .hero-photo,
 .hero-slider{
   position:relative!important;
+  z-index:2!important;
   padding:20px 16px 12px!important;
   display:flex!important;
   flex-direction:column!important;
@@ -26,13 +97,13 @@ body{
   justify-content:center!important;
   background:
     radial-gradient(ellipse at 50% 100%, rgba(104,120,77,.1), transparent 55%),
-    linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.25) 100%)!important;
-  border:1px solid rgba(255,255,255,.7)!important;
+    linear-gradient(180deg, rgba(255,255,255,.65) 0%, rgba(255,255,255,.35) 100%)!important;
+  border:1px solid rgba(255,255,255,.75)!important;
   border-radius:28px!important;
   box-shadow:
     0 30px 60px rgba(37,60,41,.1),
     inset 0 1px 0 rgba(255,255,255,.9)!important;
-  backdrop-filter:blur(12px)!important;
+  backdrop-filter:blur(14px)!important;
   width:100%!important;
   max-width:560px!important;
   margin:24px auto!important
@@ -109,7 +180,7 @@ body{
 }
 .hero-dots button.is-active{width:24px!important;background:#253c29!important}
 
-/* Ingredient cards — premium magazine style, photo always on top */
+/* Ingredient cards */
 .ingredient-grid{
   display:grid!important;
   grid-template-columns:repeat(auto-fill,minmax(240px,1fr))!important;
@@ -124,17 +195,16 @@ body{
   margin:0!important;
   padding:0!important;
   min-height:0!important;
-  background:#fff!important;
+  background:rgba(255,255,255,.92)!important;
   border:1px solid rgba(37,60,41,.08)!important;
   border-radius:22px!important;
   box-shadow:0 12px 32px rgba(37,60,41,.07)!important;
   transition:transform .35s ease, box-shadow .35s ease!important;
-  cursor:pointer!important
+  cursor:pointer!important;
+  backdrop-filter:blur(8px)!important
 }
-/* Kill any absolute overlays from old styles */
 .ingredient-card .ingredient-media{
   position:relative!important;
-  top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;
   inset:auto!important;
   width:100%!important;
   height:168px!important;
@@ -147,136 +217,52 @@ body{
   z-index:0!important
 }
 .ingredient-card .ingredient-media img{
-  width:100%!important;
-  height:100%!important;
-  object-fit:cover!important;
-  object-position:center!important;
-  display:block!important;
-  opacity:1!important;
-  transform:scale(1)!important;
+  width:100%!important;height:100%!important;object-fit:cover!important;display:block!important;
   transition:transform .5s ease!important
 }
 .ingredient-card > span,
 .ingredient-card > h3,
 .ingredient-card > p,
 .ingredient-card > button{
-  position:relative!important;
-  z-index:2!important;
-  color:inherit!important;
-  text-shadow:none!important;
-  opacity:1!important;
-  transform:none!important;
-  padding-left:18px!important;
-  padding-right:18px!important
+  position:relative!important;z-index:2!important;color:inherit!important;text-shadow:none!important;
+  padding-left:18px!important;padding-right:18px!important
 }
 .ingredient-card > span{
-  display:block!important;
-  margin:14px 0 0!important;
-  font-size:11px!important;
-  letter-spacing:.14em!important;
-  text-transform:uppercase!important;
-  color:#68784d!important;
-  font-weight:700!important;
-  font-family:Manrope,system-ui,sans-serif!important
+  display:block!important;margin:14px 0 0!important;font-size:11px!important;
+  letter-spacing:.14em!important;text-transform:uppercase!important;color:#68784d!important;font-weight:700!important
 }
-.ingredient-card > h3{
-  margin:8px 0 6px!important;
-  font-size:1.35rem!important;
-  color:#253c29!important;
-  line-height:1.15!important
-}
-.ingredient-card > p{
-  margin:0 0 14px!important;
-  font-size:13.5px!important;
-  line-height:1.55!important;
-  color:#5a6a5e!important;
-  flex:1 1 auto!important
-}
+.ingredient-card > h3{margin:8px 0 6px!important;font-size:1.35rem!important;color:#253c29!important}
+.ingredient-card > p{margin:0 0 14px!important;font-size:13.5px!important;line-height:1.55!important;color:#5a6a5e!important;flex:1 1 auto!important}
 .ingredient-card > .ingredient-explore{
-  align-self:flex-start!important;
-  margin:0 18px 18px!important;
-  padding:11px 16px!important;
-  border-radius:999px!important;
-  border:1px solid rgba(37,60,41,.12)!important;
-  background:#f7f5ef!important;
-  font-size:12.5px!important;
-  font-weight:600!important;
-  color:#253c29!important;
-  cursor:pointer!important;
-  transition:background .25s ease,color .25s ease,border-color .25s ease!important
+  align-self:flex-start!important;margin:0 18px 18px!important;padding:11px 16px!important;
+  border-radius:999px!important;border:1px solid rgba(37,60,41,.12)!important;
+  background:#f7f5ef!important;font-size:12.5px!important;font-weight:600!important;color:#253c29!important;cursor:pointer!important
 }
-.ingredient-card:hover{
-  transform:translateY(-8px)!important;
-  box-shadow:0 24px 48px rgba(37,60,41,.14)!important
-}
+.ingredient-card:hover{transform:translateY(-8px)!important;box-shadow:0 24px 48px rgba(37,60,41,.14)!important}
 .ingredient-card:hover .ingredient-media img{transform:scale(1.07)!important}
-.ingredient-card:hover > .ingredient-explore{
-  background:#253c29!important;
-  color:#fff!important;
-  border-color:#253c29!important
-}
-.ingredient-card:after,
-.ingredient-card:before{display:none!important;content:none!important}
+.ingredient-card:hover > .ingredient-explore{background:#253c29!important;color:#fff!important;border-color:#253c29!important}
+.ingredient-card:after,.ingredient-card:before{display:none!important;content:none!important}
 
-/* Premium ingredient modal */
 #ingredient-dialog{
-  max-width:min(720px,94vw)!important;
-  width:100%!important;
-  border:none!important;
-  border-radius:24px!important;
-  padding:0!important;
-  overflow:hidden!important;
-  background:#faf9f5!important;
-  box-shadow:0 40px 80px rgba(20,35,28,.25)!important
+  max-width:min(720px,94vw)!important;width:100%!important;border:none!important;
+  border-radius:24px!important;padding:0!important;overflow:hidden!important;
+  background:#faf9f5!important;box-shadow:0 40px 80px rgba(20,35,28,.25)!important
 }
-#ingredient-dialog::backdrop{
-  background:rgba(20,35,28,.55);
-  backdrop-filter:blur(8px)
-}
-#ingredient-dialog .close{
-  position:absolute;top:14px;right:14px;z-index:5;
-  width:36px;height:36px;border-radius:50%;
-  background:rgba(255,255,255,.9);border:none;font-size:20px;cursor:pointer
-}
-#ingredient-dialog .eyebrow{
-  position:absolute;top:18px;left:20px;z-index:5;
-  background:rgba(255,255,255,.85);backdrop-filter:blur(8px);
-  padding:6px 12px;border-radius:999px;font-size:10px;letter-spacing:.14em;margin:0
-}
-#ingredient-detail-image{
-  width:100%!important;
-  height:240px!important;
-  object-fit:cover!important;
-  display:block!important;
-  border-radius:0!important
-}
-#ingredient-dialog h2{
-  margin:20px 24px 8px!important;
-  font-size:clamp(1.8rem,4vw,2.4rem)!important;
-  color:#253c29!important
-}
-#ingredient-detail-benefit,
-#ingredient-detail-description,
-#ingredient-dialog h3,
-#ingredient-dialog .small{
-  margin-left:24px!important;
-  margin-right:24px!important
-}
+#ingredient-dialog::backdrop{background:rgba(20,35,28,.55);backdrop-filter:blur(8px)}
+#ingredient-detail-image{width:100%!important;height:240px!important;object-fit:cover!important;display:block!important}
+#ingredient-dialog h2{margin:20px 24px 8px!important;font-size:clamp(1.8rem,4vw,2.4rem)!important;color:#253c29!important}
+#ingredient-detail-benefit,#ingredient-detail-description,#ingredient-dialog h3,#ingredient-dialog .small{margin-left:24px!important;margin-right:24px!important}
 #ingredient-dialog h3{margin-top:18px!important;font-size:1rem!important}
-#ingredient-dialog .small{margin-bottom:24px!important;padding-bottom:8px!important}
+#ingredient-dialog .small{margin-bottom:24px!important}
 
 .gallery .main-image,.orbit-stage{
   background:radial-gradient(ellipse at 50% 100%,rgba(70,100,60,.08),transparent 50%),linear-gradient(180deg,#f9faf6,#eef2e9)!important;
-  border-radius:28px!important;
-  border:1px solid rgba(255,255,255,.8)!important;
-  box-shadow:0 18px 48px rgba(25,60,46,.08),inset 0 1px 0 #fff!important;
-  padding:20px!important
+  border-radius:28px!important;border:1px solid rgba(255,255,255,.8)!important;
+  box-shadow:0 18px 48px rgba(25,60,46,.08),inset 0 1px 0 #fff!important;padding:20px!important
 }
 #gallery-image,.orbit-product-img{
-  max-width:min(100%,420px)!important;
-  max-height:min(58vh,480px)!important;
-  object-fit:contain!important;
-  filter:drop-shadow(0 20px 32px rgba(25,45,30,.16))!important
+  max-width:min(100%,420px)!important;max-height:min(58vh,480px)!important;
+  object-fit:contain!important;filter:drop-shadow(0 20px 32px rgba(25,45,30,.16))!important
 }
 .family-photo{max-height:480px!important;object-fit:contain!important}
 .cart-item img{width:72px!important;height:80px!important;object-fit:contain!important}
@@ -287,13 +273,9 @@ body{
   border-bottom:1px solid rgba(37,60,41,.06)!important
 }
 .filters button,.usage-nav button,.usage-pagination button,.search-label input,.tags span{
-  background:rgba(255,255,255,.7)!important;
-  backdrop-filter:blur(16px)!important;
-  border:1px solid rgba(255,255,255,.8)!important
+  background:rgba(255,255,255,.75)!important;backdrop-filter:blur(16px)!important;border:1px solid rgba(255,255,255,.8)!important
 }
-.bag,.filters button.active,.usage-nav button[aria-pressed=true]{
-  background:rgba(37,60,41,.92)!important;color:#fff!important
-}
+.bag,.filters button.active,.usage-nav button[aria-pressed=true]{background:rgba(37,60,41,.92)!important;color:#fff!important}
 
 .word-shift{display:inline-block;transition:opacity .32s ease,transform .32s ease}
 .word-shift.is-out{opacity:0;transform:translateY(12px)}
@@ -311,7 +293,7 @@ body{
 .video-section{display:grid!important;grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr)!important;gap:clamp(20px,4vw,40px)!important;align-items:center!important}
 .video-section video{display:block!important;width:100%!important;max-width:560px!important;max-height:min(52vh,440px)!important;object-fit:contain!important;border-radius:18px!important;background:#1a221c!important;box-shadow:0 16px 44px rgba(25,60,46,.14)!important}
 
-.site-footer{position:relative!important;overflow:hidden!important;background:radial-gradient(ellipse at 15% 0%,rgba(104,120,77,.18),transparent 45%),linear-gradient(180deg,#1f3328 0%,#16241d 100%)!important;color:#e8efe4!important}
+.site-footer{position:relative!important;overflow:hidden!important;background:radial-gradient(ellipse at 15% 0%,rgba(104,120,77,.18),transparent 45%),linear-gradient(180deg,#1f3328 0%,#16241d 100%)!important;color:#e8efe4!important;z-index:2!important}
 .leaf-field{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .footer-leaf{position:absolute;top:-40px;animation-name:leaf-fall;animation-timing-function:linear;animation-iteration-count:infinite}
 @keyframes leaf-fall{0%{transform:translateY(0) rotate(0deg);opacity:0}8%{opacity:1}100%{transform:translateY(110vh) rotate(320deg);opacity:0}}
@@ -338,10 +320,12 @@ body{
   .ingredient-card .ingredient-media{height:128px!important;flex-basis:128px!important}
   .footer-main{grid-template-columns:1fr!important}
   #ingredient-detail-image{height:180px!important}
+  .ambient-orb{filter:blur(48px);opacity:.4}
 }
 @media(max-width:420px){
   .ingredient-grid{grid-template-columns:1fr!important}
 }
 @media(prefers-reduced-motion:reduce){
-  .footer-leaf,.ingredient-card,.hero-slide{animation:none!important;transition:none!important}
+  .footer-leaf,.ingredient-card,.hero-slide,.ambient-leaf,.ambient-orb{animation:none!important;transition:none!important}
+  .ambient-nature{display:none!important}
 }

@@ -1,6 +1,9 @@
 'use strict';
-/* Hero slider + word shift + footer leaves */
+/* Hero slider + ambient leaves + scroll parallax + word shift + footer leaves */
 (function () {
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var isMobile = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
+
   function setupWordShift() {
     var h1 = document.getElementById('hero-title');
     if (!h1) return;
@@ -9,6 +12,7 @@
     var words = ['a little more care.', 'softer, smoother hair.', 'time for yourself.', 'natural everyday care.'];
     var i = 0;
     em.classList.add('word-shift');
+    if (reduceMotion) return;
     setInterval(function () {
       em.classList.add('is-out');
       setTimeout(function () {
@@ -35,16 +39,12 @@
 
     function go(i) {
       index = (i + total) % total;
-      slides.forEach(function (s, n) {
-        s.classList.toggle('is-active', n === index);
-      });
-      dots.forEach(function (d, n) {
-        d.classList.toggle('is-active', n === index);
-      });
+      slides.forEach(function (s, n) { s.classList.toggle('is-active', n === index); });
+      dots.forEach(function (d, n) { d.classList.toggle('is-active', n === index); });
     }
-
     function start() {
       stop();
+      if (reduceMotion) return;
       timer = setInterval(function () { go(index + 1); }, 4500);
     }
     function stop() {
@@ -61,7 +61,6 @@
       });
     });
 
-    // swipe
     var startX = 0;
     root.addEventListener('touchstart', function (e) {
       startX = e.changedTouches[0].clientX;
@@ -75,9 +74,82 @@
 
     root.addEventListener('mouseenter', stop);
     root.addEventListener('mouseleave', start);
-
     go(0);
     start();
+  }
+
+  /* Full-page soft botanical ambient layer */
+  function setupAmbient() {
+    if (document.querySelector('.ambient-nature')) return;
+    var layer = document.createElement('div');
+    layer.className = 'ambient-nature';
+    layer.setAttribute('aria-hidden', 'true');
+
+    // Soft sliding gradient orbs (brand colors)
+    var orbs = document.createElement('div');
+    orbs.className = 'ambient-orbs';
+    for (var o = 0; o < 3; o++) {
+      var orb = document.createElement('span');
+      orb.className = 'ambient-orb ambient-orb-' + (o + 1);
+      orbs.appendChild(orb);
+    }
+    layer.appendChild(orbs);
+
+    // Floating leaves — fewer on mobile for performance
+    var leafCount = reduceMotion ? 0 : (isMobile ? 10 : 18);
+    var paths = [
+      'M12 2C8 8 4 12 12 22C20 12 16 8 12 2Z',
+      'M10 3C6 9 3 14 12 21C18 13 16 7 10 3Z',
+      'M14 2C9 7 5 13 12 22C19 14 18 6 14 2Z',
+      'M12 3C7 6 5 14 12 21C19 14 17 6 12 3Z'
+    ];
+    var colors = ['#a8c48a', '#7a9a5c', '#c5d4a8', '#8fad70', '#b8c99a'];
+
+    for (var i = 0; i < leafCount; i++) {
+      var leaf = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      leaf.setAttribute('class', 'ambient-leaf');
+      leaf.setAttribute('viewBox', '0 0 24 24');
+      var size = (isMobile ? 14 : 16) + (i % 6) * 5;
+      leaf.setAttribute('width', String(size));
+      leaf.setAttribute('height', String(size));
+      var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', paths[i % paths.length]);
+      path.setAttribute('fill', colors[i % colors.length]);
+      leaf.appendChild(path);
+
+      leaf.style.left = (Math.random() * 100) + '%';
+      leaf.style.top = (Math.random() * 100) + '%';
+      leaf.style.animationDelay = (Math.random() * 16) + 's';
+      leaf.style.animationDuration = (14 + Math.random() * 18) + 's';
+      leaf.style.opacity = String(0.18 + Math.random() * 0.28);
+      leaf.style.setProperty('--drift', (Math.random() > 0.5 ? 1 : -1) * (20 + Math.random() * 40) + 'px');
+      leaf.style.setProperty('--spin', (120 + Math.random() * 240) + 'deg');
+      layer.appendChild(leaf);
+    }
+
+    document.body.prepend(layer);
+  }
+
+  /* Gentle parallax on scroll for ambient layer */
+  function setupScrollParallax() {
+    if (reduceMotion) return;
+    var layer = document.querySelector('.ambient-nature');
+    if (!layer) return;
+    var ticking = false;
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        var y = window.scrollY || window.pageYOffset || 0;
+        // Soft vertical drift — not aggressive
+        var shift = Math.min(y * 0.12, 180);
+        layer.style.transform = 'translate3d(0,' + (shift * -0.35) + 'px,0)';
+        ticking = false;
+      });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   }
 
   function setupFooterLeaves() {
@@ -91,7 +163,8 @@
       'M10 3C6 9 3 14 12 21C18 13 16 7 10 3Z',
       'M14 2C9 7 5 13 12 22C19 14 18 6 14 2Z'
     ];
-    for (var i = 0; i < 18; i++) {
+    var count = isMobile ? 10 : 16;
+    for (var i = 0; i < count; i++) {
       var leaf = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       leaf.setAttribute('class', 'footer-leaf');
       leaf.setAttribute('viewBox', '0 0 24 24');
@@ -104,16 +177,18 @@
       leaf.style.left = Math.random() * 100 + '%';
       leaf.style.animationDelay = Math.random() * 12 + 's';
       leaf.style.animationDuration = 10 + Math.random() * 14 + 's';
-      leaf.style.opacity = String(0.25 + Math.random() * 0.45);
+      leaf.style.opacity = String(0.25 + Math.random() * 0.4);
       field.appendChild(leaf);
     }
     footer.insertBefore(field, footer.firstChild);
   }
 
   function start() {
+    setupAmbient();
     setupWordShift();
     setupHeroSlider();
     setupFooterLeaves();
+    setupScrollParallax();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
