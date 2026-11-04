@@ -1,4 +1,4 @@
-/* Smooth feel + parallax + subtle reveals */
+/* Smooth feel + parallax + subtle reveals + ritual layout */
 
 html{
   scroll-behavior:smooth;
@@ -8,7 +8,6 @@ html{
   html{scroll-behavior:auto}
 }
 
-/* ---- Subtle scroll reveals ---- */
 .reveal{
   opacity:0;
   transform:translate3d(0,22px,0);
@@ -19,7 +18,6 @@ html{
   transform:translate3d(0,0,0)
 }
 
-/* Ambient stack */
 .ambient-nature{
   position:fixed;
   inset:0;
@@ -223,7 +221,6 @@ body > *:not(.ambient-nature){
 }
 .hero-dots button.is-active{width:22px!important;background:#253c29!important}
 
-/* Micro-interactions */
 .button,
 .whatsapp-button,
 .footer-shop-button{
@@ -234,10 +231,6 @@ body > *:not(.ambient-nature){
 .footer-shop-button:hover{
   transform:translateY(-2px)!important;
   box-shadow:0 10px 24px rgba(37,60,41,.18)!important
-}
-.button:active,
-.whatsapp-button:active{
-  transform:translateY(0)!important
 }
 .header nav a{
   position:relative;
@@ -259,7 +252,76 @@ body > *:not(.ambient-nature){
   transform:translateY(-3px) scale(1.03)!important
 }
 
-/* Ingredient cards */
+/* ===== Ritual: text LEFT, photo RIGHT + autoplay-friendly ===== */
+.usage-carousel{
+  overflow:hidden!important;
+  width:100%!important
+}
+.usage-track{
+  display:flex!important;
+  transition:transform .55s cubic-bezier(.22,1,.36,1)!important;
+  will-change:transform
+}
+.usage-panel,
+.usage-track .usage-panel{
+  display:grid!important;
+  grid-template-columns:minmax(0,0.9fr) minmax(0,1.15fr)!important;
+  grid-template-areas:"caption photo"!important;
+  gap:clamp(20px,3vw,40px)!important;
+  align-items:center!important;
+  flex:0 0 100%!important;
+  width:100%!important;
+  min-width:100%!important;
+  max-width:100%!important;
+  flex-direction:unset!important;
+  padding:8px 0!important;
+  box-sizing:border-box!important
+}
+.usage-panel .usage-caption{
+  grid-area:caption!important;
+  order:1!important;
+  text-align:left!important;
+  align-self:center!important;
+  max-width:100%!important;
+  padding:12px 8px 12px 4px!important
+}
+.usage-panel .usage-caption .eyebrow{
+  margin:0 0 10px!important;
+  letter-spacing:.14em!important;
+  color:#68784d!important
+}
+.usage-panel .usage-caption h3{
+  margin:0 0 12px!important;
+  font-size:clamp(1.6rem,2.8vw,2.5rem)!important;
+  color:#253c29!important;
+  line-height:1.15!important
+}
+.usage-panel .usage-caption p{
+  margin:0!important;
+  font-size:15px!important;
+  line-height:1.65!important;
+  color:#5a6a5e!important;
+  max-width:36ch!important
+}
+.usage-panel figure{
+  grid-area:photo!important;
+  order:2!important;
+  margin:0!important;
+  width:100%!important;
+  border-radius:20px!important;
+  overflow:hidden!important;
+  background:rgba(255,255,255,.7)!important;
+  border:1px solid rgba(255,255,255,.85)!important;
+  box-shadow:0 16px 40px rgba(37,60,41,.08)!important
+}
+.usage-panel figure img{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-height:min(70vh,620px)!important;
+  object-fit:contain!important
+}
+
 .ingredient-grid{
   display:grid!important;
   grid-template-columns:repeat(auto-fill,minmax(230px,1fr))!important;
@@ -405,6 +467,14 @@ body > *:not(.ambient-nature){
 @media(max-width:900px){
   .video-section{grid-template-columns:1fr!important}
   .footer-main{grid-template-columns:1fr 1fr!important}
+  .usage-panel,
+  .usage-track .usage-panel{
+    grid-template-columns:1fr!important;
+    grid-template-areas:"photo" "caption"!important;
+    gap:16px!important
+  }
+  .usage-panel .usage-caption{text-align:left!important;padding:4px 4px 8px!important}
+  .usage-panel figure img{max-height:min(55vh,480px)!important}
 }
 @media(max-width:720px){
   .ambient-orb{filter:blur(48px);opacity:.34}
@@ -426,7 +496,7 @@ body > *:not(.ambient-nature){
   .ingredient-grid{grid-template-columns:1fr!important}
 }
 @media(prefers-reduced-motion:reduce){
-  .ambient-leaf,.ambient-orb,.ambient-shape,.footer-leaf,.hero-slide,.ingredient-card,.reveal{
+  .ambient-leaf,.ambient-orb,.ambient-shape,.footer-leaf,.hero-slide,.ingredient-card,.reveal,.usage-track{
     animation:none!important;transition:none!important
   }
   .reveal{opacity:1!important;transform:none!important}
