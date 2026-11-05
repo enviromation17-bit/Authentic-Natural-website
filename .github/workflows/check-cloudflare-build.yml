@@ -9,6 +9,10 @@ on:
       - 'hero-scrub.js'
       - 'hero-scrub.css'
       - 'index.html'
+      - 'stock-ui.js'
+      - 'lead-capture.js'
+      - 'cloudflare/**'
+      - 'wrangler.jsonc'
       - 'public/assets/**'
       - '.github/workflows/check-cloudflare-build.yml'
   workflow_dispatch:
@@ -37,3 +41,14 @@ jobs:
           grep -q 'optimized/black seed oil.webp' dist/app.js
           node --check dist/app.js
           node --check dist/hero-scrub.js
+      - name: Check Cloudflare API and protected dashboard syntax
+        run: |
+          node --check cloudflare/worker.js
+          node --check cloudflare/admin-page.js
+          node --check stock-ui.js
+          node --check lead-capture.js
+      - name: Verify D1 inventory constraints and lifecycle
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq sqlite3
+          bash cloudflare/test-inventory.sh
