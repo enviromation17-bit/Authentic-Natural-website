@@ -39,14 +39,23 @@ jobs:
         run: |
           set -eu
           mkdir -p site
-          for file in index.html styles.css enhance.css hero-scrub.css app.js scrub.js product360.js polish.js hero-scrub.js lead-popup.js brand-rail.js; do
+          for file in index.html styles.css enhance.css hero-scrub.css app.js scrub.js product360.js polish.js hero-scrub.js lead-popup.js lead-capture.js; do
             test -s "$file"
             cp "$file" site/
           done
           cp -R public site/
+          # Protected PHP endpoint and staff dashboard. The private config is NEVER staged.
+          mkdir -p site/_private site/api site/admin
+          cp hostbreak/_private/bootstrap.php hostbreak/_private/.htaccess site/_private/
+          cp hostbreak/api/leads.php hostbreak/api/.htaccess site/api/
+          cp hostbreak/admin/index.php hostbreak/admin/.htaccess site/admin/
+          test -s site/_private/bootstrap.php
+          test -s site/admin/index.php
+          test -s site/api/leads.php
+          test ! -e site/authentic-naturals-config.php
           test -s site/public/assets/process-01.png
           test -s site/index.html
-          echo "Storefront staged. CRM demo intentionally excluded from production."
+          echo "Storefront and protected backend staged. CRM demo and private credentials excluded."
 
       - name: Install FTP client
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
