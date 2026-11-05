@@ -72,7 +72,7 @@ button:disabled{opacity:.42;cursor:not-allowed}.actions{display:flex;gap:8px;fle
  <div><h2 style="margin:0">WhatsApp inbox</h2><p class="muted">Official Meta webhook · Incoming messages and staff-reviewed reply suggestions</p></div>
  <button type="button" id="wa-refresh" class="secondary">Refresh inbox</button>
 </div>
-<p class="notice">Incoming WhatsApp messages appear here only after the official Meta webhook and secrets are configured. Suggestions are rules-based drafts, not automatic replies. Never send unreviewed messages.</p>
+<p class="notice" id="wa-connection-status">Checking WhatsApp integration status…</p><p class="muted">Suggestions are rules-based drafts, not automatic replies. Never send unreviewed messages.</p>
 <div class="columns">
  <div><h3>Conversations</h3><div id="wa-conversations" class="list"><p class="muted">Loading…</p></div></div>
  <div><h3 id="wa-selected">Select a conversation</h3><div id="wa-messages" class="list"><p class="muted">No conversation selected.</p></div>
@@ -184,6 +184,13 @@ $('#export').addEventListener('click',()=>{
 let selectedWA='';
 async function loadWhatsApp(){
  const container=$('#wa-conversations');
+ try{
+  const status=await api('/api/admin/whatsapp/status');
+  $('#wa-connection-status').textContent=status.webhookConfigured
+    ? 'Meta webhook credentials configured. Inbound messages will appear when your WhatsApp Business webhook subscription is active. Outbound replies remain manual.'
+    : 'Meta webhook not connected. Configure WA_APP_SECRET, WA_VERIFY_TOKEN, WA_PHONE_NUMBER_ID and subscribe the webhook in your Meta app.';
+ }catch(e){$('#wa-connection-status').textContent='Inbox database setup incomplete: '+e.message;}
+
  try{
   const data=await api('/api/admin/whatsapp/conversations');
   const conversations=data.conversations||[];
