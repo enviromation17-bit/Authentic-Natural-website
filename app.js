@@ -41,14 +41,14 @@ const ingredientPhotos = {
   'Tea Tree Oil': A + 'rashid-New8EgKnSds-unsplash.jpg',
   'Lavender Oil': A + 'olga-volkovitskaia-SCBaOBxjGCY-unsplash.jpg',
   'Castor Oil': A + 'images.jfif',
-  'Coconut Oil': A + 'image_20261104_094311.jpg',
+  'Coconut Oil': A + 'coconet oil.jfif',
   'Olive Oil': A + 'roberta-sorge-uOBApnN_K7w-unsplash.jpg',
   'Jojoba Oil': A + 'jojoba_oil_image_e1028b7f-e55d-4c58-ba71-e66bddcb721c.webp',
   'Almond Oil': A + 'elisabeth-rosenak-kAWWYOq1cIs-unsplash.jpg',
   'Moringa Oil': A + 'Moringa-oil-1.webp',
   'Rosehip Oil': A + 'what-is-rosehip-oil_81627fa3-3990-4ded-a6e9-1b0ab9bc5da2.webp',
   'Onion Oil': A + 'abhishek-hajare-D9h2-RxM1rE-unsplash.jpg',
-  'Black Seed Oil': A + 'ginger-jordan-l6J3yLLtXO8-unsplash.jpg',
+  'Black Seed Oil': A + 'black seed oil.jfif',
   'Pumpkin Seed Oil': A + 'pumpkin-seed-oil-1314450543.webp',
   'Fenugreek Oil': A + 'feungreek oil.jfif',
   'Amla Oil': A + 'amla oil.jfif',
@@ -111,7 +111,30 @@ function renderIngredients() {
     const title = document.createElement('h3');
     title.textContent = name;
     const p = document.createElement('p');
-    p.textContent = description;
+    // Make the key cosmetic-care benefit visible, without injecting HTML strings.
+    const benefitTerms = [
+      'softness', 'smoothness', 'shine', 'scalp care', 'scalp comfort',
+      'cooling sensation', 'refreshed', 'freshness', 'conditioning',
+      'condition hair', 'condition and soften', 'softer', 'nourish',
+      'manageable', 'manageability', 'healthy looking hair',
+      'aromatic', 'traditional hair', 'dryness'
+    ];
+    const term = benefitTerms.find(term =>
+      description.toLowerCase().includes(term.toLowerCase())
+    );
+    if (term) {
+      const indexOfBenefit = description.toLowerCase().indexOf(term.toLowerCase());
+      const highlighted = document.createElement('strong');
+      highlighted.className = 'copy-accent';
+      highlighted.textContent = description.slice(indexOfBenefit, indexOfBenefit + term.length);
+      p.append(
+        document.createTextNode(description.slice(0,indexOfBenefit)),
+        highlighted,
+        document.createTextNode(description.slice(indexOfBenefit + term.length))
+      );
+    } else {
+      p.textContent = description;
+    }
     const details = document.createElement('button');
     details.type = 'button';
     details.className = 'ingredient-explore';
