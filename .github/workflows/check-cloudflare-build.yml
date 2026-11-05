@@ -1,0 +1,39 @@
+name: Validate Cloudflare image build
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'scripts/build-cloudflare.mjs'
+      - 'app.js'
+      - 'hero-scrub.js'
+      - 'hero-scrub.css'
+      - 'index.html'
+      - 'public/assets/**'
+      - '.github/workflows/check-cloudflare-build.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build optimized storefront
+        run: npm run build
+      - name: Confirm converted images and no private backend
+        run: |
+          test -s dist/index.html
+          test -s dist/public/assets/optimized/process-01.webp
+          test -s dist/public/assets/optimized/black\ seed\ oil.webp
+          ! test -e dist/hostbreak
+          ! test -e dist/.github
+          grep -q 'optimized/process-01.webp' dist/index.html
+          grep -q 'optimized/black seed oil.webp' dist/app.js
+          node --check dist/app.js
+          node --check dist/hero-scrub.js
