@@ -10,5 +10,8 @@
   "devDependencies": {
     "sharp": "^0.34.4",
     "wrangler": "^4.45.0"
+  },
+  "dependencies": {
+    "jose": "^6.1.0"
   }
 }
