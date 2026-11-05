@@ -274,15 +274,39 @@ $('#remove-item') && $('#remove-item').addEventListener('click', () => {
   bagStore.set(0);
   renderBag();
 });
-$('#order-form') && $('#order-form').addEventListener('submit', (e) => {
+$('#order-form') && $('#order-form').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const fd = new FormData(e.target);
-  const text = encodeURIComponent(
-    'Hello Authentic Naturals, I would like to order Hair Repair & Revive Growth Oil.\n' +
-    'Qty: ' + bagQty + '\nName: ' + fd.get('customer') + '\nPhone: ' + fd.get('phone') +
-    '\nCity: ' + fd.get('city') + '\nAddress: ' + fd.get('address') + '\nPayment: ' + fd.get('payment')
-  );
-  window.open('https://wa.me/923248019501?text=' + text, '_blank');
+  const form=e.currentTarget;
+  if (!form.reportValidity()) return;
+  const fd = new FormData(form);
+  if (String(fd.get('website') || '').trim()) return;
+  const name=String(fd.get('customer')||'').trim();
+  const phone=String(fd.get('phone')||'').trim();
+  const city=String(fd.get('city')||'').trim();
+  const address=String(fd.get('address')||'').trim();
+  const payment=String(fd.get('payment')||'').trim();
+  const quantity=Math.max(1,bagQty);
+  const message = 'Hello Authentic Naturals, I would like to order Hair Repair & Revive Growth Oil.\\n' +
+    'Qty: ' + quantity + '\\nName: ' + name + '\\nPhone: ' + phone +
+    '\\nCity: ' + city + '\\nAddress: ' + address + '\\nPayment: ' + payment;
+  const url='https://wa.me/923248019501?text='+encodeURIComponent(message);
+  const submitButton=form.querySelector('[type="submit"]');
+  const status=document.getElementById('order-save-status');
+  if(submitButton)submitButton.disabled=true;
+  if(status)status.textContent='Preparing your WhatsApp order…';
+  const tab=window.open('about:blank','_blank');
+  if(tab)tab.opener=null;
+  const response=await (window.ANLeadCapture?.submit({
+    source:'order',name,phone,city,topic:'Hair Repair & Revive Growth Oil',
+    notes:'Order request. Delivery address: '+address,
+    payment,quantity,consent:fd.get('capture_consent')==='on'
+  })||Promise.resolve({saved:false}));
+  if(status)status.textContent=response.saved
+    ? 'Order request recorded. Please press Send in WhatsApp to confirm with our team.'
+    : 'Order request was not saved in the dashboard. Please press Send in WhatsApp to place your order.';
+  if(submitButton)submitButton.disabled=false;
+  if(tab&&!tab.closed)tab.location.href=url;
+  else window.location.assign(url);
 });
 $('#privacy-open') && $('#privacy-open').addEventListener('click', () => $('#privacy-dialog').showModal());
 $('#clear-data') && $('#clear-data').addEventListener('click', () => {
