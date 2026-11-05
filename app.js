@@ -231,8 +231,6 @@ document.querySelectorAll('[data-filter]').forEach((button) => button.addEventLi
     b.setAttribute('aria-pressed', String(b === button));
   });
   renderIngredients();
-// The editorial gallery is horizontally scrollable; only load photos nearing its visible area.
-$('.botanical-look-item img[data-src]').forEach(watchPhoto);
 }));
 $('#year').textContent = new Date().getFullYear();
 
@@ -325,3 +323,5 @@ if (video && 'IntersectionObserver' in window) {
 renderBag();
 renderQuantity();
 renderIngredients();
+// Watch gallery images once at startup, including horizontal scroll visibility.
+$('.botanical-look-item img[data-src]').forEach(watchPhoto);
