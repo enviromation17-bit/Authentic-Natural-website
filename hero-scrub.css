@@ -820,3 +820,48 @@ html.has-gsap-hero main>.hero .hero-scrub-stage .scrub-title{
   filter:none!important;transform:none!important;
  }
 }
+
+
+/* Clear readable emphasis for all secondary copy, including dynamically built cards.
+   This deliberately supersedes the previous too-faint underline gradients. */
+html body strong.copy-accent,
+html body .copy-accent {
+ font-weight:800!important;
+ color:#23563a!important;
+ background:linear-gradient(to bottom,transparent 54%,rgba(158,209,121,.53) 54%)!important;
+ padding:0 2px!important;
+ border-radius:2px!important;
+ text-decoration:none!important;
+ -webkit-box-decoration-break:clone!important;
+ box-decoration-break:clone!important;
+ text-shadow:none!important;
+}
+html body .product-info .copy-accent,
+html body .ingredient-card .copy-accent,
+html body .usage-caption .copy-accent,
+html body #ingredients .copy-accent {
+ color:#194c3a!important;
+ background:linear-gradient(to bottom,transparent 49%,rgba(132,197,133,.53) 49%)!important;
+}
+html body #ingredients .ingredient-card p .copy-accent {
+ display:inline!important;
+ font-size:inherit!important;
+ line-height:inherit!important;
+ font-weight:800!important;
+ color:#1a5a45!important;
+}
+html body .hero-scrub-stage .scrub-description .copy-accent {
+ font-weight:800!important;color:#e9ffc6!important;
+ background:linear-gradient(to bottom,transparent 49%,rgba(139,187,77,.6) 49%)!important;
+ text-shadow:0 1px 4px rgba(0,0,0,.35)!important;
+}
+html body .site-footer.footer-redesigned .copy-accent {
+ font-weight:800!important;color:#e3fac1!important;
+ background:linear-gradient(to bottom,transparent 51%,rgba(131,187,99,.35) 51%)!important;
+}
+@media (prefers-contrast:more) {
+ html body .copy-accent {
+  background:none!important;text-decoration:underline!important;
+  text-decoration-thickness:2px!important;text-underline-offset:3px!important;
+ }
+}
