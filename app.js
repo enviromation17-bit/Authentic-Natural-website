@@ -5,7 +5,12 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
 const PRICE = 1499;
 let qty = 1;
-let bagQty = Number(localStorage.getItem('an-bag') || 0);
+const bagStore = {
+  get: () => { try { return localStorage.getItem('an-bag'); } catch (_) { return null; } },
+  set: value => { try { localStorage.setItem('an-bag',String(value)); } catch (_) {} },
+  clear: () => { try { localStorage.removeItem('an-bag'); } catch (_) {} }
+};
+let bagQty = Math.max(0, Math.min(20, Number(bagStore.get() || 0) || 0));
 let filter = 'all';
 
 const ingredients = [
@@ -218,6 +223,10 @@ function openIngredientDetail(name, description) {
     lower.includes('castor') ? 'Castor oil is a rich traditional oil used to coat and condition strands.' :
     'The ingredient is included for traditional hair or scalp-care use; specific results are not guaranteed.');
   const photo = document.getElementById('ingredient-detail-image');
+  photo.onerror = function() {
+    this.onerror = null;
+    this.src = A + 'botanicals.png';
+  };
   photo.src = image;
   photo.alt = 'Photograph of ' + name;
   ingredientDialog.showModal();
@@ -238,7 +247,7 @@ $('#plus').addEventListener('click', () => { qty = Math.min(10, qty + 1); render
 $('#minus').addEventListener('click', () => { qty = Math.max(1, qty - 1); renderQuantity(); });
 $('#add-cart').addEventListener('click', () => {
   bagQty = Math.min(20, bagQty + qty);
-  localStorage.setItem('an-bag', String(bagQty));
+  bagStore.set(bagQty);
   renderBag();
   toast('Added to bag');
 });
@@ -250,17 +259,17 @@ $$('[data-close]').forEach((btn) => btn.addEventListener('click', () => {
 }));
 $('#cart-plus') && $('#cart-plus').addEventListener('click', () => {
   bagQty = Math.min(20, bagQty + 1);
-  localStorage.setItem('an-bag', String(bagQty));
+  bagStore.set(bagQty);
   renderBag();
 });
 $('#cart-minus') && $('#cart-minus').addEventListener('click', () => {
   bagQty = Math.max(0, bagQty - 1);
-  localStorage.setItem('an-bag', String(bagQty));
+  bagStore.set(bagQty);
   renderBag();
 });
 $('#remove-item') && $('#remove-item').addEventListener('click', () => {
   bagQty = 0;
-  localStorage.setItem('an-bag', '0');
+  bagStore.set(0);
   renderBag();
 });
 $('#order-form') && $('#order-form').addEventListener('submit', (e) => {
@@ -275,7 +284,7 @@ $('#order-form') && $('#order-form').addEventListener('submit', (e) => {
 });
 $('#privacy-open') && $('#privacy-open').addEventListener('click', () => $('#privacy-dialog').showModal());
 $('#clear-data') && $('#clear-data').addEventListener('click', () => {
-  localStorage.removeItem('an-bag');
+  bagStore.clear();
   bagQty = 0;
   renderBag();
   toast('Saved bag cleared');
@@ -309,15 +318,15 @@ $('#usage-prev') && $('#usage-prev').addEventListener('click', () => setUsageSte
 $('#usage-next') && $('#usage-next').addEventListener('click', () => setUsageStep(usageStep + 1));
 setUsageStep(0);
 
+// Video is user-controlled: never download or autoplay it merely on scrolling.
 const video = document.querySelector('.video-section video');
-if (video && 'IntersectionObserver' in window) {
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) { video.muted = true; video.play().catch(() => {}); }
-      else video.pause();
-    });
-  }, { threshold: 0.45 });
-  io.observe(video);
+if (video) {
+  video.autoplay = false;
+  video.preload = 'none';
+  video.pause();
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && !video.paused) video.pause();
+  });
 }
 
 renderBag();
