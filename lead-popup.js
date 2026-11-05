@@ -71,7 +71,7 @@
       '*Question:* ' + enquiry,
       '',
       'Sent using the Authentic Naturals website.'
-    ].filter(Boolean).join('\\n');
+    ].filter(Boolean).join('\n');
     const url = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(message);
     const status = document.getElementById('lead-save-status');
     const button = form.querySelector('[type="submit"]');
