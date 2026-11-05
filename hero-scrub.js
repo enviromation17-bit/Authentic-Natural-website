@@ -118,9 +118,9 @@
 
     // Load only the frames needed immediately; prefetch their neighbours.
     preload(lower);
-    preload(upper);
-    // On phones, limit speculative decoding to the immediate next frame.
-    if (!mobile && lower+2 < frames.length) preload(lower+2);
+    // Only fetch the adjacent photo once the visitor begins to scroll.
+    // This avoids network contention with the first hero image and critical CSS.
+    if (p > 0.008 && upper !== lower) preload(upper);
 
     const displayIndex = ready.has(lower) ? lower : currentIndex;
     if (displayIndex >= 0 && displayIndex !== currentIndex) {
@@ -155,6 +155,13 @@
     hero.style.removeProperty('transform');
     stage.style.willChange = 'auto';
     render(0);
+    // Warm one next frame after first paint, only on non-data-saving connections.
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (!(connection && (connection.saveData || /2g/.test(connection.effectiveType || '')))) {
+      const warm = () => preload(1);
+      if ('requestIdleCallback' in window) requestIdleCallback(warm, {timeout:2400});
+      else window.addEventListener('load', warm, {once:true});
+    }
 
     trigger = ScrollTrigger.create({
       trigger:stage,
