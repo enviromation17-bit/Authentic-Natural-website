@@ -286,9 +286,9 @@ $('#order-form') && $('#order-form').addEventListener('submit', async (e) => {
   const address=String(fd.get('address')||'').trim();
   const payment=String(fd.get('payment')||'').trim();
   const quantity=Math.max(1,bagQty);
-  const message = 'Hello Authentic Naturals, I would like to order Hair Repair & Revive Growth Oil.\\n' +
-    'Qty: ' + quantity + '\\nName: ' + name + '\\nPhone: ' + phone +
-    '\\nCity: ' + city + '\\nAddress: ' + address + '\\nPayment: ' + payment;
+  const message = 'Hello Authentic Naturals, I would like to order Hair Repair & Revive Growth Oil.\n' +
+    'Qty: ' + quantity + '\nName: ' + name + '\nPhone: ' + phone +
+    '\nCity: ' + city + '\nAddress: ' + address + '\nPayment: ' + payment;
   const url='https://wa.me/923248019501?text='+encodeURIComponent(message);
   const submitButton=form.querySelector('[type="submit"]');
   const status=document.getElementById('order-save-status');
