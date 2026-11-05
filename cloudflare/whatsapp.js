@@ -95,6 +95,17 @@ export async function webhook(request,env){
 }
 export async function whatsappAdminApi(request,env,path){
   if(!env.DB)return json({ok:false,error:'Database not configured'},503);
+  if(request.method==='GET'&&path==='/api/admin/whatsapp/status'){
+    const connected=Boolean(env.WA_APP_SECRET&&env.WA_VERIFY_TOKEN&&env.WA_PHONE_NUMBER_ID);
+    try{
+      const row=await env.DB.prepare('SELECT COUNT(*) AS n FROM whatsapp_conversations').first();
+      return json({ok:true,webhookConfigured:connected,conversationCount:row?.n||0,
+        outboundConfigured:false,automaticReplies:false,
+        assistantMode:'staff_reviewed_rules'});
+    }catch{
+      return json({ok:false,error:'WhatsApp tables not initialized'},503);
+    }
+  }
   if(request.method==='GET'&&path==='/api/admin/whatsapp/conversations'){
     const {results}=await env.DB.prepare(`SELECT c.id,c.phone,c.display_name,c.lead_id,
       c.last_message_at,c.unread_count,
