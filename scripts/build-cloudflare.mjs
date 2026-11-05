@@ -8,7 +8,7 @@ const out = resolve(root, 'dist');
 const assets = [
   'index.html', 'styles.css', 'enhance.css', 'hero-scrub.css',
   'app.js', 'scrub.js', 'product360.js', 'polish.js',
-  'hero-scrub.js', 'ritual-player.js', 'lead-popup.js', 'lead-capture.js'
+  'hero-scrub.js', 'ritual-player.js', 'lead-popup.js', 'lead-capture.js', 'stock-ui.js'
 ];
 const heroImages = [
   'process-01.png','process-02.png','process-03.png','process-04.png',
