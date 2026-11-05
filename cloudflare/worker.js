@@ -1,5 +1,6 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { adminPage } from './admin-page.js';
+import { webhook, whatsappAdminApi } from './whatsapp.js';
 
 const SKU = 'AN-HAIR-OIL-100';
 const allowedSources = new Set(['enquiry','order']);
@@ -121,6 +122,7 @@ async function adminApi(request,env,path) {
   const owner=await authorize(request,env);
   if(!owner)return fail('Staff access required',403);
   if(!env.DB)return fail('D1 binding is not configured',503);
+  if(path.startsWith('/api/admin/whatsapp/'))return whatsappAdminApi(request,env,path);
   if(request.method==='GET'&&path==='/api/admin/summary'){
     const [counts,product]=await env.DB.batch([
       env.DB.prepare("SELECT COUNT(*) AS total,SUM(CASE WHEN order_status='pending_review' THEN 1 ELSE 0 END) AS pending,SUM(CASE WHEN order_status='waitlist' THEN 1 ELSE 0 END) AS waitlist FROM leads"),
@@ -177,6 +179,7 @@ export default {
   async fetch(request,env) {
     const path=new URL(request.url).pathname;
     try{
+      if(path==='/api/webhooks/whatsapp')return webhook(request,env);
       if(path==='/api/stock')return publicStock(env);
       if(path==='/api/leads.php'||path==='/api/leads')return capture(request,env);
       if(path==='/admin'||path==='/admin/'){
