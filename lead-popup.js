@@ -24,6 +24,23 @@
     openButton.focus({preventScroll:true});
   };
   openButton.addEventListener('click', function (event) {event.preventDefault();open();});
+  document.querySelectorAll('[data-open-lead]').forEach(button => {
+    button.addEventListener('click', function(event) {
+      event.preventDefault();
+      open();
+    });
+  });
+  // The footer has its own contact action: hide the floating launcher in that area.
+  const footer = document.querySelector('.site-footer.footer-redesigned');
+  if (footer && 'IntersectionObserver' in window) {
+    const footerObserver = new IntersectionObserver(entries => {
+      const visible = entries.some(entry => entry.isIntersecting);
+      openButton.classList.toggle('lead-launcher-hidden', visible);
+      openButton.setAttribute('aria-hidden', visible ? 'true' : 'false');
+      openButton.tabIndex = visible ? -1 : 0;
+    }, {threshold:0,rootMargin:'0px 0px 0px 0px'});
+    footerObserver.observe(footer);
+  }
   closeButton.addEventListener('click', close);
   dialog.addEventListener('close', () => document.documentElement.classList.remove('lead-popup-visible'));
   dialog.addEventListener('click', event => {
