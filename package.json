@@ -1,0 +1,14 @@
+{
+  "name": "authentic-naturals-storefront",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-cloudflare.mjs",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.4",
+    "wrangler": "^4.45.0"
+  }
+}
