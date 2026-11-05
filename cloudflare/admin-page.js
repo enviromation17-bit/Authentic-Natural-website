@@ -160,8 +160,8 @@ $('#export').addEventListener('click',()=>{
    let v=String(value??'');if(/^[=+@\\-\\t\\r]/.test(v))v="'"+v;
    return '"'+v.replaceAll('"','""')+'"';
  };
- const csv=[fields.join(','),...records.map(item=>fields.map(key=>cell(item[key])).join(','))].join('\r\n');
- const url=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
+ const csv=[fields.join(','),...records.map(item=>fields.map(key=>cell(item[key])).join(','))].join('\\r\\n');
+ const url=URL.createObjectURL(new Blob(['\\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
  const a=document.createElement('a');a.href=url;a.download='authentic-naturals-leads.csv';
  a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
 });
