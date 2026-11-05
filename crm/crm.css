@@ -15,3 +15,8 @@
 @media(max-width:700px){:root{--rail:64px}#workspace{padding:0 16px}.nav-rail{padding:12px 5px}.rail-link{width:49px;height:52px;min-height:52px;padding:0 13px}.rail-link.active{width:128px;box-shadow:0 8px 19px #123d2940}.rail-new{width:49px;height:57px}.rail-new .new-text{font-size:9px}.rail-link .rail-label{font-size:10px}.rail-link.active .rail-label{max-width:80px}.topline{min-height:75px}.brand b{font-size:9px}.brand small{font-size:8px}.workspace-pill{display:none}.top-actions .btn{padding:10px 12px}.workspace-intro{padding:32px 0 18px}.workspace-intro h1{font-size:clamp(3.1rem,11vw,4.7rem)}.workspace-intro p{font-size:12px}.intro-actions{width:100%}.notice{font-size:10px}.kpis{gap:10px}.kpi{min-height:145px;padding:15px}.kpi strong{margin-top:14px}.surface{padding:16px}.table-tools{flex-wrap:wrap}.table-tools input{flex-basis:100%;width:100%}.field-grid{grid-template-columns:1fr}.editor-form{padding:20px}.workspace-footer{font-size:9px}.page-heading h2{font-size:25px}}
 @media(max-width:420px){:root{--rail:58px}.brand img{width:30px;height:30px}.top-actions .btn{font-size:10px}.brand b{font-size:8px}.brand small{font-size:7px}.kpis{grid-template-columns:1fr 1fr}.kpi .kpi-label{font-size:10px}.kpi strong{font-size:2.5rem}.select-wrap select{max-width:156px}.desktop-add{padding:10px}.nav-rail .rail-link.active{width:118px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+
+/* Keep the expanding active Settings item anchored inside the viewport. */
+.nav-rail .rail-bottom{width:100%;justify-items:end}
+.nav-rail .rail-bottom .rail-link{align-self:flex-end}
+.select-wrap[hidden]{display:none!important}
