@@ -1042,3 +1042,51 @@ html body .site-footer.footer-redesigned.footer-leaves-playing .premium-leaf{
   display:none!important;animation:none!important;
  }
 }
+
+
+/* Footer layout hotfix — WhatsApp changed from anchor to button.
+   Keep it entirely out of document flow to remove the pale strip after footer. */
+html body > button#lead-popup-open.floating-whatsapp.lead-launcher {
+ position:fixed!important;
+ inset:auto clamp(14px,2vw,26px) max(16px,env(safe-area-inset-bottom,0px)) auto!important;
+ left:auto!important;top:auto!important;right:clamp(14px,2vw,26px)!important;
+ bottom:max(16px,env(safe-area-inset-bottom,0px))!important;
+ z-index:160!important;
+ width:auto!important;max-width:calc(100vw - 28px)!important;
+ min-width:0!important;min-height:50px!important;
+ margin:0!important;
+ transform:none;
+ white-space:nowrap!important;
+}
+html body > button#lead-popup-open.floating-whatsapp.lead-launcher:hover {
+ transform:translateY(-3px)!important;
+}
+html body > dialog#lead-popup:not([open]) {
+ display:none!important;
+}
+html body > dialog#lead-popup[open] {
+ position:fixed!important;
+ z-index:170!important;
+}
+html body .site-footer.footer-redesigned {
+ margin:0!important;
+ padding-bottom:0!important;
+}
+html body .site-footer.footer-redesigned .footer-bottom {
+ margin-bottom:0!important;
+}
+html body .site-footer.footer-redesigned .footer-contact-group .footer-social-row {
+ justify-content:flex-end!important;
+ margin-top:22px!important;
+}
+@media (max-width:550px){
+ html body > button#lead-popup-open.floating-whatsapp.lead-launcher {
+  right:12px!important;left:auto!important;
+  bottom:max(12px,env(safe-area-inset-bottom,0px))!important;
+  min-height:46px!important;
+  padding:10px 14px!important;
+ }
+ html body .site-footer.footer-redesigned .footer-contact-group .footer-social-row {
+  justify-content:flex-start!important;
+ }
+}
