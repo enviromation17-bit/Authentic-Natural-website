@@ -48,7 +48,7 @@
   dialog.addEventListener('click', event => {
     if (event.target === dialog) close();
   });
-  form.addEventListener('submit', event => {
+  form.addEventListener('submit', async event => {
     event.preventDefault();
     if (!form.reportValidity()) return;
     const value = name => String(form.elements.namedItem(name)?.value || '').trim();
@@ -57,7 +57,9 @@
     const city = value('lead_city').slice(0,80);
     const topic = value('lead_topic').slice(0,80);
     const enquiry = value('lead_message').slice(0,900);
-    if (!customer || !enquiry) return;
+    const agreed = Boolean(form.elements.namedItem('capture_consent')?.checked);
+    if (!customer || !enquiry || !agreed) return;
+    if (value('website')) return;
     const message = [
       'Hello Authentic Naturals!',
       '',
@@ -69,12 +71,26 @@
       '*Question:* ' + enquiry,
       '',
       'Sent using the Authentic Naturals website.'
-    ].filter(Boolean).join('\n');
+    ].filter(Boolean).join('\\n');
     const url = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(message);
-    // Open synchronously in the form's user gesture; popup blockers may prevent a new tab.
-    const tab = window.open(url, '_blank');
-    if (tab) tab.opener = null;
+    const status = document.getElementById('lead-save-status');
+    const button = form.querySelector('[type="submit"]');
+    button.disabled = true;
+    if(status) status.textContent = 'Preparing your WhatsApp message…';
+    // Open tab synchronously to avoid popup blockers while the API request runs.
+    const tab = window.open('about:blank', '_blank');
+    if(tab) tab.opener = null;
+    const saved = await (window.ANLeadCapture?.submit({
+      source:'enquiry',name:customer,phone,city,topic,notes:enquiry,
+      quantity:1,consent:true
+    }) || Promise.resolve({saved:false}));
+    if (status) status.textContent = saved.saved
+      ? 'Enquiry recorded. Please press Send in WhatsApp to message our team.'
+      : 'Your enquiry was not saved to the dashboard. Please press Send in WhatsApp to reach us.';
+    button.disabled = false;
+    if (tab && !tab.closed) tab.location.href = url;
     else window.location.assign(url);
-    close();
+    // Keep this dialog open so the accurate save status is available to read.
   });
+
 })();
