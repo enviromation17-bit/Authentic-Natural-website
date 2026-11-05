@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS leads (
   sku TEXT,
   consent_at TEXT NOT NULL,
   idempotency_key TEXT UNIQUE,
+  ip_hash TEXT NOT NULL DEFAULT '',
   FOREIGN KEY(sku) REFERENCES products(sku)
 );
 CREATE INDEX IF NOT EXISTS idx_leads_created ON leads(created_at DESC);
@@ -46,3 +47,39 @@ CREATE TABLE IF NOT EXISTS inventory_movements (
   FOREIGN KEY(sku) REFERENCES products(sku)
 );
 CREATE INDEX IF NOT EXISTS idx_inventory_movements ON inventory_movements(sku,created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_leads_ip_created ON leads(ip_hash,created_at);
+-- Inventory is allocated only when staff confirms an order. A waitlist
+-- request never reserves units or promises a delivery date.
+CREATE TRIGGER IF NOT EXISTS lead_check_reservation
+BEFORE UPDATE OF order_status ON leads
+WHEN NEW.order_status = 'confirmed' AND OLD.order_status IN ('pending_review','waitlist')
+BEGIN
+  SELECT CASE WHEN
+    (SELECT on_hand - allocated FROM products WHERE sku=NEW.sku) < NEW.quantity
+    THEN RAISE(ABORT, 'insufficient stock') END;
+END;
+CREATE TRIGGER IF NOT EXISTS lead_allocate_stock
+AFTER UPDATE OF order_status ON leads
+WHEN NEW.order_status = 'confirmed' AND OLD.order_status IN ('pending_review','waitlist')
+BEGIN
+  UPDATE products SET allocated = allocated + NEW.quantity,updated_at=CURRENT_TIMESTAMP WHERE sku=NEW.sku;
+  INSERT INTO inventory_movements(id,sku,delta,reason,actor,lead_id)
+  VALUES(lower(hex(randomblob(16))),NEW.sku,-NEW.quantity,'confirmed_reservation','staff',NEW.id);
+END;
+CREATE TRIGGER IF NOT EXISTS lead_release_stock
+AFTER UPDATE OF order_status ON leads
+WHEN NEW.order_status = 'cancelled' AND OLD.order_status = 'confirmed'
+BEGIN
+  UPDATE products SET allocated = allocated - OLD.quantity,updated_at=CURRENT_TIMESTAMP WHERE sku=OLD.sku;
+  INSERT INTO inventory_movements(id,sku,delta,reason,actor,lead_id)
+  VALUES(lower(hex(randomblob(16))),OLD.sku,OLD.quantity,'cancelled_reservation','staff',OLD.id);
+END;
+CREATE TRIGGER IF NOT EXISTS lead_fulfill_stock
+AFTER UPDATE OF order_status ON leads
+WHEN NEW.order_status = 'fulfilled' AND OLD.order_status = 'confirmed'
+BEGIN
+  UPDATE products SET on_hand = on_hand - OLD.quantity, allocated = allocated - OLD.quantity,updated_at=CURRENT_TIMESTAMP WHERE sku=OLD.sku;
+  INSERT INTO inventory_movements(id,sku,delta,reason,actor,lead_id)
+  VALUES(lower(hex(randomblob(16))),OLD.sku,-OLD.quantity,'fulfilled_order','staff',OLD.id);
+END;
