@@ -155,7 +155,7 @@
     }
     // Composite-only progress animation: no repeated width/layout calculations.
     progressFill.style.transform = 'scaleX(' + p.toFixed(4) + ')';
-    progressCount.textContent = String(lower+1).padStart(2,'0') + ' / ' + String(frames.length).padStart(2,'0');
+    progressCount.textContent = String(Math.max(0,displayIndex)+1).padStart(2,'0') + ' / ' + String(frames.length).padStart(2,'0');
     // Do not change the headline before its photograph is actually available.
     showStory(Math.max(0,displayIndex));
   }
