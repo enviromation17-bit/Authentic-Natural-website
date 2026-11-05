@@ -1,37 +1,30 @@
-# HostBreak deployment — Authentic Naturals storefront
+# Authentic Naturals — HostBreak storefront and private CRM deployment
 
-The site is still hosted on GitHub Pages until this workflow is configured and run. A GitHub commit **does not** deploy to HostBreak by itself.
+The public GitHub Pages site runs static HTML/JS and **cannot execute the PHP backend**. The real lead dashboard becomes functional only when the HostBreak PHP/MySQL database and private hosting configuration are set up.
 
-## What is prepared
-- GitHub Actions workflow: `.github/workflows/deploy-hostbreak.yml`
-- Manual trigger only (`workflow_dispatch`).
-- Uploads public storefront HTML, CSS, JS and `public/` assets.
-- Uses encrypted FTP over TLS (FTPS), certificate verification, and GitHub Actions secrets.
-- Does not delete pre-existing HostBreak files.
-- Excludes the unauthenticated `crm/` prototype from production uploads.
+## Deployment package
+The manual GitHub workflow `.github/workflows/deploy-hostbreak.yml` now includes:
+- Storefront pages, images, styles and scripts (including `lead-capture.js`).
+- `/api/leads.php` — consent-based secure lead intake.
+- `/admin/index.php` — password-protected private staff dashboard.
+- `/_private/bootstrap.php` and a private directory deny-access rule.
 
-## Setup required in GitHub
-Go to repository **Settings → Secrets and variables → Actions → New repository secret** and enter:
+It excludes the old public CRM demo and does **not** deploy passwords or `hostbreak/private-config.example.php`.
 
-- `HB_FTP_HOST`: server hostname from your HostBreak activation email.
-- `HB_FTP_USER`: your hosting FTP username.
-- `HB_FTP_PASSWORD`: your FTP password (secret, never commit it).
-- `HB_FTP_PATH`: your remote hosting document directory, normally `public_html` or `/public_html`. The workflow requires the path to end in `public_html` as a safety check.
+## Before triggering
+1. Set up HostBreak PHP 8.1+, MySQL database and an HTTPS-enabled website.
+2. Import `hostbreak/schema.sql`.
+3. Create `authentic-naturals-config.php` **outside the web root**, based on `hostbreak/private-config.example.php`. See `hostbreak/README.md` for exact fields.
+4. In GitHub Actions secrets set `HB_FTP_HOST`, `HB_FTP_USER`, `HB_FTP_PASSWORD`, `HB_FTP_PATH`. Use the actual cPanel FTP values; never send or commit passwords to the repository.
+5. Ensure `HB_FTP_PATH` is the correct `public_html` for the intended domain and back up any existing site.
 
-A HostBreak account whose FTP login is already rooted *inside* `public_html` may require a different remote path. Review and adjust the safety check with your actual hosting configuration before running; never guess a directory.
+## Publish
+- GitHub repository → Actions → **Deploy Authentic Naturals storefront to HostBreak** → Run workflow.
+- Verify that `https://YOURDOMAIN/api/leads.php` rejects GET (HTTP 405), that `/_private/bootstrap.php` is blocked (HTTP 403), and that `/admin/` requires a staff password.
+- Submit a consented test enquiry from the actual HostBreak storefront and confirm its record appears in the private dashboard.
+- Test checkout, WhatsApp handoff, responsive layout, rate limiting, SSL, admin search and CSV export.
 
-## Deployment
-1. Confirm the target HostBreak directory is the one for the intended domain. Back up any existing site.
-2. Repository → **Actions → Deploy Authentic Naturals storefront to HostBreak → Run workflow**.
-3. Confirm the workflow upload completes. Check actual published HTML and asset responses in a browser.
-4. Configure the domain at its registrar using the actual HostBreak nameservers or server IP supplied in your activation email.
-5. Enable HTTPS/SSL on the hosting account, test both apex and www variants as applicable.
-6. Recheck cart, WhatsApp enquiry, mobile menu, 10 hero frames and footer on the custom domain.
+## Current status
+Source code and deploy workflow are committed, **not deployed to HostBreak**. No hosting credentials or DNS changes have been performed. The existing GitHub Pages storefront still opens WhatsApp, but its lead capture cannot persist to MySQL there.
 
-## Known limitations / safety notes
-- HostBreak is **not connected** to this chat; this workflow has not been executed or verified.
-- FTPS must be enabled and trusted by your HostBreak server; if it is unavailable, use HostBreak cPanel File Manager or a supported SFTP setup instead of weakening TLS.
-- GitHub-hosted storefront does not automatically sync leads to the CRM or Google Sheets.
-- The HTML contains `noindex,nofollow`; remove intentionally only when public indexing is desired and privacy/legal pages are ready.
-- Do not upload `crm/` to a public storefront; production CRM requires authentication and secure data storage.
-- Run Lighthouse and check real-device responsive layout before final public launch.
+Additional security before storing real customers: review the privacy policy, login attempt throttling, database backups, retention/deletion process, monitoring and least-privilege permissions.
