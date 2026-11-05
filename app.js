@@ -81,6 +81,47 @@ function toast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2400);
 }
+/* Visibility-driven images: do not fetch entire ingredient/gallery libraries on first load.
+   Begin fetching ahead of the viewport, show a stable color until decoded, and handle broken paths. */
+const pendingPhotos = new Set();
+const imageObserver = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    imageObserver.unobserve(entry.target);
+    loadPhoto(entry.target);
+  });
+}, {rootMargin:'700px 350px 700px 350px', threshold:0}) : null;
+function loadPhoto(img) {
+  const src = img.dataset.src;
+  if (!src) return;
+  img.removeAttribute('data-src');
+  img.loading = 'eager';
+  img.decoding = 'async';
+  img.addEventListener('load', () => {
+    img.classList.add('photo-ready');
+    img.parentElement?.classList.add('photo-loaded');
+  }, {once:true});
+  img.addEventListener('error', () => {
+    if (img.dataset.fallbackAttempted === 'true') {
+      img.classList.add('photo-ready');
+      img.parentElement?.classList.add('photo-loaded');
+      return;
+    }
+    img.dataset.fallbackAttempted = 'true';
+    img.src = A + 'botanicals.png';
+  });
+  img.src = src;
+  if (img.complete && img.naturalWidth) {
+    img.classList.add('photo-ready');
+    img.parentElement?.classList.add('photo-loaded');
+  }
+}
+function watchPhoto(img) {
+  if (!img.dataset.src) return;
+  if (imageObserver) imageObserver.observe(img);
+  else loadPhoto(img);
+}
+
 function renderIngredients() {
   const query = ($('#ingredient-search').value || '').trim().toLowerCase();
   const filtered = ingredients.filter(([name, , tag]) => {
@@ -99,7 +140,9 @@ function renderIngredients() {
     media.className = 'ingredient-media';
     media.setAttribute('aria-hidden', 'true');
     const img = document.createElement('img');
-    img.src = ingredientPhotos[name] || (A + 'botanicals.png');
+    img.dataset.src = ingredientPhotos[name] || (A + 'botanicals.png');
+    img.width = 360;
+    img.height = 240;
     img.alt = name;
     img.loading = 'lazy';
     img.decoding = 'async';
@@ -149,6 +192,7 @@ function renderIngredients() {
     });
     card.append(media, number, title, p, details);
     grid.append(card);
+    watchPhoto(img);
   });
   $('#ingredient-count').textContent = filtered.length
     ? `${filtered.length} ingredient guides`
@@ -186,6 +230,8 @@ document.querySelectorAll('[data-filter]').forEach((button) => button.addEventLi
     b.setAttribute('aria-pressed', String(b === button));
   });
   renderIngredients();
+// The editorial gallery is horizontally scrollable; only load photos nearing its visible area.
+$('.botanical-look-item img[data-src]').forEach(watchPhoto);
 }));
 $('#year').textContent = new Date().getFullYear();
 
