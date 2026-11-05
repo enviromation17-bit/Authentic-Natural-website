@@ -1,0 +1,44 @@
+name: Validate Authentic Naturals storefront and PHP backend
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app.js'
+      - 'lead-popup.js'
+      - 'lead-capture.js'
+      - 'index.html'
+      - 'hostbreak/**'
+      - '.github/workflows/check-backend.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql, mbstring
+          coverage: none
+      - name: PHP syntax
+        run: |
+          set -eu
+          find hostbreak -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: JavaScript syntax
+        run: |
+          set -eu
+          for f in app.js lead-popup.js lead-capture.js hero-scrub.js product360.js polish.js scrub.js; do
+            node --check "$f"
+          done
+      - name: Required files and sensitive secret exclusion
+        run: |
+          test -s index.html
+          test -s hostbreak/schema.sql
+          test -s hostbreak/api/leads.php
+          test -s hostbreak/admin/index.php
+          test -s hostbreak/_private/bootstrap.php
+          test ! -f authentic-naturals-config.php
+          test ! -f hostbreak/authentic-naturals-config.php
