@@ -67,6 +67,22 @@ button:disabled{opacity:.42;cursor:not-allowed}.actions{display:flex;gap:8px;fle
 <p>Change confirmed orders to <strong>fulfilled</strong> when dispatched, or <strong>cancelled</strong> to release stock.</p>
 <p>Leads from direct WhatsApp messages are not captured automatically yet. Only website submissions are ingested at this stage.</p>
 </section></div>
+<section class="panel" id="whatsapp-inbox" style="margin-top:22px">
+<div class="toolbar" style="margin:0 0 16px">
+ <div><h2 style="margin:0">WhatsApp inbox</h2><p class="muted">Official Meta webhook · Incoming messages and staff-reviewed reply suggestions</p></div>
+ <button type="button" id="wa-refresh" class="secondary">Refresh inbox</button>
+</div>
+<p class="notice">Incoming WhatsApp messages appear here only after the official Meta webhook and secrets are configured. Suggestions are rules-based drafts, not automatic replies. Never send unreviewed messages.</p>
+<div class="columns">
+ <div><h3>Conversations</h3><div id="wa-conversations" class="list"><p class="muted">Loading…</p></div></div>
+ <div><h3 id="wa-selected">Select a conversation</h3><div id="wa-messages" class="list"><p class="muted">No conversation selected.</p></div>
+ <div style="margin-top:16px">
+ <button type="button" id="wa-suggest" disabled>Suggest a response</button>
+ <label style="margin-top:14px">Review and copy draft<textarea id="wa-draft" rows="5" maxlength="4000" placeholder="Suggestions appear here. Review before sending."></textarea></label>
+ <button type="button" class="secondary" id="wa-copy">Copy draft</button>
+ <p class="muted">The dashboard does not send WhatsApp messages; use your authorized business messaging application to respond manually.</p>
+ </div></div>
+</div></section>
 <div class="toolbar"><h2>Customer enquiries</h2><div class="actions"><button id="refresh" type="button" class="secondary">Refresh</button><button id="export" type="button" class="secondary">Export CSV</button></div></div>
 <div id="leads" class="list"><p class="muted">Loading leads…</p></div>
 </main>
@@ -165,6 +181,62 @@ $('#export').addEventListener('click',()=>{
  const a=document.createElement('a');a.href=url;a.download='authentic-naturals-leads.csv';
  a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
 });
+let selectedWA='';
+async function loadWhatsApp(){
+ const container=$('#wa-conversations');
+ try{
+  const data=await api('/api/admin/whatsapp/conversations');
+  const conversations=data.conversations||[];
+  container.replaceChildren();
+  if(!conversations.length)container.append(text('p','No inbound conversations yet. Configure Meta webhook secrets to activate.','muted'));
+  for(const item of conversations){
+   const button=document.createElement('button');
+   button.type='button';button.className='secondary';
+   button.style.cssText='width:100%;text-align:left;white-space:normal';
+   button.textContent=(item.display_name||'WhatsApp customer')+' · +'+item.phone+
+     ' · '+(item.preview||'Message received').slice(0,100);
+   button.addEventListener('click',()=>openWhatsApp(item));
+   container.append(button);
+  }
+ }catch(error){container.replaceChildren(text('p','Inbox unavailable: '+error.message,'muted'));}
+}
+async function openWhatsApp(item){
+ selectedWA=item.id;
+ $('#wa-selected').textContent=(item.display_name||'Customer')+' · +'+item.phone;
+ $('#wa-suggest').disabled=false;
+ $('#wa-draft').value='';
+ const container=$('#wa-messages');
+ container.replaceChildren(text('p','Loading messages…','muted'));
+ try{
+  const data=await api('/api/admin/whatsapp/messages?conversation='+encodeURIComponent(item.id));
+  container.replaceChildren();
+  for(const message of data.messages||[]){
+   const card=document.createElement('div');card.className='lead';
+   card.append(text('small',message.direction+' · '+message.created_at));
+   card.append(text('p',message.body,'lead-notes'));
+   container.append(card);
+  }
+  if(!container.children.length)container.append(text('p','No messages.','muted'));
+ }catch(e){container.replaceChildren(text('p',e.message,'muted'));}
+}
+$('#wa-refresh').addEventListener('click',loadWhatsApp);
+$('#wa-suggest').addEventListener('click',async()=>{
+ if(!selectedWA)return;
+ try{
+  const data=await api('/api/admin/whatsapp/reply-draft?conversation='+encodeURIComponent(selectedWA));
+  $('#wa-draft').value=data.draft||'';
+  notify('Rule-based draft prepared for manual staff review. Nothing was sent.');
+ }catch(e){notify(e.message);}
+});
+$('#wa-copy').addEventListener('click',async()=>{
+ const draft=$('#wa-draft').value.trim();
+ if(!draft){notify('No reply draft to copy.');return;}
+ try{
+  await navigator.clipboard.writeText(draft);
+  notify('Draft copied. Review it before sending via your authorized WhatsApp account.');
+ }catch(e){notify('Copy unavailable. Select and copy the draft manually.');}
+});
+loadWhatsApp();
 refresh();
 </script></body></html>`;
 }
