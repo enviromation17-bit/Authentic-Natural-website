@@ -1345,3 +1345,26 @@ html body .footer-contact-cta:focus-visible{
   transition:none!important;
  }
 }
+
+
+/* Save resources: animate only while each decorative section is near view. */
+html body #ingredients.ocean-floating-section:not(.ocean-in-view) .ocean-surface *,
+html body #ingredients.ocean-floating-section:not(.ocean-in-view) .ingredient-card.has-photo,
+html body main .benefit-ticker:not(.ticker-in-view) .benefit-ticker-track,
+html body .site-footer.footer-redesigned:not(.footer-leaves-playing) .footer-branch{
+ animation-play-state:paused!important;
+}
+html body #ingredients.ocean-floating-section.ocean-in-view .ocean-surface *,
+html body #ingredients.ocean-floating-section.ocean-in-view .ingredient-card.has-photo,
+html body main .benefit-ticker.ticker-in-view .benefit-ticker-track,
+html body .site-footer.footer-redesigned.footer-leaves-playing .footer-branch{
+ animation-play-state:running!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body #ingredients.ocean-floating-section .ocean-surface *,
+ html body #ingredients.ocean-floating-section .ingredient-card.has-photo,
+ html body main .benefit-ticker .benefit-ticker-track,
+ html body .site-footer.footer-redesigned .footer-branch{
+  animation:none!important;
+ }
+}
