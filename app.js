@@ -83,7 +83,6 @@ function toast(msg) {
 }
 /* Visibility-driven images: do not fetch entire ingredient/gallery libraries on first load.
    Begin fetching ahead of the viewport, show a stable color until decoded, and handle broken paths. */
-const pendingPhotos = new Set();
 const imageObserver = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
   entries.forEach(entry => {
     if (!entry.isIntersecting) return;
@@ -130,6 +129,8 @@ function renderIngredients() {
     return matchFilter && matchQuery;
   });
   const grid = $('#ingredient-grid');
+  // Release no-longer-visible filtered cards before scheduling their downloads.
+  if (imageObserver) grid.querySelectorAll('img[data-src]').forEach(img => imageObserver.unobserve(img));
   grid.replaceChildren();
   filtered.forEach(([name, description], index) => {
     const card = document.createElement('article');
