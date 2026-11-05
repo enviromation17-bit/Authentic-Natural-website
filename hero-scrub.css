@@ -1544,3 +1544,53 @@ html body .capture-honeypot{
  width:1px!important;height:1px!important;overflow:hidden!important;
  opacity:0!important;pointer-events:none!important;
 }
+
+
+/* November 2026 visual finish: stronger hero imagery without cropping or extra media.
+   The image is large and fully contained; readable copy stays above its left edge. */
+html:is(.has-gsap-hero,.hero-boot) body main>.hero .hero-scrub-stage .scrub-art{
+ background:#1a3b2b!important;
+}
+html:is(.has-gsap-hero,.hero-boot) body main>.hero .hero-scrub-stage .scrub-frame{
+ width:min(73vw,1020px)!important;
+ max-width:none!important;
+ height:96%!important;max-height:none!important;
+ left:auto!important;right:1.4%!important;top:2%!important;bottom:auto!important;
+ object-fit:contain!important;object-position:center right!important;
+ filter:none!important;transform:none!important;
+}
+html:is(.has-gsap-hero,.hero-boot) body main>.hero .hero-scrub-stage .scrub-copy{
+ position:absolute!important;z-index:5!important;
+ max-width:min(48%,665px)!important;
+}
+html:is(.has-gsap-hero,.hero-boot) body main>.hero .hero-scrub-stage .scrub-art::after{
+ content:"";display:block;position:absolute;z-index:2;inset:0;
+ pointer-events:none;
+ background:linear-gradient(90deg,rgba(10,39,26,.65) 0%,rgba(10,39,26,.43) 28%,rgba(10,39,26,.12) 54%,transparent 77%);
+}
+@media(min-width:1400px){
+ html:is(.has-gsap-hero,.hero-boot) body main>.hero .hero-scrub-stage .scrub-frame{
+  width:min(72vw,1170px)!important;
+ }
+}
+@media(max-width:900px){
+ html:is(.has-gsap-hero,.hero-boot) body main>.hero .hero-scrub-stage .scrub-frame{
+  width:100%!important;height:83%!important;
+  top:0!important;right:0!important;left:0!important;
+  object-position:center center!important;
+ }
+ html:is(.has-gsap-hero,.hero-boot) body main>.hero .hero-scrub-stage .scrub-copy{
+  max-width:min(92%,640px)!important;
+ }
+ html:is(.has-gsap-hero,.hero-boot) body main>.hero .hero-scrub-stage .scrub-art::after{
+  background:linear-gradient(0deg,rgba(10,33,23,.88) 0%,rgba(10,33,23,.65) 23%,rgba(10,33,23,.08) 69%,transparent 100%);
+ }
+}
+@media(max-width:550px){
+ html:is(.has-gsap-hero,.hero-boot) body main>.hero .hero-scrub-stage .scrub-frame{
+  width:100%!important;height:79%!important;top:0!important;
+ }
+ html:is(.has-gsap-hero,.hero-boot) body main>.hero .hero-scrub-stage .scrub-copy{
+  max-width:calc(100% - 34px)!important;
+ }
+}
