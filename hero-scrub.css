@@ -1521,3 +1521,26 @@ html body main .brand-manifesto .manifesto-link:focus-visible{
 }
 
 
+
+
+/* Clear, accessible consent and backend delivery status in lead and order forms. */
+html body .capture-consent{
+ display:flex!important;flex-direction:row!important;align-items:flex-start!important;
+ justify-content:flex-start!important;gap:10px!important;max-width:100%!important;
+ font:500 12px/1.6 'DM Sans',sans-serif!important;color:#4c6a54!important;
+ margin:12px 0!important;
+}
+html body .capture-consent input[type="checkbox"]{
+ display:block!important;flex:0 0 18px!important;min-width:18px!important;
+ width:18px!important;height:18px!important;min-height:18px!important;
+ margin:1px 0 0!important;padding:0!important;accent-color:#206343!important;
+}
+html body .capture-status{
+ display:block!important;font:600 12px/1.6 'DM Sans',sans-serif!important;
+ color:#2d6041!important;min-height:1.4em!important;margin:8px 0!important;
+}
+html body .capture-honeypot{
+ position:absolute!important;left:-10000px!important;top:auto!important;
+ width:1px!important;height:1px!important;overflow:hidden!important;
+ opacity:0!important;pointer-events:none!important;
+}
