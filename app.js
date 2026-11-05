@@ -88,22 +88,42 @@ function toast(msg) {
 }
 /* Visibility-driven images: do not fetch entire ingredient/gallery libraries on first load.
    Begin fetching ahead of the viewport, show a stable color until decoded, and handle broken paths. */
+// Limit concurrent photo decoding/network requests. Start ahead of the viewport,
+// but don't request all 23 ingredient photographs at once.
+const photoQueue = [];
+let activePhotos = 0;
+const maxActivePhotos = 3;
+function nextPhoto() {
+  while (activePhotos < maxActivePhotos && photoQueue.length) {
+    const img = photoQueue.shift();
+    if (!img || !img.isConnected || !img.dataset.src) continue;
+    activePhotos++;
+    loadPhoto(img, () => { activePhotos--; nextPhoto(); });
+  }
+}
+function queuePhoto(img) {
+  if (!img || !img.dataset.src || img.dataset.queued === 'true') return;
+  img.dataset.queued = 'true';
+  photoQueue.push(img);
+  nextPhoto();
+}
 const imageObserver = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (!entry.isIntersecting) return;
+  for (const entry of entries) {
+    if (!entry.isIntersecting) continue;
     imageObserver.unobserve(entry.target);
-    loadPhoto(entry.target);
-  });
-}, {rootMargin:'700px 350px 700px 350px', threshold:0}) : null;
-function loadPhoto(img) {
+    queuePhoto(entry.target);
+  }
+}, {rootMargin:'620px 240px 620px 240px', threshold:0}) : null;
+function loadPhoto(img, finished = () => {}) {
   const src = img.dataset.src;
-  if (!src) return;
+  if (!src) { finished(); return; }
   img.removeAttribute('data-src');
   img.loading = 'eager';
   img.decoding = 'async';
   img.addEventListener('load', () => {
     img.classList.add('photo-ready');
     img.parentElement?.classList.add('photo-loaded');
+    finished();
   }, {once:true});
   img.addEventListener('error', () => {
     if (img.dataset.fallbackAttempted === 'true') {
@@ -111,21 +131,20 @@ function loadPhoto(img) {
       img.removeAttribute('src');
       img.classList.add('photo-unavailable');
       img.parentElement?.classList.add('photo-unavailable');
+      finished();
       return;
     }
     img.dataset.fallbackAttempted = 'true';
     img.src = A + 'botanicals.png';
   });
   img.src = src;
-  if (img.complete && img.naturalWidth) {
-    img.classList.add('photo-ready');
-    img.parentElement?.classList.add('photo-loaded');
-  }
+  // A cached file may already be complete before load dispatches.
+  // The normal load listener finishes the queue when it fires.
 }
 function watchPhoto(img) {
   if (!img.dataset.src) return;
   if (imageObserver) imageObserver.observe(img);
-  else loadPhoto(img);
+  else queuePhoto(img);
 }
 
 function renderIngredients() {
