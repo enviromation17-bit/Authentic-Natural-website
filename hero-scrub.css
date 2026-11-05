@@ -1090,3 +1090,57 @@ html body .site-footer.footer-redesigned .footer-contact-group .footer-social-ro
   justify-content:flex-start!important;
  }
 }
+
+
+/* Moving dark-green store benefits bar. Two equal sets make a seamless loop. */
+html body main .benefit-strip.benefit-ticker{
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ flex-wrap:nowrap!important;width:100%!important;max-width:100%!important;
+ height:48px!important;min-height:48px!important;margin:0!important;padding:0!important;
+ box-sizing:border-box!important;gap:0!important;overflow:hidden!important;
+ background:linear-gradient(90deg,#123e2c,#1c573e 50%,#123e2c)!important;
+ color:#f4f9ef!important;border-top:1px solid rgba(255,255,255,.09)!important;
+ border-bottom:1px solid rgba(255,255,255,.13)!important;
+}
+html body main .benefit-ticker .benefit-ticker-track{
+ display:flex!important;align-items:center!important;flex-wrap:nowrap!important;
+ flex:0 0 auto!important;width:max-content!important;min-width:0!important;
+ height:100%!important;gap:0!important;white-space:nowrap!important;
+ animation:an-benefit-ticker-scroll 26s linear infinite!important;
+ transform:translate3d(0,0,0);
+}
+html body main .benefit-ticker .benefit-ticker-set{
+ display:flex!important;align-items:center!important;flex-wrap:nowrap!important;
+ flex:0 0 auto!important;gap:clamp(24px,4vw,70px)!important;
+ padding-right:clamp(24px,4vw,70px)!important;
+ height:100%!important;white-space:nowrap!important;
+}
+html body main .benefit-ticker .benefit-ticker-item{
+ display:inline-flex!important;align-items:center!important;gap:12px!important;
+ flex:0 0 auto!important;color:#f4f9ef!important;
+ font:700 12px/1.2 'Manrope',sans-serif!important;letter-spacing:.035em!important;
+}
+html body main .benefit-ticker .benefit-ticker-star{
+ color:#b8db95!important;line-height:1!important;font-size:12px!important;
+}
+@keyframes an-benefit-ticker-scroll{
+ from{transform:translate3d(0,0,0)}
+ to{transform:translate3d(-50%,0,0)}
+}
+html body main .benefit-ticker:hover .benefit-ticker-track,
+html body main .benefit-ticker:focus-within .benefit-ticker-track{
+ animation-play-state:paused!important;
+}
+@media(max-width:600px){
+ html body main .benefit-strip.benefit-ticker{height:42px!important;min-height:42px!important}
+ html body main .benefit-ticker .benefit-ticker-track{animation-duration:30s!important}
+ html body main .benefit-ticker .benefit-ticker-item{font-size:10px!important;gap:9px!important}
+ html body main .benefit-ticker .benefit-ticker-set{gap:28px!important;padding-right:28px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ html body main .benefit-ticker .benefit-ticker-track{
+  animation:none!important;transform:none!important;
+ }
+ html body main .benefit-ticker .benefit-ticker-set[aria-hidden="true"]{display:none!important}
+ html body main .benefit-ticker{overflow-x:auto!important;scrollbar-width:none}
+}
