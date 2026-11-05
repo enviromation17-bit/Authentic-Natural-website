@@ -10,8 +10,8 @@
   <link rel="preload" as="image" href="public/assets/process-01.png" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="enhance.css?v=20261104-footerlookbook2"><link rel="stylesheet" href="hero-scrub.css?v=20261105-finalqa19">
-  <script src="app.js?v=20261105-finalqa19" defer></script><script src="scrub.js" defer></script><script src="product360.js?v=20261105-finalqa19" defer></script><script src="polish.js?v=20261105-leadsbotanical12" defer></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js" defer></script><script src="hero-scrub.js?v=20261105-mediafast17" defer></script><script src="lead-popup.js?v=20261105-finalqa19" defer></script>
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="enhance.css?v=20261104-footerlookbook2"><link rel="stylesheet" href="hero-scrub.css?v=20261105-manifestorail20">
+  <script src="app.js?v=20261105-finalqa19" defer></script><script src="scrub.js" defer></script><script src="product360.js?v=20261105-finalqa19" defer></script><script src="polish.js?v=20261105-leadsbotanical12" defer></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js" defer></script><script src="hero-scrub.js?v=20261105-mediafast17" defer></script><script src="lead-popup.js?v=20261105-finalqa19" defer></script><script src="brand-rail.js?v=20261105-manifestorail20" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -21,6 +21,18 @@
   <nav aria-label="Main navigation"><a href="#shop">Shop hair care</a><a href="#ingredients">Our ingredients</a><a href="#ritual">Your ritual</a><a href="#story">Our story</a></nav>
   <button class="bag" id="open-cart" aria-label="Open shopping bag">Bag <span id="bag-count">0</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7zm3 0V5a4 4 0 0 1 8 0v2"/></svg></button>
 </header>
+<aside class="brand-rail" aria-label="Quick section navigation">
+ <a class="rail-new" href="#shop" aria-label="Explore the hair oil"><span class="rail-new-icon" aria-hidden="true">✦</span><span>New</span></a>
+ <div class="rail-current"><span class="rail-current-kicker">EXPLORING</span><strong id="rail-current-title">Discover</strong></div>
+ <nav class="rail-links" aria-label="Quick links">
+  <a href="#main" class="rail-item is-active" data-rail-label="Discover" aria-label="Discover" aria-current="location"><span class="rail-icon" aria-hidden="true">⌂</span><span class="rail-label">Discover</span></a>
+  <a href="#shop" class="rail-item" data-rail-label="Shop" aria-label="Shop hair care"><span class="rail-icon" aria-hidden="true">◉</span><span class="rail-label">Shop</span></a>
+  <a href="#ingredients" class="rail-item" data-rail-label="Ingredients" aria-label="Ingredients"><span class="rail-icon" aria-hidden="true">❧</span><span class="rail-label">Ingredients</span></a>
+  <a href="#ritual" class="rail-item" data-rail-label="Ritual" aria-label="Your ritual"><span class="rail-icon" aria-hidden="true">✧</span><span class="rail-label">Ritual</span></a>
+  <a href="#story" class="rail-item" data-rail-label="Our story" aria-label="Our story"><span class="rail-icon" aria-hidden="true">♡</span><span class="rail-label">Our story</span></a>
+ </nav>
+ <a class="rail-contact" href="#footer-contact" aria-label="Contact us" title="Contact us"><span aria-hidden="true">✉</span></a>
+</aside>
 <nav class="mobile-nav" aria-label="Mobile navigation"><a href="#shop">Shop</a><a href="#ingredients">Ingredients</a><a href="#ritual">How to use</a><a href="#story">Our story</a></nav>
 <main id="main">
   <section class="hero" aria-labelledby="hero-title">
@@ -64,26 +76,19 @@
       </div>
     </div>
   </section>
-<section class="botanical-lookbook" id="botanical-lookbook" aria-labelledby="lookbook-title">
-  <div class="lookbook-heading"><div><p class="eyebrow">AN EDITORIAL LOOK AT NATURE</p><h2 id="lookbook-title">The beauty <em>behind the blend.</em></h2></div><p>Explore <strong class="copy-accent">botanical and lifestyle photography</strong> from our collection. <strong class="copy-accent">Swipe sideways</strong> to discover more.</p></div>
-  <div class="botanical-look-track" tabindex="0" aria-label="Scrollable collection of botanical photographs">
-    <figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/abhishek-hajare-D9h2-RxM1rE-unsplash.jpg" alt="Botanical and hair-care editorial photograph 1" loading="lazy" decoding="async"><figcaption>01 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/anna-hliamshyna-VDR-uVIHP_8-unsplash.jpg" alt="Botanical and hair-care editorial photograph 2" loading="lazy" decoding="async"><figcaption>02 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/david-clode-cDu0ZO4vfNw-unsplash.jpg" alt="Botanical and hair-care editorial photograph 3" loading="lazy" decoding="async"><figcaption>03 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/elisabeth-rosenak-kAWWYOq1cIs-unsplash.jpg" alt="Botanical and hair-care editorial photograph 4" loading="lazy" decoding="async"><figcaption>04 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/gfdc5-1.jpg" alt="Botanical and hair-care editorial photograph 5" loading="lazy" decoding="async"><figcaption>05 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/ginger-jordan-l6J3yLLtXO8-unsplash.jpg" alt="Botanical and hair-care editorial photograph 6" loading="lazy" decoding="async"><figcaption>06 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/image_20261104_094311.jpg" alt="Botanical and hair-care editorial photograph 7" loading="lazy" decoding="async"><figcaption>07 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/images (1).jfif" alt="Botanical and hair-care editorial photograph 8" loading="lazy" decoding="async"><figcaption>08 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/images.jfif" alt="Botanical and hair-care editorial photograph 9" loading="lazy" decoding="async"><figcaption>09 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/jojoba_oil_image_e1028b7f-e55d-4c58-ba71-e66bddcb721c.webp" alt="Botanical and hair-care editorial photograph 10" loading="lazy" decoding="async"><figcaption>10 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/marta-matyszczyk-yGFJqsMKeJ4-unsplash.jpg" alt="Botanical and hair-care editorial photograph 11" loading="lazy" decoding="async"><figcaption>11 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/olga-volkovitskaia-SCBaOBxjGCY-unsplash.jpg" alt="Botanical and hair-care editorial photograph 12" loading="lazy" decoding="async"><figcaption>12 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/rashid-New8EgKnSds-unsplash.jpg" alt="Botanical and hair-care editorial photograph 13" loading="lazy" decoding="async"><figcaption>13 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/roberta-sorge-uOBApnN_K7w-unsplash.jpg" alt="Botanical and hair-care editorial photograph 14" loading="lazy" decoding="async"><figcaption>14 <span aria-hidden="true">/</span> 15</figcaption></figure>
-<figure class="botanical-look-item"><img width="360" height="480" data-src="public/assets/yusuf-onuk-EAyw8c5TZgk-unsplash.jpg" alt="Botanical and hair-care editorial photograph 15" loading="lazy" decoding="async"><figcaption>15 <span aria-hidden="true">/</span> 15</figcaption></figure>
+<section class="brand-manifesto" id="brand-manifesto" aria-labelledby="manifesto-title">
+  <div class="manifesto-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="manifesto-inner">
+    <div class="manifesto-label"><span class="manifesto-mark" aria-hidden="true">✦</span> A LITTLE MOMENT FOR YOURSELF</div>
+    <h2 id="manifesto-title">Beautiful hair begins with <em>thoughtful care.</em></h2>
+    <p class="manifesto-intro">Not every ritual needs to be complicated. A moment of calm, a gentle massage, and the intention to care for yourself can make an ordinary day feel special.</p>
+    <div class="manifesto-values">
+      <div><span class="manifesto-value-no">01</span><h3>Rooted in nature</h3><p>Inspired by familiar botanicals and timeless hair-care traditions.</p></div>
+      <div><span class="manifesto-value-no">02</span><h3>Made for real life</h3><p>Care that fits into your schedule, not the other way around.</p></div>
+      <div><span class="manifesto-value-no">03</span><h3>Simple, every day</h3><p>Small moments of consistency can become a beautiful ritual.</p></div>
+    </div>
+    <a class="manifesto-link" href="#shop">Discover your everyday essential <span aria-hidden="true">↗</span></a>
   </div>
-  <p class="lookbook-caption">Photographs are illustrative and do not depict an ingredient concentration or a medical result.</p>
 </section>
   <div class="benefit-strip benefit-ticker" role="region" aria-label="Store benefits"><div class="benefit-ticker-track"><div class="benefit-ticker-set"><span class="benefit-ticker-item"><span class="benefit-ticker-star" aria-hidden="true">✦</span>Made for hair &amp; scalp care</span><span class="benefit-ticker-item"><span class="benefit-ticker-star" aria-hidden="true">✦</span>Free nationwide delivery</span><span class="benefit-ticker-item"><span class="benefit-ticker-star" aria-hidden="true">✦</span>Cash on delivery available</span><span class="benefit-ticker-item"><span class="benefit-ticker-star" aria-hidden="true">✦</span>Care that fits your budget</span></div><div class="benefit-ticker-set" aria-hidden="true"><span class="benefit-ticker-item"><span class="benefit-ticker-star" aria-hidden="true">✦</span>Made for hair &amp; scalp care</span><span class="benefit-ticker-item"><span class="benefit-ticker-star" aria-hidden="true">✦</span>Free nationwide delivery</span><span class="benefit-ticker-item"><span class="benefit-ticker-star" aria-hidden="true">✦</span>Cash on delivery available</span><span class="benefit-ticker-item"><span class="benefit-ticker-star" aria-hidden="true">✦</span>Care that fits your budget</span></div></div></div>
   <section class="product section" id="shop" aria-labelledby="product-title">
@@ -135,7 +140,7 @@
       <nav class="footer-nav-group" aria-label="Explore the website">
         <h3>Explore</h3><a href="#shop">Shop hair care</a><a href="#ingredients">Our ingredients</a><a href="#ritual">Your ritual</a><a href="#story">Our story</a>
       </nav>
-      <div class="footer-contact-group">
+      <div class="footer-contact-group" id="footer-contact">
         <h3>Contact us</h3><p>Have a question about <strong class="copy-accent">ingredients, delivery, or your order?</strong></p><button type="button" class="footer-contact-cta" data-open-lead>Send an enquiry <span aria-hidden="true">↗</span></button>
         <a href="https://wa.me/923248019501" target="_blank" rel="noopener noreferrer">WhatsApp: +92 324 8019501</a>
         <button class="footer-link" id="privacy-open">Privacy &amp; this preview</button>
