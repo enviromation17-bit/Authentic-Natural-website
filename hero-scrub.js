@@ -124,6 +124,8 @@
     const displayIndex = ready.has(lower) ? lower : currentIndex;
     if (displayIndex >= 0 && displayIndex !== currentIndex) {
       firstLayer.src = frames[displayIndex];
+      // Keep a soft matching backdrop while displaying the entire portrait photograph.
+      stage.style.setProperty('--hero-photo-backdrop', 'url("' + frames[displayIndex] + '")');
       currentIndex = displayIndex;
     }
     if (ready.has(upper) && upper !== displayIndex && ready.has(lower)) {
@@ -142,6 +144,7 @@
     if (!ok || !gsap || !ScrollTrigger) return;
     gsap.registerPlugin(ScrollTrigger);
     firstLayer.src = frames[0];
+    stage.style.setProperty('--hero-photo-backdrop', 'url("' + frames[0] + '")');
     currentIndex = 0;
     firstLayer.removeAttribute('loading');
     // Establish proper stage dimensions before ScrollTrigger measures positions.
