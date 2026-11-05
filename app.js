@@ -335,4 +335,18 @@ renderBag();
 renderQuantity();
 renderIngredients();
 // Watch gallery images once at startup, including horizontal scroll visibility.
-$$('.botanical-look-item img[data-src]').forEach(watchPhoto);
+$('.botanical-look-item img[data-src]').forEach(watchPhoto);
+/* Pause off-screen decorative motion to avoid unnecessary animation work. */
+if ('IntersectionObserver' in window) {
+  const animatedSections = [
+    [document.getElementById('ingredients'), 'ocean-in-view'],
+    [document.querySelector('.benefit-ticker'), 'ticker-in-view']
+  ].filter(([element]) => Boolean(element));
+  const motionObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const entryMatch = animatedSections.find(([element]) => element === entry.target);
+      if (entryMatch) entry.target.classList.toggle(entryMatch[1], entry.isIntersecting);
+    });
+  }, {rootMargin:'120px 0px 120px 0px',threshold:0});
+  animatedSections.forEach(([element]) => motionObserver.observe(element));
+}
