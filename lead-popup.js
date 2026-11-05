@@ -53,8 +53,9 @@
     ].filter(Boolean).join('\n');
     const url = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(message);
     // Open synchronously in the form's user gesture; popup blockers may prevent a new tab.
-    const tab = window.open(url, '_blank', 'noopener,noreferrer');
-    if (!tab) window.location.href = url;
+    const tab = window.open(url, '_blank');
+    if (tab) tab.opener = null;
+    else window.location.assign(url);
     close();
   });
 })();
