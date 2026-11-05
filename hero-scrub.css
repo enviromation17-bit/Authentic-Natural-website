@@ -865,3 +865,157 @@ html body .site-footer.footer-redesigned .copy-accent {
   text-decoration-thickness:2px!important;text-underline-offset:3px!important;
  }
 }
+
+
+/* WhatsApp lead enquiry — accessible native dialog. */
+html body .lead-launcher{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ gap:9px!important;z-index:88!important;border:1px solid rgba(255,255,255,.43)!important;
+ color:#fff!important;background:#188f57!important;border-radius:999px!important;
+ min-height:51px!important;padding:12px 18px!important;line-height:1.15!important;
+ font:700 13px 'Manrope',sans-serif!important;cursor:pointer!important;
+ box-shadow:0 10px 26px rgba(5,46,27,.23),inset 0 1px 0 rgba(255,255,255,.24)!important;
+ transition:transform .22s ease,box-shadow .22s ease!important;
+}
+html body .lead-launcher:hover{transform:translateY(-3px)!important;box-shadow:0 17px 32px rgba(5,46,27,.28)!important}
+html body .lead-launcher svg{flex:none!important}
+html body .lead-popup-dialog{
+ position:fixed!important;inset:auto 18px 86px auto!important;top:auto!important;
+ width:min(420px,calc(100vw - 36px))!important;max-height:min(750px,calc(100dvh - 110px))!important;
+ margin:0!important;padding:0!important;z-index:150!important;
+ border:1px solid rgba(255,255,255,.8)!important;border-radius:25px!important;
+ overflow-x:hidden!important;overflow-y:auto!important;
+ color:#1f4332!important;background:#f7faf3!important;
+ box-shadow:0 25px 90px rgba(9,42,27,.26),0 2px 16px rgba(8,37,22,.16)!important;
+}
+html body .lead-popup-dialog:not([open]){display:none!important}
+html body .lead-popup-dialog::backdrop{background:rgba(9,31,22,.36);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+html body .lead-popup-head{
+ background:linear-gradient(115deg,#194b33,#236343)!important;
+ color:#fff!important;display:flex;justify-content:space-between;align-items:center;
+ gap:15px!important;padding:17px 20px!important;
+}
+html body .lead-popup-brand{display:flex;align-items:center;gap:11px}
+html body .lead-popup-brand img{object-fit:contain;flex:none;background:#fff;border-radius:12px;padding:3px}
+html body .lead-popup-brand>div{display:flex;flex-direction:column;gap:3px}
+html body .lead-popup-kicker{font:800 11px/1.4 'Manrope',sans-serif;letter-spacing:.08em}
+html body .lead-popup-online{font:400 11px/1.4 'DM Sans',sans-serif;color:#dbe9dd}
+html body .lead-popup-close{
+ display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;
+ border-radius:50%;border:1px solid #ffffff5c;background:#ffffff20;color:#fff;
+ font-size:24px;cursor:pointer;
+}
+html body .lead-popup-body{padding:22px 23px 20px}
+html body .lead-popup-body h2{font:500 clamp(25px,4vw,32px)/1.2 'Playfair Display',Georgia,serif!important;color:#214932!important;margin:0 0 9px!important}
+html body .lead-popup-body>p{font:400 13px/1.55 'DM Sans',sans-serif;color:#627466;margin:0 0 18px!important}
+html body #lead-popup-form{display:flex;flex-direction:column;gap:13px;margin:0}
+html body .lead-popup-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+html body #lead-popup-form label{display:flex;flex-direction:column;gap:5px;font:700 11px/1.4 'Manrope',sans-serif;color:#335f42}
+html body #lead-popup-form input,
+html body #lead-popup-form select,
+html body #lead-popup-form textarea{
+ display:block!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;
+ padding:11px 12px!important;border:1px solid #cfded1!important;border-radius:11px!important;
+ background:#fff!important;color:#264632!important;
+ font:500 13px/1.4 'DM Sans',sans-serif!important;box-shadow:none!important;
+}
+html body #lead-popup-form textarea{resize:vertical;min-height:76px}
+html body #lead-popup-form input:focus,
+html body #lead-popup-form select:focus,
+html body #lead-popup-form textarea:focus{outline:2px solid #6daa7e!important;outline-offset:1px!important}
+html body .lead-popup-send{
+ display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;
+ width:100%!important;margin:3px 0 0!important;padding:13px 14px!important;
+ border:0!important;border-radius:13px!important;background:#1c8e54!important;
+ color:#fff!important;font:800 13px/1.4 'Manrope',sans-serif!important;cursor:pointer;
+}
+html body .lead-popup-send:hover{background:#147042!important}
+html body #lead-popup-form .lead-popup-privacy{
+ font:400 10px/1.5 'DM Sans',sans-serif!important;color:#718274!important;
+ text-align:center;margin:0!important;
+}
+@media(max-width:550px){
+ html body .lead-popup-dialog{
+  width:calc(100vw - 20px)!important;inset:auto 10px 76px 10px!important;
+  max-height:calc(100dvh - 92px)!important;border-radius:20px!important;
+ }
+ html body .lead-popup-body{padding:18px 17px}
+ html body .lead-popup-fields{gap:10px}
+ html body .lead-launcher span{font-size:12px}
+}
+@media(max-width:355px){
+ html body .lead-popup-fields{grid-template-columns:1fr}
+}
+/* Footer: real botanical branches with gently drifting leaves, without covering text. */
+html body .site-footer.footer-redesigned .footer-canopy{
+ position:absolute!important;inset:0!important;overflow:hidden!important;
+ pointer-events:none!important;display:block!important;z-index:0!important;
+}
+html body .site-footer.footer-redesigned .footer-branch{
+ position:absolute!important;top:0!important;width:min(32vw,340px)!important;height:auto!important;
+ color:#78a47d!important;opacity:.18!important;filter:none!important;
+ transform-origin:15% 0;
+}
+html body .site-footer.footer-redesigned .footer-branch-left{
+ left:-80px!important;transform:rotate(-12deg);
+ animation:an-branch-sway 14s ease-in-out infinite alternate;
+}
+html body .site-footer.footer-redesigned .footer-branch-right{
+ right:-85px!important;transform:scaleX(-1) rotate(-12deg);
+ animation:an-branch-sway-right 17s ease-in-out infinite alternate;
+}
+html body .site-footer.footer-redesigned .premium-leaf-field{
+ z-index:1!important;overflow:hidden!important;
+}
+html body .site-footer.footer-redesigned .premium-leaf{
+ font-size:var(--leaf-size,24px)!important;opacity:0!important;
+ color:#b0d28c!important;filter:none!important;
+}
+html body .site-footer.footer-redesigned .footer-shell{
+ position:relative!important;z-index:3!important;
+}
+html body .site-footer.footer-redesigned .footer-contact-group{
+ min-width:0!important;align-items:flex-start!important;
+}
+html body .site-footer.footer-redesigned .footer-contact-group .footer-social-row{
+ align-self:stretch!important;justify-content:flex-end!important;
+ display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;
+ gap:10px!important;width:100%!important;margin:25px 0 0!important;
+}
+html body .site-footer.footer-redesigned .footer-social-row a.footer-social-icon{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ width:48px!important;height:48px!important;flex:0 0 48px!important;
+ padding:0!important;margin:0!important;border:1px solid #ffffff48!important;
+ color:white!important;background:#ffffff1c!important;
+}
+html body .site-footer.footer-redesigned .footer-social-icon svg{
+ display:block!important;width:23px!important;height:23px!important;
+ fill:none;stroke:currentColor!important;
+}
+@keyframes an-branch-sway{
+ from{transform:rotate(-12deg)}to{transform:rotate(-7deg)}
+}
+@keyframes an-branch-sway-right{
+ from{transform:scaleX(-1) rotate(-12deg)}to{transform:scaleX(-1) rotate(-7deg)}
+}
+@media(max-width:900px){
+ html body .site-footer.footer-redesigned .footer-branch{
+  width:min(39vw,210px)!important;opacity:.13!important;animation:none!important;
+ }
+ html body .site-footer.footer-redesigned .footer-branch-left{left:-75px!important}
+ html body .site-footer.footer-redesigned .footer-branch-right{right:-75px!important}
+}
+@media(max-width:550px){
+ html body .site-footer.footer-redesigned .footer-contact-group .footer-social-row{
+  justify-content:flex-start!important;margin-top:20px!important;
+ }
+ html body .site-footer.footer-redesigned .footer-branch{
+  width:165px!important;opacity:.12!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html body .site-footer.footer-redesigned .footer-branch{
+  animation:none!important;
+ }
+ html body .lead-launcher{transition:none!important}
+}
