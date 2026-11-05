@@ -1596,7 +1596,7 @@ html:is(.has-gsap-hero,.hero-boot) body main>.hero .hero-scrub-stage .scrub-art:
 }
 
 
-/* Ritual 2026: editorial story on the left, photography on the right.
+/* Ritual 2026: photography on the left, editorial story on the right.
    Works independently of the retired desktop wheel-trap. */
 html body main #ritual.usage-section{
  position:relative!important;
@@ -1617,8 +1617,8 @@ html body main #ritual .usage-track{
 }
 html body main #ritual .usage-track>.usage-panel{
  display:grid!important;
- grid-template-columns:minmax(0,.91fr) minmax(0,1.09fr)!important;
- grid-template-areas:"caption photo"!important;
+ grid-template-columns:minmax(0,1.09fr) minmax(0,.91fr)!important;
+ grid-template-areas:"photo caption"!important;
  align-items:center!important;
  gap:clamp(20px,4.4vw,80px)!important;
  flex:0 0 100%!important;min-width:100%!important;max-width:100%!important;
@@ -1630,7 +1630,7 @@ html body main #ritual .usage-track>.usage-panel{
  box-sizing:border-box!important;
 }
 html body main #ritual .usage-track>.usage-panel .usage-caption{
- grid-area:caption!important;order:1!important;
+ grid-area:caption!important;order:2!important;
  display:flex!important;flex-direction:column!important;
  justify-content:center!important;align-items:flex-start!important;
  padding:clamp(12px,2.6vw,40px)!important;
@@ -1654,7 +1654,7 @@ html body main #ritual .usage-caption p:not(.eyebrow){
  max-width:39ch!important;margin:0!important;
 }
 html body main #ritual .usage-track>.usage-panel figure{
- grid-area:photo!important;order:2!important;
+ grid-area:photo!important;order:1!important;
  display:grid!important;place-items:center!important;
  margin:0!important;padding:clamp(8px,1.35vw,20px)!important;
  border-radius:22px!important;
@@ -1711,7 +1711,7 @@ html body main #ritual button.usage-autoplay-toggle:focus-visible{
 }
 @media(max-width:900px){
  html body main #ritual .usage-track>.usage-panel{
-  grid-template-columns:minmax(0,.87fr) minmax(0,1.13fr)!important;
+  grid-template-columns:minmax(0,1.13fr) minmax(0,.87fr)!important;
   gap:14px!important;padding:14px!important;
  }
  html body main #ritual .usage-track>.usage-panel .usage-caption{
@@ -1724,7 +1724,7 @@ html body main #ritual button.usage-autoplay-toggle:focus-visible{
 @media(max-width:650px){
  html body main #ritual .usage-track>.usage-panel{
   grid-template-columns:minmax(0,1fr)!important;
-  grid-template-areas:"caption" "photo"!important;
+  grid-template-areas:"photo" "caption"!important;
   gap:11px!important;
   padding:12px!important;
  }
