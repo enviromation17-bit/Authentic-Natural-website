@@ -17,8 +17,8 @@
     const MANUAL_BREAK = 9000;
     let inView = false;
     let paused = reducedMotion.matches;
-    let hovered = false;
     let focused = false;
+    let keyboardFocus = false;
     let pending = 0;
     let lastInteraction = 0;
     let pointerStart = null;
@@ -37,15 +37,16 @@
     }
     function shouldPlay() {
       return !paused && !reducedMotion.matches && !document.hidden && inView &&
-        !hovered && !focused && Date.now() - lastInteraction >= MANUAL_BREAK;
+        !focused && Date.now() - lastInteraction >= MANUAL_BREAK;
     }
     function queueNext() {
       stopTimer();
-      if (paused || reducedMotion.matches || !inView || document.hidden || hovered || focused) return;
+      if (paused || reducedMotion.matches || !inView || document.hidden || focused) return;
       const delay = Math.max(INTERVAL, MANUAL_BREAK - (Date.now() - lastInteraction));
       pending = window.setTimeout(() => {
         pending = 0;
         if (!shouldPlay()) { queueNext(); return; }
+        // Seamlessly restart at step 1 after step 6; never stop at the last slide.
         const step = (current() + 1) % total;
         window.setUsageStep(step);
         preloadNext();
@@ -104,12 +105,21 @@
       if (event.key === 'ArrowRight') { event.preventDefault(); manualStep(current() + 1); }
       if (event.key === 'ArrowLeft') { event.preventDefault(); manualStep(current() - 1); }
     });
-    section.addEventListener('mouseenter', () => { hovered = true; stopTimer(); });
-    section.addEventListener('mouseleave', () => { hovered = false; queueNext(); });
-    section.addEventListener('focusin', () => { focused = true; stopTimer(); });
+    // Only keyboard focus pauses autoplay. Clicking a control shouldn't leave
+    // the slideshow frozen indefinitely just because the button retains focus.
+    section.addEventListener('pointerdown', () => {
+      keyboardFocus = false;
+      if (focused) { focused = false; queueNext(); }
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Tab') keyboardFocus = true;
+    });
+    section.addEventListener('focusin', () => {
+      if (keyboardFocus) { focused = true; stopTimer(); }
+    });
     section.addEventListener('focusout', () => {
       // Delay until focus has moved, so tabbing within section stays paused.
-      window.setTimeout(() => { focused = section.contains(document.activeElement); queueNext(); }, 0);
+      window.setTimeout(() => { focused = keyboardFocus && section.contains(document.activeElement); queueNext(); }, 0);
     });
     document.addEventListener('visibilitychange', queueNext);
     reducedMotion.addEventListener?.('change', event => {
