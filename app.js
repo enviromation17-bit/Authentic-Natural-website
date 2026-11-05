@@ -377,8 +377,7 @@ if (video) {
 renderBag();
 renderQuantity();
 renderIngredients();
-// Watch gallery images once at startup, including horizontal scroll visibility.
-$('.botanical-look-item img[data-src]').forEach(watchPhoto);
+// The editorial photo gallery was retired; no gallery images need loading.
 /* Pause off-screen decorative motion to avoid unnecessary animation work. */
 if ('IntersectionObserver' in window) {
   const animatedSections = [
