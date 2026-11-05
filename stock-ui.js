@@ -17,10 +17,10 @@
   }else if(status==='out_of_stock'){
    label.textContent='Currently out of stock. Request a place on the waitlist. Restock timing will be confirmed by our team.'+
     (stock.restockNote?' '+stock.restockNote:'');
-   add.textContent='Request on waitlist ↗';
+   add.textContent='Prepare waitlist request ↗';
   }else{
    label.textContent='Stock availability is being verified. Contact our team before expecting confirmation.';
-   add.textContent='Request availability ↗';
+   add.textContent='Add to bag · Check availability ↗';
   }
   if(cartNote)cartNote.textContent=status==='out_of_stock'
    ?'Currently out of stock. You may request a waitlist place; this is not a confirmed order.'
