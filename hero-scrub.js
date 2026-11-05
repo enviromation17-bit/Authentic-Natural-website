@@ -53,6 +53,24 @@
   function preload(i) {
     if (i < 0 || i >= frames.length || ready.has(i) || failed.has(i)) return Promise.resolve(ready.has(i));
     if (inFlight.has(i)) return inFlight.get(i);
+    // Reuse the image already downloaded by the HTML preload, rather than
+    // allocating a second full-resolution bitmap for frame zero.
+    if (i === 0) {
+      if (firstLayer.complete) {
+        if (firstLayer.naturalWidth > 0) { ready.add(0); return Promise.resolve(true); }
+        failed.add(0); return Promise.resolve(false);
+      }
+      return new Promise(resolve => {
+        firstLayer.addEventListener('load', () => {
+          ready.add(0);
+          resolve(true);
+        }, {once:true});
+        firstLayer.addEventListener('error', () => {
+          failed.add(0);
+          resolve(false);
+        }, {once:true});
+      });
+    }
     const pending = new Promise(resolve => {
       const picture = new Image();
       picture.onload = () => {
@@ -138,11 +156,13 @@
     // Composite-only progress animation: no repeated width/layout calculations.
     progressFill.style.transform = 'scaleX(' + p.toFixed(4) + ')';
     progressCount.textContent = String(lower+1).padStart(2,'0') + ' / ' + String(frames.length).padStart(2,'0');
-    showStory(lower);
+    // Do not change the headline before its photograph is actually available.
+    showStory(Math.max(0,displayIndex));
   }
 
   preload(0).then(ok => {
-    if (!ok || !gsap || !ScrollTrigger) return;
+    if (!ok) { document.documentElement.classList.remove('hero-boot'); return; }
+    if (!gsap || !ScrollTrigger) return;
     gsap.registerPlugin(ScrollTrigger);
     firstLayer.src = frames[0];
     stage.style.setProperty('--hero-photo-backdrop', 'url("' + frames[0] + '")');
