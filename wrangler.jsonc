@@ -11,5 +11,12 @@
       "/admin",
       "/admin/*"
     ]
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "authentic-naturals-crm",
+      "database_id": "7436d07e-be61-4bd5-8db0-219aae1de421"
+    }
+  ]
 }
