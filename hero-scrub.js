@@ -1,6 +1,6 @@
 'use strict';
 /* Authentic Naturals immersive photographic story.
-   Seven uploaded process frames + botanicals.png + ritual.png.
+   Seven process frames + botanicals.png + ritual.png + product.png.
    Full viewport imagery, scroll-linked typography, lazy frame decoding,
    and an intact original-carousel fallback if GSAP or the first photo fails. */
 (function () {
@@ -15,7 +15,7 @@
 
   const filenames = [
     'process-01.png','process-02.png','process-03.png','process-04.png',
-    'process-05.png','process-06.png','process-08.png','botanicals.png','ritual.png'
+    'process-05.png','process-06.png','process-08.png','botanicals.png','ritual.png','product.png'
   ];
   const frames = filenames.map(name => 'public/assets/' + name);
   const firstLayer = document.getElementById('scrub-current');
@@ -27,7 +27,7 @@
   const copy = stage.querySelector('.scrub-copy');
   if (![firstLayer,secondLayer,progressFill,progressCount,headline,description,copy].every(Boolean)) return;
 
-  // Distinct storytelling typography for each of the nine verified photographs.
+  // Distinct storytelling typography for each of the ten verified photographs.
   const stories = [
     ['Give your hair','a little more care.','A simple daily-care essential, inspired by nature.'],
     ['From nature,','with intention.','Discover the botanical inspiration behind every ritual.'],
@@ -37,7 +37,8 @@
     ['Your hair.','Your ritual.','Build a consistent routine with care that feels good.'],
     ['Take time','for yourself.','A few quiet moments can make your routine feel special.'],
     ['Nature in','every detail.','Explore the botanicals that inspire Authentic Naturals.'],
-    ['Meet your','everyday essential.','Discover Hair Repair & Revive Growth Oil and how to use it.']
+    ['Meet your','everyday essential.','Discover Hair Repair & Revive Growth Oil and how to use it.'],
+    ['Meet the oil.','Make it your ritual.','Explore Authentic Naturals Hair Repair & Revive Growth Oil, made for an everyday conditioning ritual.']
   ];
   // URLs, not image objects, are retained; on phones only the current and nearest frames are decoded.
   const ready = new Set();
@@ -86,7 +87,7 @@
     const highlightPhrases = [
       'daily-care essential','botanical inspiration','routine that feels like your own',
       'nourish and condition','everyday care','consistent routine',
-      'quiet moments','botanicals','Hair Repair & Revive Growth Oil'
+      'quiet moments','botanicals','Hair Repair & Revive Growth Oil','everyday conditioning ritual'
     ];
     const phrase = highlightPhrases[index] || '';
     const position = phrase ? story[2].indexOf(phrase) : -1;
