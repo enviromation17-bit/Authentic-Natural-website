@@ -309,8 +309,8 @@ $('#order-form') && $('#order-form').addEventListener('submit', async (e) => {
   const message = (currentlyOut
     ? 'Hello Authentic Naturals, I would like to join the restock waitlist for Hair Repair & Revive Growth Oil.'
     : 'Hello Authentic Naturals, I would like to request Hair Repair & Revive Growth Oil. Please confirm stock before accepting my order.') +
-    '\\nQty: ' + quantity + '\\nName: ' + name + '\\nPhone: ' + phone +
-    '\\nCity: ' + city + '\\nAddress: ' + address + '\\nPayment preference: ' + payment;
+    '\nQty: ' + quantity + '\nName: ' + name + '\nPhone: ' + phone +
+    '\nCity: ' + city + '\nAddress: ' + address + '\nPayment preference: ' + payment;
   const url='https://wa.me/923248019501?text='+encodeURIComponent(message);
   const submitButton=form.querySelector('[type="submit"]');
   const status=document.getElementById('order-save-status');
