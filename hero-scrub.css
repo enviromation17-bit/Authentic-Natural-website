@@ -1305,3 +1305,43 @@ html body .botanical-lookbook{
   transition:none!important;
  }
 }
+
+
+/* Release-quality image states: no partial/broken image glyphs during network loading. */
+html body .ingredient-media img:not(.photo-ready),
+html body .botanical-look-item img:not(.photo-ready){
+ opacity:0!important;
+}
+html body .ingredient-media img.photo-ready,
+html body .botanical-look-item img.photo-ready{
+ opacity:1!important;
+}
+html body .ingredient-media.photo-unavailable,
+html body .botanical-look-item.photo-unavailable{
+ background:linear-gradient(140deg,#dfe9dc,#ecf3e9)!important;
+}
+html body .ingredient-media img.photo-unavailable,
+html body .botanical-look-item img.photo-unavailable{
+ opacity:0!important;
+}
+/* The modal's zoom action must not unintentionally animate or stretch the image. */
+html body .image-dialog .image-scroll img{
+ display:block;max-width:100%;height:auto;object-fit:contain;
+ margin-inline:auto;
+}
+html body .image-dialog.original-size .image-scroll img{
+ max-width:none!important;width:auto!important;
+}
+/* Consistent visible keyboard focus on primary actions. */
+html body .lead-popup-send:focus-visible,
+html body .lead-launcher:focus-visible,
+html body #add-cart:focus-visible,
+html body .footer-contact-cta:focus-visible{
+ outline:3px solid #bde99c!important;outline-offset:3px!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body .ingredient-media img,
+ html body .botanical-look-item img{
+  transition:none!important;
+ }
+}
