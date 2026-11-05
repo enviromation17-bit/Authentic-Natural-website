@@ -324,4 +324,4 @@ renderBag();
 renderQuantity();
 renderIngredients();
 // Watch gallery images once at startup, including horizontal scroll visibility.
-$('.botanical-look-item img[data-src]').forEach(watchPhoto);
+$$('.botanical-look-item img[data-src]').forEach(watchPhoto);
