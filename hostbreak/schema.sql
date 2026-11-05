@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS authentic_leads (
+ id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ name VARCHAR(100) NOT NULL,
+ phone VARCHAR(40) NOT NULL DEFAULT '',
+ city VARCHAR(100) NOT NULL DEFAULT '',
+ source VARCHAR(30) NOT NULL,
+ topic VARCHAR(100) NOT NULL DEFAULT '',
+ notes TEXT NOT NULL,
+ status ENUM('new','contacted','qualified','won','lost') NOT NULL DEFAULT 'new',
+ quantity TINYINT UNSIGNED NOT NULL DEFAULT 1,
+ payment VARCHAR(40) NOT NULL DEFAULT '',
+ ip_hash CHAR(64) NOT NULL,
+ created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ KEY idx_leads_status_time (status,created_at),
+ KEY idx_leads_ip_time (ip_hash,created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
