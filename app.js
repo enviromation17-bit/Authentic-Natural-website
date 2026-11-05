@@ -270,7 +270,7 @@ $('#add-cart').addEventListener('click', () => {
   bagQty = Math.min(20, bagQty + qty);
   bagStore.set(bagQty);
   renderBag();
-  toast('Added to bag');
+  toast(window.ANStock?.current?.availability==='out_of_stock' ? 'Added to bag. Complete checkout to request waitlist.' : 'Added to bag. Our team confirms stock before an order.');
 });
 $('#open-cart').addEventListener('click', () => $('#cart-dialog').showModal());
 $$('[data-close]').forEach((btn) => btn.addEventListener('click', () => {
