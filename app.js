@@ -305,9 +305,12 @@ $('#order-form') && $('#order-form').addEventListener('submit', async (e) => {
   const address=String(fd.get('address')||'').trim();
   const payment=String(fd.get('payment')||'').trim();
   const quantity=Math.max(1,bagQty);
-  const message = 'Hello Authentic Naturals, I would like to order Hair Repair & Revive Growth Oil.\n' +
-    'Qty: ' + quantity + '\nName: ' + name + '\nPhone: ' + phone +
-    '\nCity: ' + city + '\nAddress: ' + address + '\nPayment: ' + payment;
+  const currentlyOut=window.ANStock?.current?.availability==='out_of_stock';
+  const message = (currentlyOut
+    ? 'Hello Authentic Naturals, I would like to join the restock waitlist for Hair Repair & Revive Growth Oil.'
+    : 'Hello Authentic Naturals, I would like to request Hair Repair & Revive Growth Oil. Please confirm stock before accepting my order.') +
+    '\\nQty: ' + quantity + '\\nName: ' + name + '\\nPhone: ' + phone +
+    '\\nCity: ' + city + '\\nAddress: ' + address + '\\nPayment preference: ' + payment;
   const url='https://wa.me/923248019501?text='+encodeURIComponent(message);
   const submitButton=form.querySelector('[type="submit"]');
   const status=document.getElementById('order-save-status');
@@ -321,8 +324,10 @@ $('#order-form') && $('#order-form').addEventListener('submit', async (e) => {
     payment,quantity,consent:fd.get('capture_consent')==='on'
   })||Promise.resolve({saved:false}));
   if(status)status.textContent=response.saved
-    ? 'Order request recorded. Please press Send in WhatsApp to confirm with our team.'
-    : 'Order request was not saved in the dashboard. Please press Send in WhatsApp to place your order.';
+    ? (response.orderStatus==='waitlist'
+      ? 'Waitlist request recorded; no stock or delivery date is promised. Please send your message in WhatsApp.'
+      : 'Order request saved for staff review. No order is confirmed until our team checks stock and responds.')
+    : 'The CRM did not save your request. Please send the WhatsApp message to contact our team.';
   if(submitButton)submitButton.disabled=false;
   if(tab&&!tab.closed)tab.location.href=url;
   else window.location.assign(url);
