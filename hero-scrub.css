@@ -968,7 +968,7 @@ html body .site-footer.footer-redesigned .premium-leaf-field{
  z-index:1!important;overflow:hidden!important;
 }
 html body .site-footer.footer-redesigned .premium-leaf{
- font-size:var(--leaf-size,24px)!important;opacity:0!important;
+ font-size:var(--leaf-size,24px)!important;opacity:0;
  color:#b0d28c!important;filter:none!important;
 }
 html body .site-footer.footer-redesigned .footer-shell{
@@ -1018,4 +1018,27 @@ html body .site-footer.footer-redesigned .footer-social-icon svg{
   animation:none!important;
  }
  html body .lead-launcher{transition:none!important}
+}
+
+
+/* Allow animated SVG leaf opacity to be controlled by keyframes, not !important. */
+html body .site-footer.footer-redesigned .premium-leaf svg{
+ display:block!important;width:100%!important;height:auto!important;
+ overflow:visible!important;color:#b9d596!important;
+ filter:drop-shadow(0 2px 3px rgba(5,32,18,.2))!important;
+}
+html body .site-footer.footer-redesigned .premium-leaf{
+ display:block!important;visibility:visible!important;
+ animation-name:premium-leaf-drift!important;
+ animation-timing-function:linear!important;
+ animation-iteration-count:infinite!important;
+ animation-play-state:paused!important;
+}
+html body .site-footer.footer-redesigned.footer-leaves-playing .premium-leaf{
+ animation-play-state:running!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body .site-footer.footer-redesigned .premium-leaf{
+  display:none!important;animation:none!important;
+ }
 }
