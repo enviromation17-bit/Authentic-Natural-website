@@ -1,0 +1,71 @@
+name: Deploy Authentic Naturals storefront to HostBreak
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostbreak-storefront
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Verify HostBreak FTPS secrets
+        env:
+          HB_FTP_HOST: ${{ secrets.HB_FTP_HOST }}
+          HB_FTP_USER: ${{ secrets.HB_FTP_USER }}
+          HB_FTP_PASSWORD: ${{ secrets.HB_FTP_PASSWORD }}
+          HB_FTP_PATH: ${{ secrets.HB_FTP_PATH }}
+        run: |
+          test -n "$HB_FTP_HOST" && test -n "$HB_FTP_USER" && test -n "$HB_FTP_PASSWORD" && test -n "$HB_FTP_PATH" || {
+            echo "::error::HostBreak FTPS secrets are missing. Deployment was not attempted."
+            exit 1
+          }
+          case "$HB_FTP_PATH" in
+            */public_html|*/public_html/|public_html|public_html/) ;;
+            *) echo "::error::HB_FTP_PATH must explicitly end with public_html"; exit 1;;
+          esac
+
+      - name: Stage public storefront (exclude CRM prototype)
+        run: |
+          set -eu
+          mkdir -p site
+          for file in index.html styles.css enhance.css hero-scrub.css app.js scrub.js product360.js polish.js hero-scrub.js lead-popup.js brand-rail.js; do
+            test -s "$file"
+            cp "$file" site/
+          done
+          cp -R public site/
+          test -s site/public/assets/process-01.png
+          test -s site/index.html
+          echo "Storefront staged. CRM demo intentionally excluded from production."
+
+      - name: Install FTP client
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: Upload with encrypted FTPS
+        env:
+          HB_FTP_HOST: ${{ secrets.HB_FTP_HOST }}
+          HB_FTP_USER: ${{ secrets.HB_FTP_USER }}
+          HB_FTP_PASSWORD: ${{ secrets.HB_FTP_PASSWORD }}
+          HB_FTP_PATH: ${{ secrets.HB_FTP_PATH }}
+        run: |
+          set -eu
+          lftp -u "$HB_FTP_USER","$HB_FTP_PASSWORD" "ftp://$HB_FTP_HOST" <<EOF
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ssl:verify-certificate true
+          set net:max-retries 2
+          set net:timeout 30
+          mirror --reverse --only-newer --parallel=3 --verbose ./site $HB_FTP_PATH
+          bye
+          EOF
+          echo "FTPS upload command completed. Verify your domain and HTTPS separately."
