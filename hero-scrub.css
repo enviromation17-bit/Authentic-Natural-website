@@ -754,3 +754,69 @@ html body #ingredients.ocean-floating-section .full-list{
  }
  html body #ingredients.ocean-floating-section .ingredient-card.has-photo{transform:none!important}
 }
+
+
+/* Fit the entire tall story photograph, rather than aggressively cropping it.
+   The surrounding blurred duplicate fills the frame without losing photo content. */
+html.has-gsap-hero main>.hero .hero-scrub-stage .scrub-art{
+ isolation:isolate!important;background:#163126!important;
+}
+html.has-gsap-hero main>.hero .hero-scrub-stage .scrub-art::before{
+ content:""!important;
+ display:block!important;position:absolute!important;
+ inset:-36px!important;z-index:0!important;pointer-events:none!important;
+ background-image:linear-gradient(90deg,rgba(8,26,18,.62),rgba(16,43,29,.15) 70%),
+ var(--hero-photo-backdrop, url("public/assets/process-01.png"))!important;
+ background-position:center center!important;background-size:cover!important;
+ background-repeat:no-repeat!important;
+ filter:blur(25px) saturate(.9)!important;
+ transform:scale(1.07)!important;
+ opacity:.82!important;
+}
+html.has-gsap-hero main>.hero .hero-scrub-stage .scrub-frame{
+ width:min(58%,740px)!important;
+ height:91%!important;
+ max-width:none!important;max-height:none!important;
+ inset:auto!important;
+ right:clamp(10px,3vw,44px)!important;
+ top:4.5%!important;left:auto!important;
+ object-fit:contain!important;object-position:right center!important;
+ background:transparent!important;border-radius:0!important;
+ z-index:1!important;
+ filter:drop-shadow(0 15px 20px rgba(0,20,12,.16))!important;
+}
+html.has-gsap-hero main>.hero .hero-scrub-stage .scrub-art{
+ overflow:hidden!important;
+}
+html.has-gsap-hero main>.hero .hero-scrub-stage .scrub-title{
+ font-size:clamp(2.8rem,5.1vw,5.9rem)!important;
+}
+@media(max-width:900px){
+ html.has-gsap-hero main>.hero .hero-scrub-stage .scrub-frame{
+  width:94%!important;height:78%!important;
+  left:3%!important;right:3%!important;top:2%!important;
+  object-fit:contain!important;object-position:center center!important;
+ }
+ html.has-gsap-hero main>.hero .hero-scrub-stage .scrub-art::before{
+  filter:blur(17px)!important;opacity:.8!important;
+ }
+ html.has-gsap-hero main>.hero .hero-scrub-stage .scrub-copy{
+  bottom:clamp(65px,11vh,105px)!important;
+ }
+ html.has-gsap-hero main>.hero .hero-scrub-stage:before{
+  background:linear-gradient(0deg,rgba(10,28,20,.92),rgba(10,28,20,.62) 36%,transparent 77%)!important;
+ }
+}
+@media(max-width:550px){
+ html.has-gsap-hero main>.hero .hero-scrub-stage .scrub-frame{
+  width:96%!important;height:72%!important;left:2%!important;right:2%!important;
+ }
+ html.has-gsap-hero main>.hero .hero-scrub-stage .scrub-title{
+  font-size:clamp(2.2rem,9.1vw,3.15rem)!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html.has-gsap-hero main>.hero .hero-scrub-stage .scrub-art::before{
+  filter:none!important;transform:none!important;
+ }
+}
