@@ -1,3 +1,14 @@
+
+## New: WhatsApp inbox integration
+The source now includes `cloudflare/whatsapp.js`, `cloudflare/whatsapp-schema.sql`,
+and a WhatsApp inbox in the protected `/admin/` dashboard. This replaces the old
+"no inbound WhatsApp integration" code status in this document, **but does not mean it
+is operational in production**. Before it can receive messages, follow
+[`WHATSAPP_SETUP.md`](./WHATSAPP_SETUP.md): apply both SQL schemas to the real D1
+database, configure signed Meta webhook credentials, subscribe the business number,
+and configure Cloudflare Access login. Reply suggestions are rules-based and human-reviewed;
+no automated send/AI model is enabled.
+
 # Authentic Naturals — Cloudflare inventory and CRM (implementation status)
 
 This repository now has an **implemented but not yet activated** Cloudflare Workers + D1 backend.
