@@ -1254,3 +1254,54 @@ html.hero-boot .hero-scrub-stage .scrub-frame{content-visibility:auto}
  html.hero-boot main>.hero>.hero-photo{display:revert!important}
  html.hero-boot main>.hero .hero-scrub-stage{display:none!important}
 }
+
+
+/* Performance pass: the 10-frame hero uses one sharp photograph and a cheap gradient.
+   Avoid an additional full-screen blurred photo layer on every scroll frame. */
+html:is(.has-gsap-hero,.hero-boot) main>.hero .hero-scrub-stage .scrub-art::before{
+ background-image:
+   radial-gradient(ellipse at 85% 40%,rgba(83,123,89,.40),transparent 68%),
+   linear-gradient(115deg,#173b2c 0%,#224b39 54%,#4d6753 100%)!important;
+ filter:none!important;
+ transform:none!important;
+ opacity:1!important;
+ inset:0!important;
+}
+html:is(.has-gsap-hero,.hero-boot) main>.hero .hero-scrub-stage .scrub-frame{
+ filter:none!important;
+}
+/* Stable, non-jumping surfaces while editorial/ingredient images are on the way. */
+html body .ingredient-media,
+html body .botanical-look-item{
+ background:linear-gradient(120deg,#dbe8dc,#f2f7ee 50%,#dbe8dc)!important;
+}
+html body .ingredient-media img[data-src],
+html body .botanical-look-item img[data-src]{
+ opacity:0!important;
+}
+html body .ingredient-media img.photo-ready,
+html body .botanical-look-item img.photo-ready{
+ opacity:1!important;
+ transition:opacity .2s ease!important;
+}
+html body .botanical-lookbook{
+ content-visibility:auto;
+ contain-intrinsic-size:auto 900px;
+}
+/* Do not spend rendering resources on remote, below-the-fold decorative effects. */
+@media(max-width:900px){
+ html body #ingredients.ocean-floating-section .ocean-surface-glow,
+ html body #ingredients.ocean-floating-section .ocean-wave-front,
+ html body #ingredients.ocean-floating-section .ocean-water-rings{
+  animation:none!important;
+ }
+ html body .botanical-look-item img.photo-ready{
+  transition:none!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html body .ingredient-media img.photo-ready,
+ html body .botanical-look-item img.photo-ready{
+  transition:none!important;
+ }
+}
