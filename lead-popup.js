@@ -7,7 +7,9 @@
   const form = document.getElementById('lead-popup-form');
   if (!openButton || !dialog || !form || !closeButton) return;
   const WHATSAPP = '923248019501';
-  const open = () => {
+  let lastTrigger = openButton;
+  const open = (trigger = openButton) => {
+    lastTrigger = trigger;
     if (typeof dialog.showModal === 'function') {
       if (!dialog.open) dialog.showModal();
     } else {
@@ -21,13 +23,13 @@
     if (typeof dialog.close === 'function') dialog.close();
     else dialog.removeAttribute('open');
     document.documentElement.classList.remove('lead-popup-visible');
-    openButton.focus({preventScroll:true});
+    if (lastTrigger && lastTrigger.isConnected) lastTrigger.focus({preventScroll:true});
   };
-  openButton.addEventListener('click', function (event) {event.preventDefault();open();});
+  openButton.addEventListener('click', function (event) {event.preventDefault();open(openButton);});
   document.querySelectorAll('[data-open-lead]').forEach(button => {
     button.addEventListener('click', function(event) {
       event.preventDefault();
-      open();
+      open(button);
     });
   });
   // The footer has its own contact action: hide the floating launcher in that area.
