@@ -1,5 +1,5 @@
 'use strict';
-/* A safe, optional same-origin bridge for HostBreak PHP backend.
+/* A safe, optional same-origin bridge for Cloudflare Workers and future HostBreak backend.
  * GitHub Pages remains storefront-only, and WhatsApp works without the backend.
  * The browser never receives DB credentials or staff access.
  */
@@ -16,11 +16,11 @@ window.ANLeadCapture = {
         method:'POST',
         headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
         credentials:'same-origin',cache:'no-store',
-        body:JSON.stringify({...details,website:''}),
+        body:JSON.stringify({...details,website:'',idempotencyKey:details.idempotencyKey||crypto.randomUUID()}),
         signal:abort.signal
       });
       const data = await res.json().catch(()=>null);
-      if (res.ok && data?.ok === true) return {saved:true,id:data.lead_id};
+      if (res.ok && data?.ok === true) return {saved:true,id:data.lead_id,orderStatus:data.orderStatus,availability:data.availability};
       return {saved:false,reason:data?.error || 'unavailable'};
     } catch (_) {
       return {saved:false,reason:'unavailable'};
