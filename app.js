@@ -107,8 +107,10 @@ function loadPhoto(img) {
   }, {once:true});
   img.addEventListener('error', () => {
     if (img.dataset.fallbackAttempted === 'true') {
-      img.classList.add('photo-ready');
-      img.parentElement?.classList.add('photo-loaded');
+      // Preserve the reserved card and visible text; never show a broken-image icon.
+      img.removeAttribute('src');
+      img.classList.add('photo-unavailable');
+      img.parentElement?.classList.add('photo-unavailable');
       return;
     }
     img.dataset.fallbackAttempted = 'true';
