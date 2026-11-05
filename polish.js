@@ -359,12 +359,12 @@
     var field = document.createElement('div');
     field.className = 'premium-leaf-field';
     field.setAttribute('aria-hidden', 'true');
-    var count = isMobile ? 3 : 6;
+    var count = isMobile ? 3 : 7;
     for (var i = 0; i < count; i++) {
       var leaf = document.createElement('span');
       leaf.className = 'premium-leaf';
-      leaf.textContent = '❧';
-      leaf.style.left = (8 + (i * 79 / count)) + '%';
+      leaf.innerHTML = '<svg viewBox="0 0 24 32" width="22" height="28" aria-hidden="true" focusable="false"><path d="M12 1C5 7 1 17 8 26c7 0 15-8 12-18C18 5 15 3 12 1Z" fill="currentColor"/><path d="M7 29Q12 18 17 11" stroke="#e6f6d9" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>';
+      leaf.style.left = (6 + (i * 88 / count)) + '%';
       leaf.style.setProperty('--leaf-delay', '-' + (i * 2.9) + 's');
       leaf.style.setProperty('--leaf-duration', (12 + i * 1.4) + 's');
       leaf.style.setProperty('--leaf-size', (19 + (i%3)*5) + 'px');
