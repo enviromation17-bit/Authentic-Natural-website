@@ -1748,3 +1748,24 @@ html body main #ritual button.usage-autoplay-toggle:focus-visible{
 @media(prefers-reduced-motion:reduce){
  html body main #ritual .usage-track{transition:none!important}
 }
+
+
+/* Verified storefront inventory badges and checkout notices. */
+html body main #shop .stock-availability,
+html body .cart-stock-note{
+ display:block!important;
+ width:100%!important;max-width:720px!important;
+ padding:13px 17px!important;margin:13px 0 19px!important;
+ border-radius:12px!important;border:1px solid #bdd4b7!important;
+ background:#ecf5e8!important;color:#24533b!important;
+ font:700 13px/1.55 'DM Sans',sans-serif!important;
+}
+html body main #shop .stock-availability[data-stock="out_of_stock"]{
+ background:#fff1dc!important;border-color:#e8c88e!important;color:#785022!important;
+}
+html body main #shop .stock-availability[data-stock="unverified"]{
+ background:#f2f2e8!important;border-color:#d8dcc9!important;color:#596a50!important;
+}
+html body #order-form .capture-consent input[type="checkbox"]{
+ flex:0 0 18px!important;
+}
