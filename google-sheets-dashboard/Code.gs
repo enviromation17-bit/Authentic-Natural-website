@@ -3,9 +3,11 @@
  * Script Property ADMIN_EMAILS: comma-separated approved Google emails (required).
  * Share spreadsheet with approved operators as editors. No anonymous access.
  */
-// Set CRM_SPREADSHEET_ID in Script Properties to the Sheet owned by your other Google account.
+// Actual production spreadsheet provided by the owner. Script Property may override it.
+const DEFAULT_CRM_SPREADSHEET_ID = '1zVjFnQx8CcKmYQ38Y76G8Tyg9j7yC38QrneQw3lNfyo';
+const DEFAULT_ADMIN_EMAILS = ['arh2k26@gmail.com'];
 function crmSpreadsheetId_() {
-  const id = (PropertiesService.getScriptProperties().getProperty('CRM_SPREADSHEET_ID') || '').trim();
+  const id = (PropertiesService.getScriptProperties().getProperty('CRM_SPREADSHEET_ID') || DEFAULT_CRM_SPREADSHEET_ID).trim();
   if (!/^[A-Za-z0-9_-]{25,}$/.test(id)) throw new Error('CRM_SPREADSHEET_ID is missing or invalid');
   return id;
 }
@@ -22,7 +24,8 @@ const ENUMS = {
   WhatsApp: {4:['Inbound','Outbound'],6:['New','Replied','Closed']}
 };
 function currentAdmin_() {
-  const allow = (PropertiesService.getScriptProperties().getProperty('ADMIN_EMAILS') || '')
+  const configured = PropertiesService.getScriptProperties().getProperty('ADMIN_EMAILS');
+  const allow = (configured == null ? DEFAULT_ADMIN_EMAILS.join(',') : configured)
     .split(',').map(v => v.trim().toLowerCase()).filter(Boolean);
   const email = (Session.getActiveUser().getEmail() || '').trim().toLowerCase();
   // Fail closed if Google doesn't reveal the identity or no allowlist exists.
