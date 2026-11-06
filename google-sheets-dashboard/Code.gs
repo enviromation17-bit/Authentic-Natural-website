@@ -201,3 +201,64 @@ function diagnoseAdminAccess() {
   console.log(JSON.stringify(report, null, 2));
   return report;
 }
+
+/** Private inventory audit tab; created only when first stock operation succeeds. */
+function stockAuditSheet_() {
+  const book=SpreadsheetApp.openById(crmSpreadsheetId_());
+  let sheet=book.getSheetByName('Stock History');
+  if (!sheet) {
+    sheet=book.insertSheet('Stock History');
+    sheet.appendRow(['Timestamp','SKU','Product','Action','Change','Previous On Hand','New On Hand','Reserved','Reason','Staff Email']);
+    sheet.setFrozenRows(1);
+    sheet.getRange(1,1,1,10).setFontWeight('bold');
+  }
+  return sheet;
+}
+/** New products start unverified, and never modify the storefront. */
+function addStockProduct(input) {
+  const actor=currentAdmin_();
+  return locked_(()=>{
+    const sku=String(input.sku||'').trim().toUpperCase();
+    const product=clean_(input.product,120);
+    if(!/^[A-Z0-9][A-Z0-9_-]{1,59}$/.test(sku))throw new Error('SKU must be 2-60 letters, numbers, dashes or underscores');
+    if(product.length<2)throw new Error('Enter the product name');
+    const price=integer_(input.price,0,10000000,'price');
+    const amount=integer_(input.stock,0,1000000,'starting stock');
+    const sh=sheet_('Inventory');
+    const last=sh.getLastRow();
+    if(last>1&&sh.getRange(2,1,last-1,1).getDisplayValues().some(v=>v[0].toUpperCase()===sku))
+      throw new Error('This SKU already exists');
+    const history=stockAuditSheet_();
+    sh.appendRow([sku,product,price,amount,0,'=MAX(0,D'+(last+1)+'-E'+(last+1)+')','No',new Date()]);
+    history.appendRow([new Date(),sku,product,'Created',amount,0,amount,0,'New product; availability unverified',actor]);
+    return {ok:true,sku};
+  });
+}
+/** Receive, correct or remove physical stock without reducing below reserved units. */
+function changeStock(input) {
+  const actor=currentAdmin_();
+  return locked_(()=>{
+    const sku=String(input.sku||'').trim();
+    const action=enum_(input.action,['Receive','Remove','Set'],'stock action');
+    const quantity=integer_(input.quantity,0,1000000,'quantity');
+    if(action!=='Set'&&quantity===0)throw new Error('Enter a quantity greater than zero');
+    const reason=clean_(input.reason,240);
+    if(reason.length<3)throw new Error('Provide a short reason');
+    const sh=sheet_('Inventory'), last=sh.getLastRow();
+    const ids=last>1?sh.getRange(2,1,last-1,1).getDisplayValues():[];
+    const index=ids.findIndex(row=>row[0]===sku);
+    if(index<0)throw new Error('Product not found');
+    const row=index+2;
+    const vals=sh.getRange(row,1,1,8).getValues()[0];
+    const old=Number(vals[3]),reserved=Number(vals[4]);
+    if(!Number.isSafeInteger(old)||!Number.isSafeInteger(reserved)||reserved<0)throw new Error('Invalid inventory data');
+    const next=action==='Receive'?old+quantity:action==='Remove'?old-quantity:quantity;
+    if(!Number.isSafeInteger(next)||next<reserved||next>1000000)throw new Error('Stock cannot be negative or below reserved stock');
+    const history=stockAuditSheet_();
+    sh.getRange(row,4).setValue(next);
+    sh.getRange(row,6).setFormula('=MAX(0,D'+row+'-E'+row+')');
+    sh.getRange(row,7,1,2).setValues([['Yes',new Date()]]);
+    history.appendRow([new Date(),sku,vals[1],action,next-old,old,next,reserved,reason,actor]);
+    return {ok:true,sku,onHand:next,available:next-reserved};
+  });
+}
