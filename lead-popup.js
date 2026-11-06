@@ -1,5 +1,5 @@
 'use strict';
-/* Client-side WhatsApp enquiry handoff. No silent data collection or storage. */
+/* Client-side WhatsApp enquiry handoff + CRM save. */
 (function () {
   const openButton = document.getElementById('lead-popup-open');
   const dialog = document.getElementById('lead-popup');
@@ -32,7 +32,6 @@
       open(button);
     });
   });
-  // The footer has its own contact action: hide the floating launcher in that area.
   const footer = document.querySelector('.site-footer.footer-redesigned');
   if (footer && 'IntersectionObserver' in window) {
     const footerObserver = new IntersectionObserver(entries => {
@@ -40,14 +39,23 @@
       openButton.classList.toggle('lead-launcher-hidden', visible);
       openButton.setAttribute('aria-hidden', visible ? 'true' : 'false');
       openButton.tabIndex = visible ? -1 : 0;
-    }, {threshold:0,rootMargin:'0px 0px 0px 0px'});
+    }, { threshold: 0.15 });
     footerObserver.observe(footer);
   }
-  closeButton.addEventListener('click', close);
-  dialog.addEventListener('close', () => document.documentElement.classList.remove('lead-popup-visible'));
-  dialog.addEventListener('click', event => {
-    if (event.target === dialog) close();
+  closeButton.addEventListener('click', function (event) { event.preventDefault(); close(); });
+  dialog.addEventListener('cancel', function (event) { event.preventDefault(); close(); });
+
+  // Route product WhatsApp buttons through the enquiry form so every lead is captured
+  document.querySelectorAll('#direct-whatsapp, a.floating-whatsapp, a[href*="wa.me/923248019501"]').forEach(function (link) {
+    if (link.closest('#lead-popup') || link.closest('#order-form') || link.closest('#cart-dialog')) return;
+    link.addEventListener('click', function (event) {
+      if (link.id === 'direct-whatsapp' || link.classList.contains('floating-whatsapp') || link.hasAttribute('data-open-lead')) {
+        event.preventDefault();
+        open(link);
+      }
+    });
   });
+
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (!form.reportValidity()) return;
@@ -76,8 +84,7 @@
     const status = document.getElementById('lead-save-status');
     const button = form.querySelector('[type="submit"]');
     button.disabled = true;
-    if(status) status.textContent = 'Preparing your WhatsApp message…';
-    // Open tab synchronously to avoid popup blockers while the API request runs.
+    if(status) status.textContent = 'Saving your details…';
     const tab = window.open('about:blank', '_blank');
     if(tab) tab.opener = null;
     const saved = await (window.ANLeadCapture?.submit({
@@ -85,12 +92,11 @@
       quantity:1,consent:true
     }) || Promise.resolve({saved:false}));
     if (status) status.textContent = saved.saved
-      ? 'Enquiry recorded. Please press Send in WhatsApp to message our team.'
-      : 'Your enquiry was not saved to the dashboard. Please press Send in WhatsApp to reach us.';
+      ? 'Saved to our dashboard. Please press Send in WhatsApp to message our team.'
+      : 'Dashboard save failed. Please still press Send in WhatsApp so we receive your message.';
     button.disabled = false;
     if (tab && !tab.closed) tab.location.href = url;
     else window.location.assign(url);
-    // Keep this dialog open so the accurate save status is available to read.
   });
 
 })();
