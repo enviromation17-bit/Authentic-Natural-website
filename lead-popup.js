@@ -66,7 +66,7 @@
     const topic = value('lead_topic').slice(0,80);
     const enquiry = value('lead_message').slice(0,900);
     const agreed = Boolean(form.elements.namedItem('capture_consent')?.checked);
-    if (!customer || !enquiry || !agreed) return;
+    if (!customer || !phone || !enquiry || !agreed) return;
     if (value('website')) return;
     const message = [
       'Hello Authentic Naturals!',
@@ -89,11 +89,11 @@
     if(tab) tab.opener = null;
     const saved = await (window.ANLeadCapture?.submit({
       source:'enquiry',name:customer,phone,city,topic,notes:enquiry,
-      quantity:1,consent:true
+      quantity:1,consent:true,marketingConsent:Boolean(form.elements.namedItem('marketing_consent')?.checked)
     }) || Promise.resolve({saved:false}));
     if (status) status.textContent = saved.saved
-      ? 'Saved to our dashboard. Please press Send in WhatsApp to message our team.'
-      : 'Dashboard save failed. Please still press Send in WhatsApp so we receive your message.';
+      ? 'Your enquiry was recorded. Please press Send in WhatsApp to message our team.'
+      : 'Your details could not be saved to our records. Please press Send in WhatsApp to contact our team.';
     button.disabled = false;
     if (tab && !tab.closed) tab.location.href = url;
     else window.location.assign(url);
