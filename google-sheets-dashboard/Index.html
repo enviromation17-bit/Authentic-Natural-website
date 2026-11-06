@@ -17,7 +17,15 @@
 .delete-lead{padding:10px 13px;border:1px solid #f1c4bf;border-radius:10px;background:#fff5f4;color:#9a3028;font-weight:600}
 .delete-lead:hover{background:#fee9e6}
 @media(max-width:700px){.lead-manage-row{flex-direction:column}.lead-controls{width:100%;justify-content:space-between}}
-</style></head>
+</style><style>
+/* Navigation usability: reveal active page label without widening the fixed rail. */
+.sidebar .nav{overflow:visible}
+.sidebar .nav button{transition:width .42s cubic-bezier(.18,1.48,.4,1),background-color .2s,color .2s,transform .42s cubic-bezier(.18,1.48,.4,1)}
+.sidebar .nav button.active{width:142px;max-width:none;transform:translateX(-38px);justify-content:flex-start;gap:9px;padding:0 12px}
+.sidebar .nav button.active .navlabel{display:inline;white-space:nowrap;font-size:12px;font-weight:650}
+@media(prefers-reduced-motion:reduce){.sidebar .nav button{transition:none}}
+</style>
+</head>
 <body>
 <div class="layout"><main class="content"><div class="topline"><div><div class="eyebrow">AUTHENTIC NATURALS / WORKSPACE</div><div class="header-title"><h1 id="pageTitle">Home</h1><select class="select-page" id="pageSelect" aria-label="Choose page"></select></div><p class="sub" id="pageSub">What needs your attention today.</p></div><div class="topbuttons"><button class="subbutton" onclick="refresh()">↻ Refresh</button><button class="subbutton" onclick="openSheet()">Open Sheet ↗</button></div></div><div id="app"><div class="loader">Loading your data…</div></div><div class="locked" id="error"></div></main>
 <div class="quick"><button class="primary" title="Add enquiry" onclick="openForm('lead')">＋</button><button title="New order" onclick="openForm('order')">▣</button><button title="Log message note" onclick="openForm('message')">✉</button></div>
@@ -33,7 +41,7 @@ function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'
 function drawNav(){const nav=document.getElementById('nav');nav.innerHTML='';pages.forEach(([id,label])=>{const b=document.createElement('button');b.className=page===id?'active':'';b.title=label;b.setAttribute('aria-label',label);b.innerHTML=icon(id)+'<span class="navlabel">'+label+'</span>';b.onclick=()=>navigate(id);nav.appendChild(b)});const sel=document.getElementById('pageSelect');sel.innerHTML=pages.map(([id,label])=>'<option value="'+id+'">'+label+'</option>').join('');sel.value=page;sel.onchange=e=>navigate(e.target.value)}
 function navigate(p){page=p;filter='';const x=pages.find(x=>x[0]===page);document.getElementById('pageTitle').textContent=x[1];document.getElementById('pageSub').textContent=x[2];drawNav();render()}
 async function run(fn,...args){return new Promise((resolve,reject)=>{
-  if(!google||!google.script||!google.script.run){
+  if(typeof google==='undefined'||!google.script||!google.script.run){
     reject(new Error('Open this dashboard from the Apps Script web app link, not as a raw HTML file.'));
     return;
   }
