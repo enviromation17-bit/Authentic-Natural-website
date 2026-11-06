@@ -157,6 +157,7 @@ async function captureToSheets(request,env){
     token:env.CRM_SHARED_SECRET,requestId,
     source:source==='order'?'website_order':'website_enquiry',
     name,phone,city,message:notes,address,payment,quantity,consent:true,
+    marketingConsent:input.marketingConsent===true,
     website:''
   };
   try{
