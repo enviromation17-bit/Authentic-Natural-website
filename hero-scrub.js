@@ -1,8 +1,5 @@
 'use strict';
-/* Authentic Naturals — final hero story
-   Desktop/tablet: GSAP pin + scrub
-   Phone: autoplay + swipe with soft crossfade (no long blank pin gaps)
-*/
+/* Authentic Naturals — premium hero story motion */
 (function () {
   const hero = document.querySelector('main > .hero');
   const stage = document.getElementById('gsap-hero-stage');
@@ -57,6 +54,8 @@
   let mobile = window.matchMedia('(max-width: 900px)').matches;
   let phone = window.matchMedia('(max-width: 720px)').matches;
 
+  gsap.defaults({ ease: 'power3.out', force3D: true });
+
   function preload(i) {
     if (i < 0 || i >= frames.length || ready.has(i) || failed.has(i)) return Promise.resolve(ready.has(i));
     if (inFlight.has(i)) return inFlight.get(i);
@@ -104,15 +103,18 @@
     }
     stage.dataset.story = String(index + 1);
     const mobileNow = window.matchMedia('(max-width: 900px)').matches;
-    gsap.fromTo(headline, { autoAlpha: 0, x: mobileNow ? 0 : (reverse ? 22 : -22), y: mobileNow ? 16 : 0 },
-      { autoAlpha: 1, x: 0, y: 0, duration: 0.85, ease: 'power3.out', overwrite: true });
-    gsap.fromTo(description, { autoAlpha: 0, y: 18 },
-      { autoAlpha: 1, y: 0, duration: 0.95, delay: 0.12, ease: 'power3.out', overwrite: true });
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out', overwrite: true } });
+    tl.fromTo(headline,
+      { autoAlpha: 0, x: mobileNow ? 0 : (reverse ? 28 : -28), y: mobileNow ? 20 : 8, filter: 'blur(6px)' },
+      { autoAlpha: 1, x: 0, y: 0, filter: 'blur(0px)', duration: 0.95 }, 0)
+      .fromTo(description,
+      { autoAlpha: 0, y: 22, filter: 'blur(4px)' },
+      { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 1.05 }, 0.14);
   }
 
   function updateChrome(index, progress) {
     const p = typeof progress === 'number' ? progress : (index / Math.max(1, frames.length - 1));
-    progressFill.style.transform = 'scaleX(' + Math.min(1, Math.max(0, p)).toFixed(4) + ')';
+    gsap.to(progressFill, { scaleX: Math.min(1, Math.max(0, p)), duration: 0.45, ease: 'power2.out', overwrite: true });
     progressCount.textContent = String(index + 1).padStart(2, '0') + ' / ' + String(frames.length).padStart(2, '0');
   }
 
@@ -156,15 +158,17 @@
       }
       transitioning = true;
       secondLayer.src = frames[i];
-      secondLayer.style.opacity = '0';
+      gsap.set(secondLayer, { opacity: 0, scale: 1.04, filter: 'blur(8px)' });
       gsap.to(secondLayer, {
         opacity: 1,
-        duration: 1.05,
+        scale: 1,
+        filter: 'blur(0px)',
+        duration: 1.15,
         ease: 'power2.inOut',
         onComplete: function () {
           firstLayer.src = frames[i];
           stage.style.setProperty('--hero-photo-backdrop', 'url("' + frames[i] + '")');
-          secondLayer.style.opacity = '0';
+          gsap.set(secondLayer, { opacity: 0, scale: 1, filter: 'none' });
           currentIndex = i;
           transitioning = false;
         }
@@ -180,7 +184,7 @@
       if (document.hidden || transitioning) return;
       showFrameIndex((currentIndex < 0 ? 0 : currentIndex) + 1, true);
       preload((currentIndex + 2) % frames.length);
-    }, 4800);
+    }, 5000);
   }
   function stopAutoplay() {
     if (autoTimer) clearInterval(autoTimer);
@@ -247,13 +251,13 @@
       trigger: stage,
       start: 'top top',
       end: function () {
-        return '+=' + Math.max(mobile ? 900 : 2300, Math.round(window.innerHeight * (mobile ? 1.55 : 5)));
+        return '+=' + Math.max(mobile ? 1000 : 2600, Math.round(window.innerHeight * (mobile ? 1.7 : 5.5)));
       },
       pin: stage,
       pinSpacing: true,
       anticipatePin: 1,
       invalidateOnRefresh: true,
-      scrub: mobile ? 0.35 : 0.55,
+      scrub: mobile ? 0.45 : 0.75,
       onUpdate: function (self) { render(self.progress); },
       onRefresh: function (self) { render(self.progress); }
     });
