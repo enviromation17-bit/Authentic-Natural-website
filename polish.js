@@ -1,5 +1,5 @@
 'use strict';
-/* Smooth scroll + mobile CSS inject + reveals */
+/* Mobile safety + CSS inject + reveals */
 (function () {
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var mqMobile = window.matchMedia ? window.matchMedia('(max-width: 720px)') : null;
@@ -9,9 +9,40 @@
     if (document.querySelector('link[data-mobile-fix]')) return;
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'mobile-fix.css?v=20261106-mobile1';
+    link.href = 'mobile-fix.css?v=20261106-mobile2';
     link.setAttribute('data-mobile-fix', '1');
     document.head.appendChild(link);
+  }
+
+  /* Phones: remove huge pin-spacer blank zones left by older hero-scrub builds */
+  function neutralizeMobilePinGaps() {
+    if (!isMobile) return;
+    function clean() {
+      if (window.ScrollTrigger && typeof window.ScrollTrigger.getAll === 'function') {
+        window.ScrollTrigger.getAll().forEach(function (t) {
+          try { t.kill(true); } catch (e) {}
+        });
+      }
+      document.querySelectorAll('.pin-spacer').forEach(function (spacer) {
+        var pinned = spacer.querySelector('.hero-scrub-stage, #gsap-hero-stage');
+        if (pinned && spacer.parentNode) {
+          spacer.parentNode.insertBefore(pinned, spacer);
+        }
+        if (spacer.parentNode) spacer.parentNode.removeChild(spacer);
+      });
+      var stage = document.getElementById('gsap-hero-stage');
+      if (stage) {
+        stage.style.position = 'relative';
+        stage.style.top = 'auto';
+        stage.style.width = '100%';
+        stage.style.transform = 'none';
+      }
+      document.documentElement.classList.add('hero-mobile-autoplay');
+    }
+    // Run after hero-scrub.js may have created triggers
+    setTimeout(clean, 400);
+    setTimeout(clean, 1200);
+    window.addEventListener('load', function () { setTimeout(clean, 200); });
   }
 
   function setupSmoothScroll() {
@@ -96,7 +127,6 @@
     var nodes = document.querySelectorAll(selectors.join(','));
     if (!nodes.length) return;
 
-    // On mobile, always show content (avoids blank invisible sections)
     if (isMobile || reduceMotion || !('IntersectionObserver' in window)) {
       nodes.forEach(function (el) {
         el.classList.add('reveal', 'is-visible');
@@ -124,7 +154,6 @@
 
     nodes.forEach(function (el) { io.observe(el); });
 
-    // Safety: force-visible anything still hidden after 2.5s
     setTimeout(function () {
       nodes.forEach(function (el) {
         if (!el.classList.contains('is-visible')) el.classList.add('is-visible');
@@ -148,32 +177,11 @@
     mo.observe(grid, { childList: true });
   }
 
-  function setupFooterLeaves() {
-    if (reduceMotion || isMobile || !('IntersectionObserver' in window)) return;
-    var footer = document.querySelector('.site-footer.footer-redesigned');
-    if (!footer || footer.querySelector('.premium-leaf-field')) return;
-    var field = document.createElement('div');
-    field.className = 'premium-leaf-field';
-    field.setAttribute('aria-hidden', 'true');
-    var count = 7;
-    for (var i = 0; i < count; i++) {
-      var leaf = document.createElement('span');
-      leaf.className = 'premium-leaf';
-      leaf.innerHTML = '<svg viewBox="0 0 24 32" width="22" height="28" aria-hidden="true" focusable="false"><path d="M12 1C5 7 1 17 8 26c7 0 15-8 12-18C18 5 15 3 12 1Z" fill="currentColor"/><path d="M7 29Q12 18 17 11" stroke="#e6f6d9" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>';
-      leaf.style.left = (6 + (i * 88 / count)) + '%';
-      leaf.style.setProperty('--leaf-delay', '-' + (i * 2.9) + 's');
-      leaf.style.setProperty('--leaf-duration', (12 + i * 1.4) + 's');
-      leaf.style.setProperty('--leaf-size', (19 + (i%3)*5) + 'px');
-      field.appendChild(leaf);
-    }
-    footer.insertBefore(field, footer.firstChild);
-  }
-
   function start() {
     injectMobileCss();
+    neutralizeMobilePinGaps();
     setupSmoothScroll();
     setupHeroSlider();
-    setupFooterLeaves();
     setupReveals();
     watchIngredientGrid();
   }
