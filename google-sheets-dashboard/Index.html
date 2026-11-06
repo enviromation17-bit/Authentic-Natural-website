@@ -101,7 +101,10 @@ function leadsPage(){
   (cards||'<div class="empty">No leads yet. Click Add enquiry to start.</div>')+'</div>';
 }
 function replyToLead(phone){
-  const digits=String(phone||'').replace(/[^0-9]/g,'');
+  let digits=String(phone||'').replace(/[^0-9]/g,'');
+  // Pakistani local mobile numbers 03XXXXXXXXX need country code 92.
+  if(/^03[0-9]{9}$/.test(digits))digits='92'+digits.slice(1);
+  if(/^3[0-9]{9}$/.test(digits))digits='92'+digits;
   if(digits.length<10||digits.length>15){notify('A valid phone number is needed to open WhatsApp');return}
   // Manual customer-service reply only. Do not initiate promotional messages
   // without a separate recorded marketing opt-in and applicable Meta rules.
