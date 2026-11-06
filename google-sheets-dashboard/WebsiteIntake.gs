@@ -71,11 +71,12 @@ function doPost(e){
     const book=SpreadsheetApp.openById(spreadsheetId);
     const leads=store_(book,'Leads');
     const orders=source==='website_order'?store_(book,'Orders'):null;
+    const marketingPermission=input.marketingConsent===true?'Yes':'No';
     let leadExists=findId_(leads,leadId);
     if(!leadExists){
       leads.appendRow([
         leadId,new Date(),name,phone,city,source,PRODUCT_SKU,quantity,
-        message,'New','Yes',source==='website_order'?'Order request; not confirmed':'Website WhatsApp enquiry'
+        message,'New','Yes',(source==='website_order'?'Order request; not confirmed':'Website WhatsApp enquiry')+' | Marketing opt-in: '+marketingPermission
       ]);
     }
     if(orders&&!findId_(orders,orderId)){
