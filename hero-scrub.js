@@ -1,5 +1,8 @@
 'use strict';
-/* Authentic Naturals — premium hero story motion */
+/* Authentic Naturals — hero story
+   Desktop: long pin scrub. Mobile: SHORT pin scrub (no blank gaps) + light swipe assist.
+   Performance-minded preloading and reduced mobile filter cost.
+*/
 (function () {
   const hero = document.querySelector('main > .hero');
   const stage = document.getElementById('gsap-hero-stage');
@@ -7,14 +10,16 @@
   const ScrollTrigger = window.ScrollTrigger;
   if (!hero || !stage || !gsap) return;
 
-  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (motion.matches) return;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (reduceMotion.matches) return;
 
   const filenames = [
     'process-01.png','process-02.png','process-03.png','process-04.png',
     'process-05.png','process-06.png','process-08.png','botanicals.png','ritual.png','product.png'
   ];
-  const frames = filenames.map(name => 'public/assets/' + name);
+  const frames = filenames.map(function (name) {
+    return 'public/assets/' + name;
+  });
   const firstLayer = document.getElementById('scrub-current');
   const secondLayer = document.getElementById('scrub-next');
   const progressFill = document.getElementById('scrub-progress-fill');
@@ -49,8 +54,6 @@
   let currentIndex = -1;
   let displayedStory = -1;
   let trigger = null;
-  let autoTimer = null;
-  let transitioning = false;
   let mobile = window.matchMedia('(max-width: 900px)').matches;
   let phone = window.matchMedia('(max-width: 720px)').matches;
 
@@ -62,15 +65,25 @@
     if (i === 0) {
       if (firstLayer.complete && firstLayer.naturalWidth > 0) { ready.add(0); return Promise.resolve(true); }
       if (firstLayer.complete && firstLayer.naturalWidth === 0) { failed.add(0); return Promise.resolve(false); }
-      return new Promise(resolve => {
-        firstLayer.addEventListener('load', () => { ready.add(0); resolve(true); }, { once: true });
-        firstLayer.addEventListener('error', () => { failed.add(0); resolve(false); }, { once: true });
+      return new Promise(function (resolve) {
+        firstLayer.addEventListener('load', function () { ready.add(0); resolve(true); }, { once: true });
+        firstLayer.addEventListener('error', function () { failed.add(0); resolve(false); }, { once: true });
       });
     }
-    const pending = new Promise(resolve => {
-      const picture = new Image();
-      picture.onload = () => { ready.add(i); inFlight.delete(i); resolve(true); if (trigger) render(latestProgress); };
-      picture.onerror = () => { failed.add(i); inFlight.delete(i); resolve(false); };
+    var pending = new Promise(function (resolve) {
+      var picture = new Image();
+      picture.decoding = 'async';
+      picture.onload = function () {
+        ready.add(i);
+        inFlight.delete(i);
+        resolve(true);
+        if (trigger) render(latestProgress);
+      };
+      picture.onerror = function () {
+        failed.add(i);
+        inFlight.delete(i);
+        resolve(false);
+      };
       picture.src = frames[i];
     });
     inFlight.set(i, pending);
@@ -80,19 +93,19 @@
   function showStory(index) {
     if (index === displayedStory || index < 0 || index >= stories.length) return;
     displayedStory = index;
-    const story = stories[index];
-    const reverse = index % 2 === 1;
-    gsap.killTweensOf([copy, headline, description]);
+    var story = stories[index];
+    var reverse = index % 2 === 1;
+    gsap.killTweensOf([headline, description]);
     headline.replaceChildren(document.createTextNode(story[0] + ' '));
-    const emphasis = document.createElement('em');
+    var emphasis = document.createElement('em');
     emphasis.textContent = story[1];
     headline.appendChild(emphasis);
-    const phrase = highlightPhrases[index] || '';
-    const position = phrase ? story[2].indexOf(phrase) : -1;
+    var phrase = highlightPhrases[index] || '';
+    var position = phrase ? story[2].indexOf(phrase) : -1;
     if (position < 0) {
       description.textContent = story[2];
     } else {
-      const accent = document.createElement('strong');
+      var accent = document.createElement('strong');
       accent.className = 'copy-accent';
       accent.textContent = phrase;
       description.replaceChildren(
@@ -102,31 +115,42 @@
       );
     }
     stage.dataset.story = String(index + 1);
-    const mobileNow = window.matchMedia('(max-width: 900px)').matches;
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out', overwrite: true } });
-    tl.fromTo(headline,
-      { autoAlpha: 0, x: mobileNow ? 0 : (reverse ? 28 : -28), y: mobileNow ? 20 : 8, filter: 'blur(6px)' },
-      { autoAlpha: 1, x: 0, y: 0, filter: 'blur(0px)', duration: 0.95 }, 0)
-      .fromTo(description,
-      { autoAlpha: 0, y: 22, filter: 'blur(4px)' },
-      { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 1.05 }, 0.14);
+    var mobileNow = window.matchMedia('(max-width: 900px)').matches;
+    if (mobileNow) {
+      gsap.fromTo(headline,
+        { autoAlpha: 0, y: 16 },
+        { autoAlpha: 1, y: 0, duration: 0.55, ease: 'power2.out', overwrite: true });
+      gsap.fromTo(description,
+        { autoAlpha: 0, y: 12 },
+        { autoAlpha: 1, y: 0, duration: 0.65, delay: 0.06, ease: 'power2.out', overwrite: true });
+    } else {
+      gsap.fromTo(headline,
+        { autoAlpha: 0, x: reverse ? 24 : -24, y: 6 },
+        { autoAlpha: 1, x: 0, y: 0, duration: 0.85, ease: 'power3.out', overwrite: true });
+      gsap.fromTo(description,
+        { autoAlpha: 0, y: 18 },
+        { autoAlpha: 1, y: 0, duration: 0.95, delay: 0.1, ease: 'power3.out', overwrite: true });
+    }
   }
 
   function updateChrome(index, progress) {
-    const p = typeof progress === 'number' ? progress : (index / Math.max(1, frames.length - 1));
-    gsap.to(progressFill, { scaleX: Math.min(1, Math.max(0, p)), duration: 0.45, ease: 'power2.out', overwrite: true });
+    var p = typeof progress === 'number' ? progress : (index / Math.max(1, frames.length - 1));
+    progressFill.style.transform = 'scaleX(' + Math.min(1, Math.max(0, p)).toFixed(4) + ')';
     progressCount.textContent = String(index + 1).padStart(2, '0') + ' / ' + String(frames.length).padStart(2, '0');
   }
 
   function render(progress) {
-    const p = Math.min(1, Math.max(0, progress));
+    var p = Math.min(1, Math.max(0, progress));
     latestProgress = p;
-    const rawIndex = p * (frames.length - 1);
-    const lower = Math.min(frames.length - 1, Math.floor(rawIndex));
-    const upper = Math.min(frames.length - 1, lower + 1);
+    var rawIndex = p * (frames.length - 1);
+    var lower = Math.min(frames.length - 1, Math.floor(rawIndex));
+    var upper = Math.min(frames.length - 1, lower + 1);
+
     preload(lower);
-    if (p > 0.008 && upper !== lower) preload(upper);
-    const displayIndex = ready.has(lower) ? lower : currentIndex;
+    if (p > 0.01 && upper !== lower) preload(upper);
+    if (!phone && upper + 1 < frames.length) preload(upper + 1);
+
+    var displayIndex = ready.has(lower) ? lower : currentIndex;
     if (displayIndex >= 0 && displayIndex !== currentIndex) {
       firstLayer.src = frames[displayIndex];
       stage.style.setProperty('--hero-photo-backdrop', 'url("' + frames[displayIndex] + '")');
@@ -142,61 +166,42 @@
     showStory(Math.max(0, displayIndex));
   }
 
-  function showFrameIndex(index, animate) {
-    const i = ((index % frames.length) + frames.length) % frames.length;
-    if (transitioning && animate) return;
-    preload(i).then(ok => {
-      if (!ok && !ready.has(i)) return;
-      if (!animate || currentIndex < 0 || currentIndex === i) {
-        firstLayer.src = frames[i];
-        stage.style.setProperty('--hero-photo-backdrop', 'url("' + frames[i] + '")');
-        currentIndex = i;
-        secondLayer.style.opacity = '0';
-        updateChrome(i);
-        showStory(i);
-        return;
-      }
-      transitioning = true;
-      secondLayer.src = frames[i];
-      gsap.set(secondLayer, { opacity: 0, scale: 1.04, filter: 'blur(8px)' });
-      gsap.to(secondLayer, {
-        opacity: 1,
-        scale: 1,
-        filter: 'blur(0px)',
-        duration: 1.15,
-        ease: 'power2.inOut',
-        onComplete: function () {
-          firstLayer.src = frames[i];
-          stage.style.setProperty('--hero-photo-backdrop', 'url("' + frames[i] + '")');
-          gsap.set(secondLayer, { opacity: 0, scale: 1, filter: 'none' });
-          currentIndex = i;
-          transitioning = false;
-        }
-      });
-      updateChrome(i);
-      showStory(i);
-    });
-  }
-
-  function startAutoplay() {
-    stopAutoplay();
-    autoTimer = setInterval(function () {
-      if (document.hidden || transitioning) return;
-      showFrameIndex((currentIndex < 0 ? 0 : currentIndex) + 1, true);
-      preload((currentIndex + 2) % frames.length);
-    }, 5000);
-  }
-  function stopAutoplay() {
-    if (autoTimer) clearInterval(autoTimer);
-    autoTimer = null;
-  }
-
   function enableHeroChrome() {
     document.documentElement.classList.add('has-gsap-hero');
+    document.documentElement.classList.remove('hero-mobile-autoplay');
     hero.classList.remove('reveal');
     hero.classList.add('gsap-hero-enabled');
     hero.style.removeProperty('transform');
-    stage.style.willChange = 'auto';
+  }
+
+  function pinDistance() {
+    var h = window.innerHeight || 700;
+    if (phone) {
+      return Math.max(Math.round(h * 1.65), 900);
+    }
+    if (mobile) return Math.max(Math.round(h * 2.2), 1200);
+    return Math.max(Math.round(h * 5.2), 2800);
+  }
+
+  function bindTouchAssist() {
+    var sx = 0, sy = 0;
+    stage.addEventListener('touchstart', function (e) {
+      sx = e.changedTouches[0].clientX;
+      sy = e.changedTouches[0].clientY;
+    }, { passive: true });
+    stage.addEventListener('touchend', function (e) {
+      var dx = e.changedTouches[0].clientX - sx;
+      var dy = e.changedTouches[0].clientY - sy;
+      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
+      if (!trigger) return;
+      var step = 1 / Math.max(1, frames.length - 1);
+      var next = Math.min(1, Math.max(0, latestProgress + (dx < 0 ? step : -step)));
+      var start = trigger.start;
+      var end = trigger.end;
+      if (typeof start !== 'number' || typeof end !== 'number') return;
+      var y = start + (end - start) * next;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }, { passive: true });
   }
 
   preload(0).then(function (ok) {
@@ -204,6 +209,14 @@
       document.documentElement.classList.remove('hero-boot');
       return;
     }
+    if (!ScrollTrigger) {
+      enableHeroChrome();
+      showStory(0);
+      updateChrome(0, 0);
+      return;
+    }
+    gsap.registerPlugin(ScrollTrigger);
+
     firstLayer.src = frames[0];
     stage.style.setProperty('--hero-photo-backdrop', 'url("' + frames[0] + '")');
     currentIndex = 0;
@@ -216,55 +229,34 @@
     mobile = window.matchMedia('(max-width: 900px)').matches;
     phone = window.matchMedia('(max-width: 720px)').matches;
 
-    if (phone) {
-      document.documentElement.classList.add('hero-mobile-autoplay');
-      const hint = stage.querySelector('.scrub-hint');
-      if (hint) hint.textContent = 'Story plays automatically · swipe to change';
-      startAutoplay();
-      if ('IntersectionObserver' in window) {
-        const io = new IntersectionObserver(function (entries) {
-          entries.forEach(function (e) {
-            if (e.isIntersecting) startAutoplay();
-            else stopAutoplay();
-          });
-        }, { threshold: 0.3 });
-        io.observe(stage);
-      }
-      let sx = 0;
-      stage.addEventListener('touchstart', function (e) {
-        sx = e.changedTouches[0].clientX;
-      }, { passive: true });
-      stage.addEventListener('touchend', function (e) {
-        const dx = e.changedTouches[0].clientX - sx;
-        if (Math.abs(dx) < 40) return;
-        stopAutoplay();
-        showFrameIndex(currentIndex + (dx < 0 ? 1 : -1), true);
-        startAutoplay();
-      }, { passive: true });
-      return;
+    var hint = stage.querySelector('.scrub-hint');
+    if (hint) {
+      hint.textContent = phone
+        ? 'Scroll to explore the story · swipe sideways to step'
+        : 'Scroll to discover the story';
     }
 
-    if (!ScrollTrigger) return;
-    gsap.registerPlugin(ScrollTrigger);
     render(0);
     trigger = ScrollTrigger.create({
       trigger: stage,
       start: 'top top',
-      end: function () {
-        return '+=' + Math.max(mobile ? 1000 : 2600, Math.round(window.innerHeight * (mobile ? 1.7 : 5.5)));
-      },
-      pin: stage,
+      end: function () { return '+=' + pinDistance(); },
+      pin: true,
       pinSpacing: true,
       anticipatePin: 1,
       invalidateOnRefresh: true,
-      scrub: mobile ? 0.45 : 0.75,
+      scrub: phone ? 0.35 : (mobile ? 0.45 : 0.7),
       onUpdate: function (self) { render(self.progress); },
       onRefresh: function (self) { render(self.progress); }
     });
-    const refresh = function () { ScrollTrigger.refresh(true); };
+
+    if (phone || mobile) bindTouchAssist();
+
+    var refresh = function () { ScrollTrigger.refresh(true); };
     window.addEventListener('pageshow', refresh);
     window.addEventListener('load', refresh, { once: true });
-    window.addEventListener('orientationchange', function () { setTimeout(refresh, 250); });
+    window.addEventListener('orientationchange', function () { setTimeout(refresh, 280); });
+    setTimeout(refresh, 400);
     refresh();
   });
 })();
