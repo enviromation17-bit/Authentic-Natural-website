@@ -86,10 +86,6 @@ function toast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2400);
 }
-/* Visibility-driven images: do not fetch entire ingredient/gallery libraries on first load.
-   Begin fetching ahead of the viewport, show a stable color until decoded, and handle broken paths. */
-// Limit concurrent photo decoding/network requests. Start ahead of the viewport,
-// but don't request all 23 ingredient photographs at once.
 const photoQueue = [];
 let activePhotos = 0;
 const maxActivePhotos = 3;
@@ -127,7 +123,6 @@ function loadPhoto(img, finished = () => {}) {
   }, {once:true});
   img.addEventListener('error', () => {
     if (img.dataset.fallbackAttempted === 'true') {
-      // Preserve the reserved card and visible text; never show a broken-image icon.
       img.removeAttribute('src');
       img.classList.add('photo-unavailable');
       img.parentElement?.classList.add('photo-unavailable');
@@ -138,8 +133,6 @@ function loadPhoto(img, finished = () => {}) {
     img.src = A + 'botanicals.png';
   });
   img.src = src;
-  // A cached file may already be complete before load dispatches.
-  // The normal load listener finishes the queue when it fires.
 }
 function watchPhoto(img) {
   if (!img.dataset.src) return;
@@ -155,14 +148,12 @@ function renderIngredients() {
     return matchFilter && matchQuery;
   });
   const grid = $('#ingredient-grid');
-  // Release no-longer-visible filtered cards before scheduling their downloads.
   if (imageObserver) grid.querySelectorAll('img[data-src]').forEach(img => imageObserver.unobserve(img));
   grid.replaceChildren();
   filtered.forEach(([name, description], index) => {
     const card = document.createElement('article');
     card.className = 'ingredient-card has-photo';
     card.dataset.ingredient = name;
-
     const media = document.createElement('div');
     media.className = 'ingredient-media';
     media.setAttribute('aria-hidden', 'true');
@@ -174,14 +165,12 @@ function renderIngredients() {
     img.loading = 'lazy';
     img.decoding = 'async';
     media.appendChild(img);
-
     const number = document.createElement('span');
     number.textContent = String(index + 1).padStart(2, '0');
     number.setAttribute('aria-hidden', 'true');
     const title = document.createElement('h3');
     title.textContent = name;
     const p = document.createElement('p');
-    // Make the key cosmetic-care benefit visible, without injecting HTML strings.
     const benefitTerms = [
       'softness', 'smoothness', 'shine', 'scalp care', 'scalp comfort',
       'cooling sensation', 'refreshed', 'freshness', 'conditioning',
@@ -189,9 +178,7 @@ function renderIngredients() {
       'manageable', 'manageability', 'healthy looking hair',
       'aromatic', 'traditional hair', 'dryness'
     ];
-    const term = benefitTerms.find(term =>
-      description.toLowerCase().includes(term.toLowerCase())
-    );
+    const term = benefitTerms.find(term => description.toLowerCase().includes(term.toLowerCase()));
     if (term) {
       const indexOfBenefit = description.toLowerCase().indexOf(term.toLowerCase());
       const highlighted = document.createElement('strong');
@@ -270,7 +257,7 @@ $('#add-cart').addEventListener('click', () => {
   bagQty = Math.min(20, bagQty + qty);
   bagStore.set(bagQty);
   renderBag();
-  toast(window.ANStock?.current?.availability==='out_of_stock' ? 'Added to bag. Complete checkout to request waitlist.' : 'Added to bag. Our team confirms stock before an order.');
+  toast('Added to bag');
 });
 $('#open-cart').addEventListener('click', () => $('#cart-dialog').showModal());
 $$('[data-close]').forEach((btn) => btn.addEventListener('click', () => {
@@ -305,29 +292,34 @@ $('#order-form') && $('#order-form').addEventListener('submit', async (e) => {
   const address=String(fd.get('address')||'').trim();
   const payment=String(fd.get('payment')||'').trim();
   const quantity=Math.max(1,bagQty);
-  const currentlyOut=window.ANStock?.current?.availability==='out_of_stock';
-  const message = (currentlyOut
-    ? 'Hello Authentic Naturals, I would like to join the restock waitlist for Hair Repair & Revive Growth Oil.'
-    : 'Hello Authentic Naturals, I would like to request Hair Repair & Revive Growth Oil. Please confirm stock before accepting my order.') +
-    '\nQty: ' + quantity + '\nName: ' + name + '\nPhone: ' + phone +
-    '\nCity: ' + city + '\nAddress: ' + address + '\nPayment preference: ' + payment;
+  const message = 'Hello Authentic Naturals, I would like to order Hair Repair & Revive Growth Oil.' +
+    '\nQty: ' + quantity +
+    '\nName: ' + name +
+    '\nPhone: ' + phone +
+    '\nCity: ' + city +
+    '\nAddress: ' + address +
+    '\nPayment: ' + payment;
   const url='https://wa.me/923248019501?text='+encodeURIComponent(message);
   const submitButton=form.querySelector('[type="submit"]');
   const status=document.getElementById('order-save-status');
   if(submitButton)submitButton.disabled=true;
-  if(status)status.textContent='Preparing your WhatsApp order…';
+  if(status)status.textContent='Saving your order details…';
   const tab=window.open('about:blank','_blank');
   if(tab)tab.opener=null;
   const response=await (window.ANLeadCapture?.submit({
-    source:'order',name,phone,city,topic:'Hair Repair & Revive Growth Oil',
-    notes:'Order request. Delivery address: '+address,
-    payment,quantity,consent:fd.get('capture_consent')==='on'
+    source:'order',
+    name:name,
+    phone:phone,
+    city:city,
+    topic:'Hair Repair & Revive Growth Oil',
+    notes:'Order request via website bag.\nAddress: '+address+'\nPayment: '+payment,
+    payment:payment,
+    quantity:quantity,
+    consent:fd.get('capture_consent')==='on'
   })||Promise.resolve({saved:false}));
   if(status)status.textContent=response.saved
-    ? (response.orderStatus==='waitlist'
-      ? 'Waitlist request recorded; no stock or delivery date is promised. Please send your message in WhatsApp.'
-      : 'Order request saved for staff review. No order is confirmed until our team checks stock and responds.')
-    : 'The CRM did not save your request. Please send the WhatsApp message to contact our team.';
+    ? 'Saved to our dashboard. Please press Send in WhatsApp to confirm with our team.'
+    : 'Could not reach the dashboard. Please still press Send in WhatsApp — we will receive your message.';
   if(submitButton)submitButton.disabled=false;
   if(tab&&!tab.closed)tab.location.href=url;
   else window.location.assign(url);
@@ -358,7 +350,6 @@ function setUsageStep(step) {
   if (prev) prev.disabled = usageStep === 0;
   if (next) next.disabled = usageStep === 5;
 }
-// Expose for scrub.js + polish.js autoplay
 window.setUsageStep = setUsageStep;
 window.showUsageStep = setUsageStep;
 window.usageStep = usageStep;
@@ -368,7 +359,6 @@ $('#usage-prev') && $('#usage-prev').addEventListener('click', () => setUsageSte
 $('#usage-next') && $('#usage-next').addEventListener('click', () => setUsageStep(usageStep + 1));
 setUsageStep(0);
 
-// Video is user-controlled: never download or autoplay it merely on scrolling.
 const video = document.querySelector('.video-section video');
 if (video) {
   video.autoplay = false;
@@ -382,8 +372,6 @@ if (video) {
 renderBag();
 renderQuantity();
 renderIngredients();
-// The editorial photo gallery was retired; no gallery images need loading.
-/* Pause off-screen decorative motion to avoid unnecessary animation work. */
 if ('IntersectionObserver' in window) {
   const animatedSections = [
     [document.getElementById('ingredients'), 'ocean-in-view'],
