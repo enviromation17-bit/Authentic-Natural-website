@@ -1,11 +1,33 @@
-/* Mobile layout hard-fixes — load after enhance.css + hero-scrub.css */
+/* =========================================================
+   Authentic Naturals — FINAL MOBILE LAUNCH FIX
+   Prevents cut-off text, half-visible cards, blank gaps
+   ========================================================= */
 
-html, body {
-  overflow-x: hidden !important;
-  max-width: 100vw !important;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-/* Kill huge empty pin-spacer gaps if any remain */
+html {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+  position: relative;
+}
+
+img, video, svg, canvas {
+  max-width: 100% !important;
+  height: auto;
+}
+
+/* Kill GSAP pin blank space leftovers */
 .pin-spacer {
   background: transparent !important;
 }
@@ -15,7 +37,9 @@ html.hero-mobile-autoplay .pin-spacer {
   margin: 0 !important;
 }
 
-/* Reveals must not leave invisible sections on mobile */
+/* ---------------------------------------------------------
+   TABLET + PHONE (≤900px)
+   --------------------------------------------------------- */
 @media (max-width: 900px) {
   .reveal {
     opacity: 1 !important;
@@ -23,68 +47,204 @@ html.hero-mobile-autoplay .pin-spacer {
     transition: none !important;
   }
 
-  /* Header nav: horizontal scroll, no wrap clash */
+  main,
+  main > section,
+  .section,
+  .product.section,
+  .ingredients.section,
+  .usage-section,
+  .video-section,
+  .story-layout,
+  .closing,
+  .brand-manifesto,
+  .botanical-lookbook {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Header */
   .header {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    gap: 8px !important;
+  }
+  .header .brand img {
+    width: 52px !important;
+    height: 52px !important;
   }
   .header nav {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
     scrollbar-width: none !important;
-    max-width: min(58vw, 280px) !important;
+    max-width: min(52vw, 240px) !important;
+    flex: 1 1 auto !important;
   }
   .header nav::-webkit-scrollbar { display: none; }
   .header nav a {
     white-space: nowrap !important;
+    font-size: 11px !important;
+    padding: 6px 7px !important;
+  }
+  .header .bag {
+    flex-shrink: 0 !important;
     font-size: 12px !important;
-    padding: 6px 8px !important;
+    padding: 8px 12px !important;
   }
 
-  /* Product section stacks cleanly */
+  /* Product */
   .product.section,
   .product {
+    display: grid !important;
     grid-template-columns: 1fr !important;
-    gap: 20px !important;
-    padding-left: 16px !important;
-    padding-right: 16px !important;
+    gap: 18px !important;
   }
   .gallery,
-  .orbit-stage,
-  .main-image {
-    max-width: 100% !important;
+  .main-image,
+  .orbit-stage {
     width: 100% !important;
+    max-width: 100% !important;
   }
   #gallery-image,
   .orbit-product-img {
-    max-width: min(100%, 320px) !important;
-    max-height: 48vh !important;
-    margin: 0 auto !important;
+    max-width: min(100%, 300px) !important;
+    max-height: 46vh !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: block !important;
+  }
+  .product-info h2 {
+    font-size: clamp(1.7rem, 7vw, 2.4rem) !important;
+    word-break: break-word !important;
+  }
+  .purchase {
+    flex-wrap: wrap !important;
+  }
+  .purchase .button,
+  .whatsapp-button {
+    width: 100% !important;
+    justify-content: center !important;
   }
 
-  /* Ingredient grid */
-  .ingredient-grid {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 10px !important;
+  /* ========== INGREDIENTS — single column, full text ========= */
+  .ingredients.section,
+  #ingredients {
+    overflow-x: hidden !important;
   }
-  .ingredient-card .ingredient-media {
-    height: 110px !important;
-    flex-basis: 110px !important;
+  .ocean-floating-section .ocean-surface,
+  .ocean-surface,
+  .ocean-wave,
+  .ocean-water-rings {
+    display: none !important; /* animation was pushing content sideways */
   }
-  .ingredient-card > h3 {
-    font-size: 1rem !important;
+  .ingredient-controls {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
   }
-  .ingredient-card > p {
+  .ingredient-controls .search-label,
+  .ingredient-controls input {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .filters {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  .filters button {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
     font-size: 12px !important;
   }
 
-  /* Ritual: stop cut-off / half-visible cards */
-  #ritual,
-  .usage-section,
-  .ritual-scroll-section {
+  .ingredient-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important; /* ONE column — no cut-off titles */
+    gap: 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .ingredient-card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 0 16px !important;
     overflow: hidden !important;
+    transform: none !important;
+    left: auto !important;
+    right: auto !important;
+    position: relative !important;
+  }
+
+  .ingredient-card .ingredient-media {
+    width: 100% !important;
+    height: 180px !important;
+    flex: 0 0 180px !important;
+    border-radius: 18px 18px 0 0 !important;
+    overflow: hidden !important;
+  }
+  .ingredient-card .ingredient-media img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  .ingredient-card > span,
+  .ingredient-card > h3,
+  .ingredient-card > p,
+  .ingredient-card > button,
+  .ingredient-card .ingredient-explore {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
     padding-left: 14px !important;
     padding-right: 14px !important;
+    box-sizing: border-box !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+  }
+
+  .ingredient-card > span {
+    margin-top: 12px !important;
+    font-size: 10px !important;
+  }
+  .ingredient-card > h3 {
+    font-size: 1.25rem !important;
+    line-height: 1.25 !important;
+    margin: 4px 0 6px !important;
+  }
+  .ingredient-card > p {
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+    margin: 0 0 12px !important;
+  }
+  .ingredient-card .ingredient-explore,
+  .ingredient-card > button {
+    align-self: flex-start !important;
+    width: auto !important;
+    max-width: calc(100% - 28px) !important;
+    margin-left: 14px !important;
+    margin-right: 14px !important;
+  }
+
+  /* Ritual */
+  #ritual,
+  .usage-section {
+    overflow-x: hidden !important;
   }
   .usage-nav {
     display: flex !important;
@@ -92,25 +252,24 @@ html.hero-mobile-autoplay .pin-spacer {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
     gap: 8px !important;
-    padding-bottom: 8px !important;
-    margin-bottom: 12px !important;
+    padding-bottom: 10px !important;
+    width: 100% !important;
   }
   .usage-nav button {
     flex: 0 0 auto !important;
-    min-width: 112px !important;
-    max-width: 150px !important;
+    min-width: 108px !important;
+    max-width: 148px !important;
     white-space: normal !important;
+    font-size: 11px !important;
   }
   .usage-carousel {
     width: 100% !important;
     max-width: 100% !important;
     overflow: hidden !important;
     height: auto !important;
-    min-height: 0 !important;
   }
   .usage-track {
     display: flex !important;
-    width: 100% !important;
   }
   .usage-panel,
   .usage-track .usage-panel {
@@ -120,99 +279,92 @@ html.hero-mobile-autoplay .pin-spacer {
     width: 100% !important;
     min-width: 100% !important;
     max-width: 100% !important;
-    box-sizing: border-box !important;
     gap: 12px !important;
-    grid-template-columns: none !important;
     padding: 0 !important;
+    grid-template-columns: none !important;
   }
   .usage-panel figure {
     width: 100% !important;
-    max-width: 100% !important;
     margin: 0 !important;
-    order: 1 !important;
     overflow: hidden !important;
     border-radius: 16px !important;
   }
-  .usage-panel figure a {
-    display: block !important;
-    width: 100% !important;
-  }
   .usage-panel figure img {
-    display: block !important;
     width: 100% !important;
     height: auto !important;
-    max-height: min(58vh, 420px) !important;
+    max-height: min(55vh, 400px) !important;
     object-fit: contain !important;
-    margin: 0 auto !important;
   }
   .usage-panel .usage-caption {
-    order: 2 !important;
     width: 100% !important;
-    max-width: 100% !important;
-    text-align: left !important;
     padding: 4px 2px 12px !important;
   }
   .usage-panel .usage-caption h3 {
-    font-size: clamp(1.35rem, 6vw, 1.8rem) !important;
-  }
-  .usage-pagination {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 10px !important;
-    align-items: center !important;
-    justify-content: space-between !important;
+    font-size: clamp(1.3rem, 6vw, 1.75rem) !important;
+    overflow-wrap: anywhere !important;
   }
 
   /* Video */
   .video-section {
     grid-template-columns: 1fr !important;
-    padding-left: 14px !important;
-    padding-right: 14px !important;
   }
   .video-section video {
-    max-width: 100% !important;
+    width: 100% !important;
     max-height: 42vh !important;
   }
 
   /* Story / closing */
-  .story-layout,
-  .closing {
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-  }
   .family-photo {
-    max-height: 360px !important;
     width: 100% !important;
+    max-height: 340px !important;
     object-fit: contain !important;
   }
 
-  /* Sections should not invent empty height */
   .section {
     min-height: 0 !important;
   }
 
-  /* Floating WhatsApp safe area */
   .floating-whatsapp {
-    bottom: max(16px, env(safe-area-inset-bottom)) !important;
-    right: 14px !important;
+    bottom: max(14px, env(safe-area-inset-bottom)) !important;
+    right: 12px !important;
+  }
+
+  /* Lookbook horizontal scroll is intentional */
+  .botanical-look-track {
+    margin-left: -16px !important;
+    margin-right: -16px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
   }
 }
 
+/* ---------------------------------------------------------
+   SMALL PHONES (≤420px)
+   --------------------------------------------------------- */
 @media (max-width: 420px) {
-  .ingredient-grid {
-    grid-template-columns: 1fr !important;
+  main > section,
+  .section {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  .ingredient-card .ingredient-media {
+    height: 160px !important;
+    flex-basis: 160px !important;
+  }
+  .ingredient-card > h3 {
+    font-size: 1.15rem !important;
   }
   .header nav {
-    max-width: 48vw !important;
+    max-width: 42vw !important;
   }
 }
 
-/* Phone autoplay hero: stage is normal flow, no pin gap */
+/* Phone autoplay hero height */
 @media (max-width: 720px) {
   html.hero-mobile-autoplay main > .hero .hero-scrub-stage {
     position: relative !important;
-    height: min(100svh, 720px) !important;
-    min-height: 480px !important;
+    height: min(100svh, 700px) !important;
+    min-height: 460px !important;
   }
   html.hero-mobile-autoplay main > .hero {
     min-height: 0 !important;

@@ -1,20 +1,25 @@
 'use strict';
-/* Mobile safety + CSS inject + reveals */
+/* Final mobile launch: CSS inject, kill pin gaps, force visible content */
 (function () {
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var mqMobile = window.matchMedia ? window.matchMedia('(max-width: 720px)') : null;
   var isMobile = mqMobile ? mqMobile.matches : false;
+  var mqTablet = window.matchMedia ? window.matchMedia('(max-width: 900px)') : null;
+  var isTablet = mqTablet ? mqTablet.matches : false;
 
   function injectMobileCss() {
-    if (document.querySelector('link[data-mobile-fix]')) return;
+    var existing = document.querySelector('link[data-mobile-fix]');
+    if (existing) {
+      existing.href = 'mobile-fix.css?v=20261106-launch3';
+      return;
+    }
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'mobile-fix.css?v=20261106-mobile2';
+    link.href = 'mobile-fix.css?v=20261106-launch3';
     link.setAttribute('data-mobile-fix', '1');
     document.head.appendChild(link);
   }
 
-  /* Phones: remove huge pin-spacer blank zones left by older hero-scrub builds */
   function neutralizeMobilePinGaps() {
     if (!isMobile) return;
     function clean() {
@@ -39,10 +44,9 @@
       }
       document.documentElement.classList.add('hero-mobile-autoplay');
     }
-    // Run after hero-scrub.js may have created triggers
-    setTimeout(clean, 400);
-    setTimeout(clean, 1200);
-    window.addEventListener('load', function () { setTimeout(clean, 200); });
+    setTimeout(clean, 300);
+    setTimeout(clean, 1000);
+    window.addEventListener('load', function () { setTimeout(clean, 150); });
   }
 
   function setupSmoothScroll() {
@@ -112,8 +116,6 @@
       start();
     }, { passive: true });
 
-    root.addEventListener('mouseenter', stop);
-    root.addEventListener('mouseleave', start);
     go(0);
     start();
   }
@@ -127,7 +129,8 @@
     var nodes = document.querySelectorAll(selectors.join(','));
     if (!nodes.length) return;
 
-    if (isMobile || reduceMotion || !('IntersectionObserver' in window)) {
+    // Mobile/tablet: always visible — no blank sections
+    if (isTablet || reduceMotion || !('IntersectionObserver' in window)) {
       nodes.forEach(function (el) {
         el.classList.add('reveal', 'is-visible');
         el.style.opacity = '1';
@@ -136,12 +139,7 @@
       return;
     }
 
-    nodes.forEach(function (el, i) {
-      el.classList.add('reveal');
-      if (el.classList.contains('ingredient-card') || el.classList.contains('usage-panel')) {
-        el.style.transitionDelay = ((i % 8) * 0.05) + 's';
-      }
-    });
+    nodes.forEach(function (el) { el.classList.add('reveal'); });
 
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
@@ -158,20 +156,17 @@
       nodes.forEach(function (el) {
         if (!el.classList.contains('is-visible')) el.classList.add('is-visible');
       });
-    }, 2500);
+    }, 2000);
   }
 
   function watchIngredientGrid() {
     var grid = document.getElementById('ingredient-grid');
     if (!grid || !('MutationObserver' in window)) return;
     var mo = new MutationObserver(function () {
-      var cards = grid.querySelectorAll('.ingredient-card');
-      cards.forEach(function (card) {
+      grid.querySelectorAll('.ingredient-card').forEach(function (card) {
         card.classList.add('reveal', 'is-visible');
-        if (isMobile) {
-          card.style.opacity = '1';
-          card.style.transform = 'none';
-        }
+        card.style.opacity = '1';
+        card.style.transform = 'none';
       });
     });
     mo.observe(grid, { childList: true });
