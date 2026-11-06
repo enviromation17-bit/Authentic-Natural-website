@@ -32,7 +32,27 @@ function currentAdmin_() {
   if (!allow.length || !email || allow.indexOf(email) === -1) throw new Error('Access denied. Sign in with an approved Google account.');
   return email;
 }
-function doGet() {
+function doGet(e) {
+  // Temporary safe diagnostics for the deployed /exec runtime. No emails,
+  // spreadsheet IDs, secrets, or record contents are returned.
+  if (e && e.parameter && e.parameter.auth_debug === '1') {
+    const props = PropertiesService.getScriptProperties();
+    const email = String(Session.getActiveUser().getEmail() || '').trim().toLowerCase();
+    const raw = props.getProperty('ADMIN_EMAILS');
+    const allowed = (raw == null ? DEFAULT_ADMIN_EMAILS.join(',') : raw)
+      .split(',').map(v => v.trim().toLowerCase()).filter(Boolean);
+    const report = {
+      runtime: 'web_app',
+      activeEmailAvailable: Boolean(email),
+      accountAllowlisted: Boolean(email && allowed.includes(email)),
+      allowlistConfigured: allowed.length > 0,
+      sheetIdConfigured: Boolean(props.getProperty('CRM_SPREADSHEET_ID') || DEFAULT_CRM_SPREADSHEET_ID),
+      deploymentInstruction: 'Use Execute as user accessing web app; New version.'
+    };
+    return HtmlService.createHtmlOutput('<pre style="font:14px system-ui;white-space:pre-wrap;padding:24px">'
+      + JSON.stringify(report, null, 2).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      + '</pre>').setTitle('CRM auth diagnostic');
+  }
   try { currentAdmin_(); }
   catch (e) { return HtmlService.createHtmlOutput('<main style="font:16px system-ui;padding:40px;max-width:540px"><h2>Authentic Naturals · Access denied</h2><p>Sign in with an approved Google account. Ask the owner to check ADMIN_EMAILS and spreadsheet sharing.</p></main>').setTitle('CRM · Access denied'); }
   return HtmlService.createHtmlOutputFromFile('Index').setTitle('Authentic Naturals CRM')
