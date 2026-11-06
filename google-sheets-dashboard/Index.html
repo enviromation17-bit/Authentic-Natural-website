@@ -91,6 +91,7 @@ function leadsPage(){
     return '<article class="lead-manage-row">'+
       '<div class="lead-main"><strong>'+escapeHtml(lead[2]||'Customer')+'</strong><small>'+escapeHtml(lead[3]||'No phone')+' · '+escapeHtml(lead[5]||'Enquiry')+'</small><p>'+escapeHtml(lead[8]||'No message')+'</p></div>'+
       '<div class="lead-controls"><label>Status <select aria-label="Lead status for '+escapeHtml(lead[2]||'customer')+'" data-id="'+escapeHtml(id)+'" onchange="setLeadStatus(this)">'+choices+'</select></label>'+
+      '<button type="button" class="subbutton" data-phone="'+escapeHtml(lead[3]||'')+'" onclick="replyToLead(this.dataset.phone)">WhatsApp reply</button>'+
       '<button type="button" class="delete-lead" data-id="'+escapeHtml(id)+'" onclick="confirmDeleteLead(this.dataset.id)">Delete</button></div>'+
     '</article>';
   }).join('');
@@ -98,6 +99,13 @@ function leadsPage(){
   '<button type="button" class="actionbutton" onclick="openForm(&quot;lead&quot;)">＋ Add enquiry</button></section>'+
   '<div class="panel"><div class="panel-head"><h2>Leads ('+leads.length+')</h2><span class="muted">Changes saved to Google Sheets</span></div>'+
   (cards||'<div class="empty">No leads yet. Click Add enquiry to start.</div>')+'</div>';
+}
+function replyToLead(phone){
+  const digits=String(phone||'').replace(/[^0-9]/g,'');
+  if(digits.length<10||digits.length>15){notify('A valid phone number is needed to open WhatsApp');return}
+  // Manual customer-service reply only. Do not initiate promotional messages
+  // without a separate recorded marketing opt-in and applicable Meta rules.
+  window.open('https://wa.me/'+encodeURIComponent(digits),'_blank','noopener,noreferrer');
 }
 async function setLeadStatus(select){
   const id=select.dataset.id;
