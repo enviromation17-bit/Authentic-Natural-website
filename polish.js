@@ -53,8 +53,7 @@
       '.video-section video{width:100%!important;max-height:42vh!important}',
       '.section{min-height:0!important}',
       '.floating-whatsapp{bottom:max(14px,env(safe-area-inset-bottom))!important;right:12px!important}',
-      'html.hero-mobile-autoplay main>.hero .hero-scrub-stage{position:relative!important;height:min(100svh,700px)!important;min-height:460px!important}',
-      'html.hero-mobile-autoplay main>.hero{min-height:0!important}',
+      'html.hero-mobile-autoplay main>.hero .hero-scrub-stage{min-height:min(100svh,640px)!important}',
       '}',
       '@media(max-width:420px){',
       'main>section,.section{padding-left:12px!important;padding-right:12px!important}',
@@ -83,7 +82,7 @@
       'transform:translateY(-3px)!important;box-shadow:0 14px 32px rgba(37,60,41,.2)!important}',
       '.hero-slide{transition:opacity 1.05s cubic-bezier(.16,1,.3,1),transform 1.05s cubic-bezier(.16,1,.3,1)!important}',
       '#scrub-progress-fill{transform-origin:left center;will-change:transform}',
-      '.scrub-frame{will-change:opacity,transform,filter}',
+      '.scrub-frame{will-change:opacity,transform}',
       '@media(prefers-reduced-motion:reduce){',
       '.reveal{opacity:1!important;transform:none!important}',
       '.ingredient-card:hover,.button:hover{transform:none!important}',
@@ -95,21 +94,17 @@
   function cleanPinSpacersOnly() {
     if (!isMobile) return;
     function clean() {
+      var limit = Math.round((window.innerHeight || 700) * 3.2);
       document.querySelectorAll('.pin-spacer').forEach(function (spacer) {
+        var h = spacer.offsetHeight || 0;
+        if (h < limit) return;
         var pinned = spacer.querySelector('.hero-scrub-stage, #gsap-hero-stage');
         if (pinned && spacer.parentNode) spacer.parentNode.insertBefore(pinned, spacer);
         if (spacer.parentNode) spacer.parentNode.removeChild(spacer);
       });
-      var stage = document.getElementById('gsap-hero-stage');
-      if (stage && document.documentElement.classList.contains('hero-mobile-autoplay')) {
-        stage.style.position = 'relative';
-        stage.style.top = 'auto';
-        stage.style.width = '100%';
-        stage.style.transform = 'none';
-      }
     }
-    setTimeout(clean, 500);
-    setTimeout(clean, 1500);
+    setTimeout(clean, 800);
+    setTimeout(clean, 2000);
   }
 
   function setupSmoothScroll() {
