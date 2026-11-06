@@ -6,7 +6,7 @@ import sharp from 'sharp';
 const root = process.cwd();
 const out = resolve(root, 'dist');
 const assets = [
-  'index.html', 'styles.css', 'enhance.css', 'hero-scrub.css',
+  'index.html', 'styles.css', 'enhance.css', 'hero-scrub.css', 'mobile-fix.css',
   'app.js', 'scrub.js', 'product360.js', 'polish.js',
   'hero-scrub.js', 'ritual-player.js', 'lead-popup.js', 'lead-capture.js', 'stock-ui.js'
 ];
@@ -26,8 +26,6 @@ const publicDir = join(root, 'public');
 if (!existsSync(join(publicDir, 'assets', 'process-01.png'))) throw new Error('First hero image missing');
 cpSync(publicDir, join(out, 'public'), { recursive: true });
 
-// Collect photographs used in the hero and ingredient dictionary only.
-// Keep logos and other UI artwork in their original formats.
 const appJS = readFileSync(join(root, 'app.js'), 'utf8');
 const ingredientBlock = appJS.match(/const ingredientPhotos = \{([\s\S]*?)\n\};/);
 if (!ingredientBlock) throw new Error('Ingredient image mapping not found');
@@ -45,7 +43,6 @@ async function optimize(name) {
   const output = join(optimizedDir, outputName);
   const isHero = heroImages.includes(name);
   const inputBytes = statSync(input).size;
-  // Fit within the source's aspect ratio: do not distort or crop product photographs.
   const maxWidth = isHero ? 1200 : 680;
   await sharp(input, { failOn: 'error', limitInputPixels: 50000000 })
     .rotate()
@@ -56,20 +53,15 @@ async function optimize(name) {
   optimizedBytes += statSync(output).size;
   replacements.set(name, 'optimized/' + outputName);
 }
-// Bounded image jobs keep Cloudflare builds from exhausting memory.
 for (let i = 0; i < allImages.length; i += 3) {
   await Promise.all(allImages.slice(i, i + 3).map(optimize));
 }
 
-// Rewrite deployed references only. Source repo still points to original photography.
-// This covers JS dictionaries, GSAP frame arrays, and first-paint HTML preload/src.
 for (const file of assets) {
   if (!/\.(?:js|html|css)$/.test(file)) continue;
   let text = readFileSync(join(out, file), 'utf8');
   for (const [original, optimized] of replacements) {
-    // Filename-only entries in hero array and ingredient mapping.
     text = text.replaceAll("'" + original + "'", "'" + optimized + "'");
-    // Full asset URLs in HTML/CSS and any JS string literals.
     text = text.replaceAll('public/assets/' + original, 'public/assets/' + optimized);
   }
   writeFileSync(join(out, file), text);
