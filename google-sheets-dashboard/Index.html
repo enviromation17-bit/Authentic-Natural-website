@@ -10,7 +10,14 @@
 .stock-line:last-child{border-bottom:0}.stock-main{flex:2;min-width:170px}.stock-main strong,.stock-amount strong{display:block;font-size:15px}.stock-main small,.stock-amount small{display:block;color:var(--muted);font-size:12px;margin-top:5px}.stock-amount{min-width:120px}.stock-amount strong{font-size:25px;color:#23543e}.stock-line .pill{white-space:nowrap}
 @media(max-width:560px){.stock-line{align-items:flex-start}.stock-line .actionbutton{width:100%}}
 </style>
-</head>
+<style>
+.lead-manage-row{display:flex;align-items:flex-start;gap:18px;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line)}
+.lead-manage-row:last-child{border-bottom:0}.lead-main{min-width:0;flex:1}.lead-main strong{display:block;font-size:15px}.lead-main small{display:block;font-size:12px;color:var(--muted);margin-top:4px}.lead-main p{margin:9px 0 0;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}
+.lead-controls{display:flex;align-items:end;gap:8px}.lead-controls label{display:grid;gap:5px;color:var(--muted);font-size:11px;font-weight:600}.lead-controls select{min-width:140px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.delete-lead{padding:10px 13px;border:1px solid #f1c4bf;border-radius:10px;background:#fff5f4;color:#9a3028;font-weight:600}
+.delete-lead:hover{background:#fee9e6}
+@media(max-width:700px){.lead-manage-row{flex-direction:column}.lead-controls{width:100%;justify-content:space-between}}
+</style></head>
 <body>
 <div class="layout"><main class="content"><div class="topline"><div><div class="eyebrow">AUTHENTIC NATURALS / WORKSPACE</div><div class="header-title"><h1 id="pageTitle">Home</h1><select class="select-page" id="pageSelect" aria-label="Choose page"></select></div><p class="sub" id="pageSub">What needs your attention today.</p></div><div class="topbuttons"><button class="subbutton" onclick="refresh()">↻ Refresh</button><button class="subbutton" onclick="openSheet()">Open Sheet ↗</button></div></div><div id="app"><div class="loader">Loading your data…</div></div><div class="locked" id="error"></div></main>
 <div class="quick"><button class="primary" title="Add enquiry" onclick="openForm('lead')">＋</button><button title="New order" onclick="openForm('order')">▣</button><button title="Log message note" onclick="openForm('message')">✉</button></div>
@@ -38,7 +45,7 @@ async function run(fn,...args){return new Promise((resolve,reject)=>{
   runner[fn].apply(runner,args);
 })}
 async function refresh(){document.getElementById('app').innerHTML='<div class="loader">Loading your data…</div>';try{data=await run('dashboardData');document.getElementById('error').textContent='';render()}catch(e){document.getElementById('error').textContent=e.message||String(e);document.getElementById('app').innerHTML=''}}
-function render(){if(!data)return;document.getElementById('app').innerHTML=page==='overview'?overview():page==='settings'?settings():page==='inventory'?stockPage():tablePage()}
+function render(){if(!data)return;document.getElementById('app').innerHTML=page==='overview'?overview():page==='settings'?settings():page==='inventory'?stockPage():page==='leads'?leadsPage():tablePage()}
 const metric=(label,v,foot,clickable,go)=>'<button type="button" class="metric'+(clickable?' clickable':'')+'" '+(clickable?"onclick=\"navigate('"+go+"')\"":'')+'><span class="mlabel">'+label+'</span><span class="mvalue">'+escapeHtml(String(v))+'</span><span class="mhint">'+foot+'</span></button>';
 function overview(){const s=data.stats||{};const leads=data.leads||[];const newLeads=Number(s.newLeads||0);const pending=Number(s.pending||0);const totalOrders=Number(s.orders||0);const lowStock=Number(s.lowStock||0);const actions=[];if(newLeads>0)actions.push({t:'Reply to new enquiries',d:newLeads+' waiting for a response',go:'leads',c:'urgent'});if(pending>0)actions.push({t:'Review pending orders',d:pending+' need your decision',go:'orders',c:'warn'});if(lowStock>0)actions.push({t:'Check low stock',d:lowStock+' product(s) below 5 units',go:'inventory',c:'warn'});if(!actions.length)actions.push({t:'All clear for now',d:'No urgent enquiries, orders, or stock alerts.',go:'leads',c:'ok'});const actionHtml=actions.map(a=>'<button type="button" class="action-card '+a.c+'" onclick="navigate(\''+a.go+'\')"><strong>'+a.t+'</strong><span>'+a.d+'</span><em>Open →</em></button>').join('');const stageNames=['New','Contacted','Qualified','Won','Lost'];const stage=(names,index,rows)=>names.map(x=>{let n=rows.filter(r=>r[index]===x).length;let percent=rows.length?Math.round(n/rows.length*100):0;return '<div class="stage"><label>'+x+'</label><div class="bar"><span style="width:'+percent+'%"></span></div><b>'+n+'</b></div>'}).join('');const recent=[...leads].slice(-5).reverse().map(r=>'<div class="listrow"><div class="dot">'+escapeHtml((r[2]||'?').slice(0,1).toUpperCase())+'</div><div class="rowtext"><strong>'+escapeHtml(r[2]||'Customer')+'</strong><small>'+escapeHtml((r[8]||'No message').slice(0,80))+'</small></div><span class="pill">'+escapeHtml(r[9]||'New')+'</span></div>').join('')||'<div class="empty">No enquiries yet. Tap <b>+</b> to add one, or wait for website leads.</div>';return '<div class="focus-block"><div class="focus-label">Start here</div><div class="action-grid">'+actionHtml+'</div><div class="quick-row"><button type="button" class="actionbutton" onclick="openForm(\'lead\')">＋ Add enquiry</button><button type="button" class="subbutton" onclick="openForm(\'order\')">＋ Add order</button><button type="button" class="subbutton" onclick="openForm(\'message\')">＋ Message note</button></div></div><div class="metrics">'+metric('New enquiries',newLeads,'Tap to open',true,'leads')+metric('Pending orders',pending,'Need review',true,'orders')+metric('All orders',totalOrders,'Recorded so far',true,'orders')+metric('Low stock',lowStock,'Below 5 units',true,'inventory')+'</div><div class="sectionrow"><h2>At a glance</h2><span class="muted">From your Google Sheet</span></div><div class="cols"><div class="panel"><div class="panel-head"><h2>Enquiry stages</h2><button type="button" class="textlink" onclick="navigate(\'leads\')">View all</button></div>'+stage(stageNames,9,leads)+'</div><div class="panel"><div class="panel-head"><h2>Latest enquiries</h2><button type="button" class="textlink" onclick="navigate(\'leads\')">View all</button></div>'+recent+'</div></div>'}
 const defs={leads:{headers:['Customer','Phone','Source','Message','Stage'],cols:[2,3,5,8,9]},orders:{headers:['Order','Customer','SKU','Qty','Total PKR','Status','Payment'],cols:[0,3,5,6,8,9,10]},inventory:{headers:['SKU','Product','Price PKR','On hand','Reserved','Available','Verified'],cols:[0,1,2,3,4,5,6]},whatsapp:{headers:['Customer','Phone','Direction','Message','Status'],cols:[2,3,4,5,6]}};
@@ -72,6 +79,51 @@ function stockAction(sku){
  '<div class="field full"><label>Reason for change</label><input id="f_reason" required maxlength="240" placeholder="e.g. New delivery received"></div>';
  document.getElementById('modalback').dataset.sku=sku;
  document.getElementById('modalback').classList.add('show');
+}
+
+const LEAD_STAGES=['New','Contacted','Qualified','Won','Lost'];
+function leadsPage(){
+  const leads=data.leads||[];
+  const cards=leads.slice().reverse().map(lead=>{
+    const id=String(lead[0]||'');
+    const stage=String(lead[9]||'New');
+    const choices=LEAD_STAGES.map(s=>'<option value="'+s+'"'+(stage===s?' selected':'')+'>'+s+'</option>').join('');
+    return '<article class="lead-manage-row">'+
+      '<div class="lead-main"><strong>'+escapeHtml(lead[2]||'Customer')+'</strong><small>'+escapeHtml(lead[3]||'No phone')+' · '+escapeHtml(lead[5]||'Enquiry')+'</small><p>'+escapeHtml(lead[8]||'No message')+'</p></div>'+
+      '<div class="lead-controls"><label>Status <select aria-label="Lead status for '+escapeHtml(lead[2]||'customer')+'" data-id="'+escapeHtml(id)+'" onchange="setLeadStatus(this)">'+choices+'</select></label>'+
+      '<button type="button" class="delete-lead" data-id="'+escapeHtml(id)+'" onclick="confirmDeleteLead(this.dataset.id)">Delete</button></div>'+
+    '</article>';
+  }).join('');
+  return '<section class="focus-block"><div class="focus-label">Customer enquiries</div><h2 style="margin:0 0 8px">Manage leads</h2><p class="sub" style="margin:0 0 16px">Update a lead’s stage from the dropdown. Deleted leads are moved to a private Deleted Leads tab for recovery.</p>'+
+  '<button type="button" class="actionbutton" onclick="openForm(\\'lead\\')">＋ Add enquiry</button></section>'+
+  '<div class="panel"><div class="panel-head"><h2>Leads ('+leads.length+')</h2><span class="muted">Changes saved to Google Sheets</span></div>'+
+  (cards||'<div class="empty">No leads yet. Click Add enquiry to start.</div>')+'</div>';
+}
+async function setLeadStatus(select){
+  const id=select.dataset.id;
+  select.disabled=true;
+  try{
+    await run('updateStatus','Leads',id,'status',select.value);
+    notify('Lead status updated');
+    await refresh();
+  }catch(err){
+    notify('Unable to update status: '+(err.message||err));
+    await refresh();
+  }
+}
+async function confirmDeleteLead(id){
+  const lead=(data.leads||[]).find(row=>String(row[0])===String(id));
+  if(!lead){notify('Lead not found');return}
+  const name=String(lead[2]||'Customer');
+  if(!window.confirm('Delete lead for '+name+'? It will be removed from the active list and archived in Deleted Leads.'))return;
+  try{
+    await run('deleteLead',id);
+    notify('Lead removed from active list');
+    await refresh();
+  }catch(err){
+    notify('Unable to delete lead: '+(err.message||err));
+    await refresh();
+  }
 }
 function tablePage(){const key=page;const conf=defs[key];if(!conf)return '<div class="empty">Nothing here.</div>';const rows=(data[key]||[]);if(!rows.length)return '<div class="panel empty">No records yet. Use ＋ to add one.</div>';let head='<tr>'+conf.headers.map(h=>'<th>'+h+'</th>').join('')+'</tr>';let body=rows.map(r=>'<tr>'+conf.cols.map(i=>'<td>'+escapeHtml(r[i])+'</td>').join('')+'</tr>').join('');return '<div class="panel" style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>'}
 function settings(){return '<div class="panel"><h2>Account and workspace</h2><p class="muted" style="margin:12px 0">Stock, orders and enquiries are managed here, with records stored privately in your Google Sheet.</p><button class="actionbutton" onclick="openSheet()">Open Google Sheet ↗</button></div>'}
