@@ -262,3 +262,38 @@ function changeStock(input) {
     return {ok:true,sku,onHand:next,available:next-reserved};
   });
 }
+
+
+/**
+ * Archive a lead before removing it from the active Leads tab.
+ * Kept in "Deleted Leads" so staff can recover accidental removals.
+ * Runs only for authenticated, allowlisted admins.
+ */
+function deleteLead(leadId) {
+  const actor=currentAdmin_();
+  const id=String(leadId||'').trim();
+  if(!id||id.length>120)throw new Error('Invalid lead ID');
+  return locked_(()=>{
+    const sh=sheet_('Leads');
+    const last=sh.getLastRow();
+    if(last<=1)throw new Error('Lead not found');
+    const ids=sh.getRange(2,1,last-1,1).getDisplayValues();
+    const match=ids.findIndex(row=>row[0]===id);
+    if(match<0)throw new Error('Lead not found or already deleted');
+    const row=match+2;
+    const columns=HEADERS.Leads.length;
+    const values=sh.getRange(row,1,1,columns).getValues()[0];
+    const book=SpreadsheetApp.openById(crmSpreadsheetId_());
+    let archive=book.getSheetByName('Deleted Leads');
+    if(!archive){
+      archive=book.insertSheet('Deleted Leads');
+      archive.appendRow(HEADERS.Leads.concat(['Deleted At','Deleted By']));
+      archive.setFrozenRows(1);
+      archive.getRange(1,1,1,columns+2).setFontWeight('bold');
+    }
+    // Copy before deletion: if archival fails, the lead remains active.
+    archive.appendRow(values.concat([new Date(),actor]));
+    sh.deleteRow(row);
+    return {ok:true,id,archived:true};
+  });
+}
