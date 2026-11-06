@@ -1,7 +1,7 @@
 'use strict';
-/* Saves website enquiries and orders to the CRM before WhatsApp opens.
- * Tries Cloudflare /api/leads, then /api/leads.php (HostBreak).
- * Optional: meta[name="an-sheets-intake"] content="https://script.google.com/.../exec"
+/* Website enquiry and order capture: same-origin Cloudflare Worker proxy only.
+ * The Worker sends consented records to Google Sheets using server-side secrets.
+ * Do not submit directly to Apps Script from browser JavaScript.
  */
 window.ANLeadCapture = {
   async submit(details) {
@@ -18,6 +18,8 @@ window.ANLeadCapture = {
       topic: String(details.topic || 'Hair Repair & Revive Growth Oil').trim().slice(0, 100),
       notes: String(details.notes || '').trim().slice(0, 1200),
       payment: String(details.payment || '').trim().slice(0, 40),
+      address: String(details.address || '').trim().slice(0, 400),
+      marketingConsent: details.marketingConsent === true,
       quantity: Math.max(1, Math.min(20, Number(details.quantity) || 1)),
       consent: true,
       website: '',
@@ -28,15 +30,8 @@ window.ANLeadCapture = {
       return { saved: false, reason: 'invalid' };
     }
 
-    const endpoints = ['/api/leads', '/api/leads.php'];
-    const sheetsMeta = document.querySelector('meta[name="an-sheets-intake"]');
-    if (sheetsMeta && sheetsMeta.content) endpoints.push(sheetsMeta.content.trim());
-
-    for (const url of endpoints) {
-      const result = await postOnce(url, payload);
-      if (result.saved) return result;
-    }
-    return { saved: false, reason: 'unavailable' };
+    // One official destination avoids split lead records and accidental duplicates.
+    return await postOnce('/api/leads',payload);
   }
 };
 
@@ -60,6 +55,8 @@ async function postOnce(url, payload) {
       return {
         saved: true,
         id: data.lead_id || data.id,
+        orderId: data.order_id || null,
+        destination: data.destination,
         orderStatus: data.orderStatus,
         availability: data.availability
       };
