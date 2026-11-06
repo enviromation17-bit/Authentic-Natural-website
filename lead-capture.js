@@ -37,7 +37,7 @@ window.ANLeadCapture = {
 
 async function postOnce(url, payload) {
   const abort = new AbortController();
-  const timeout = setTimeout(function () { abort.abort(); }, 4000);
+  const timeout = setTimeout(function () { abort.abort(); }, 18000);
   try {
     const res = await fetch(url, {
       method: 'POST',
