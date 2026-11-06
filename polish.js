@@ -1,5 +1,5 @@
 'use strict';
-/* Final polish: mobile layout CSS + soft animations on both desktop and mobile */
+/* Premium polish — layout safety + GSAP staggered reveals + refined motion */
 (function () {
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var isMobile = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
@@ -31,7 +31,7 @@
       '.ingredient-controls input{width:100%!important;max-width:100%!important}',
       '.filters{display:flex!important;flex-wrap:wrap!important;gap:8px!important;width:100%!important}',
       '.ingredient-grid{display:grid!important;grid-template-columns:1fr!important;gap:14px!important;width:100%!important;max-width:100%!important;margin:0!important;padding:0!important}',
-      '.ingredient-card{display:flex!important;flex-direction:column!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:0 0 16px!important;overflow:hidden!important;transform:none!important;position:relative!important}',
+      '.ingredient-card{display:flex!important;flex-direction:column!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:0 0 16px!important;overflow:hidden!important;position:relative!important}',
       '.ingredient-card .ingredient-media{width:100%!important;height:180px!important;flex:0 0 180px!important;border-radius:18px 18px 0 0!important;overflow:hidden!important}',
       '.ingredient-card .ingredient-media img{width:100%!important;height:100%!important;object-fit:cover!important}',
       '.ingredient-card>span,.ingredient-card>h3,.ingredient-card>p,.ingredient-card>button,.ingredient-card .ingredient-explore{',
@@ -43,7 +43,7 @@
       '.usage-nav{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;gap:8px!important;padding-bottom:10px!important;width:100%!important}',
       '.usage-nav button{flex:0 0 auto!important;min-width:108px!important;max-width:148px!important;white-space:normal!important;font-size:11px!important}',
       '.usage-carousel{width:100%!important;max-width:100%!important;overflow:hidden!important;height:auto!important}',
-      '.usage-track{display:flex!important;transition:transform .85s cubic-bezier(.22,1,.36,1)!important}',
+      '.usage-track{display:flex!important;transition:transform 1s cubic-bezier(.16,1,.3,1)!important}',
       '.usage-panel,.usage-track .usage-panel{display:flex!important;flex-direction:column!important;flex:0 0 100%!important;width:100%!important;min-width:100%!important;max-width:100%!important;gap:12px!important;padding:0!important;grid-template-columns:none!important}',
       '.usage-panel figure{width:100%!important;margin:0!important;overflow:hidden!important;border-radius:16px!important}',
       '.usage-panel figure img{width:100%!important;height:auto!important;max-height:min(55vh,400px)!important;object-fit:contain!important}',
@@ -55,13 +55,38 @@
       '.floating-whatsapp{bottom:max(14px,env(safe-area-inset-bottom))!important;right:12px!important}',
       'html.hero-mobile-autoplay main>.hero .hero-scrub-stage{position:relative!important;height:min(100svh,700px)!important;min-height:460px!important}',
       'html.hero-mobile-autoplay main>.hero{min-height:0!important}',
-      '.reveal{opacity:0;transform:translate3d(0,22px,0);transition:opacity .9s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1)}',
-      '.reveal.is-visible{opacity:1!important;transform:none!important}',
       '}',
       '@media(max-width:420px){',
       'main>section,.section{padding-left:12px!important;padding-right:12px!important}',
       '.ingredient-card .ingredient-media{height:160px!important;flex-basis:160px!important}',
       '.ingredient-card>h3{font-size:1.15rem!important}',
+      '}'
+    ].join('');
+    document.head.appendChild(style);
+  }
+
+  function injectPremiumCss() {
+    if (document.getElementById('an-premium-motion')) return;
+    var style = document.createElement('style');
+    style.id = 'an-premium-motion';
+    style.textContent = [
+      '.reveal{opacity:0;transform:translate3d(0,28px,0);will-change:transform,opacity}',
+      '.reveal.is-visible{opacity:1;transform:none;will-change:auto}',
+      '.usage-track{transition:transform 1s cubic-bezier(.16,1,.3,1)!important}',
+      '.ingredient-card{transition:transform .55s cubic-bezier(.16,1,.3,1),box-shadow .55s cubic-bezier(.16,1,.3,1)!important}',
+      '.ingredient-card:hover{transform:translateY(-8px)!important;box-shadow:0 24px 48px rgba(37,60,41,.14)!important}',
+      '.ingredient-card .ingredient-media img{transition:transform .9s cubic-bezier(.16,1,.3,1)!important}',
+      '.ingredient-card:hover .ingredient-media img{transform:scale(1.06)!important}',
+      '.button,.whatsapp-button,.footer-shop-button,.scrub-cta{',
+      'transition:transform .5s cubic-bezier(.16,1,.3,1),box-shadow .5s cubic-bezier(.16,1,.3,1),background .35s ease!important}',
+      '.button:hover,.whatsapp-button:hover,.footer-shop-button:hover,.scrub-cta:hover{',
+      'transform:translateY(-3px)!important;box-shadow:0 14px 32px rgba(37,60,41,.2)!important}',
+      '.hero-slide{transition:opacity 1.05s cubic-bezier(.16,1,.3,1),transform 1.05s cubic-bezier(.16,1,.3,1)!important}',
+      '#scrub-progress-fill{transform-origin:left center;will-change:transform}',
+      '.scrub-frame{will-change:opacity,transform,filter}',
+      '@media(prefers-reduced-motion:reduce){',
+      '.reveal{opacity:1!important;transform:none!important}',
+      '.ingredient-card:hover,.button:hover{transform:none!important}',
       '}'
     ].join('');
     document.head.appendChild(style);
@@ -126,7 +151,7 @@
       timer = setInterval(function () {
         if (document.documentElement.classList.contains('has-gsap-hero')) { stop(); return; }
         if (!document.hidden) go(index + 1);
-      }, 5200);
+      }, 5400);
     }
     function stop() { if (timer) clearInterval(timer); timer = null; }
     if (prev) prev.addEventListener('click', function () { go(index - 1); start(); });
@@ -148,7 +173,7 @@
     start();
   }
 
-  function setupReveals() {
+  function cssReveals() {
     var nodes = document.querySelectorAll(
       '.section,.benefit-strip,.section-heading,.ingredient-card,.usage-panel,.story-layout,.video-section,.faq details,.closing,.product-info,.gallery,.brand-manifesto'
     );
@@ -165,36 +190,114 @@
           io.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.1, rootMargin: '0px 0px -24px 0px' });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
     nodes.forEach(function (el) { io.observe(el); });
     setTimeout(function () {
       nodes.forEach(function (el) {
         if (!el.classList.contains('is-visible')) el.classList.add('is-visible');
       });
-    }, isMobile ? 2400 : 4000);
+    }, isMobile ? 2600 : 4500);
   }
 
-  function watchIngredientGrid() {
-    var grid = document.getElementById('ingredient-grid');
-    if (!grid || !('MutationObserver' in window)) return;
-    new MutationObserver(function () {
-      grid.querySelectorAll('.ingredient-card').forEach(function (card, i) {
-        card.classList.add('reveal');
-        card.style.transitionDelay = (i % 8) * 0.07 + 's';
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () { card.classList.add('is-visible'); });
-        });
+  function gsapReveals() {
+    var gsap = window.gsap;
+    var ScrollTrigger = window.ScrollTrigger;
+    if (!gsap || !ScrollTrigger || reduceMotion) {
+      cssReveals();
+      return;
+    }
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.defaults({ ease: 'power3.out', force3D: true });
+
+    var blocks = document.querySelectorAll(
+      '.brand-manifesto,.benefit-strip,.product.section,.ingredients.section,.usage-section,.video-section,.story-layout,.faq,.closing,.site-footer'
+    );
+    blocks.forEach(function (block) {
+      var kids = block.querySelectorAll('.section-heading, .product-info, .gallery, .manifesto-inner, .ingredient-card, .usage-panel, .video-section > *, details, .closing-inner, .footer-shell > *');
+      if (!kids.length) {
+        gsap.fromTo(block,
+          { autoAlpha: 0, y: 36 },
+          {
+            autoAlpha: 1, y: 0, duration: 1.05,
+            scrollTrigger: { trigger: block, start: 'top 88%', once: true }
+          }
+        );
+        return;
+      }
+      gsap.set(kids, { autoAlpha: 0, y: 32 });
+      ScrollTrigger.create({
+        trigger: block,
+        start: 'top 86%',
+        once: true,
+        onEnter: function () {
+          gsap.to(kids, {
+            autoAlpha: 1,
+            y: 0,
+            duration: isMobile ? 0.75 : 0.95,
+            stagger: isMobile ? 0.06 : 0.09,
+            ease: 'power3.out',
+            overwrite: true
+          });
+        }
       });
-    }).observe(grid, { childList: true });
+    });
+
+    var grid = document.getElementById('ingredient-grid');
+    if (grid) {
+      var animateCards = function () {
+        var cards = grid.querySelectorAll('.ingredient-card');
+        if (!cards.length) return;
+        gsap.set(cards, { autoAlpha: 0, y: 24 });
+        gsap.to(cards, {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.85,
+          stagger: 0.07,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: grid, start: 'top 90%', once: true }
+        });
+      };
+      if (grid.children.length) animateCards();
+      else if ('MutationObserver' in window) {
+        var mo = new MutationObserver(function () {
+          if (grid.children.length) {
+            mo.disconnect();
+            animateCards();
+          }
+        });
+        mo.observe(grid, { childList: true });
+      }
+    }
+
+    setTimeout(function () {
+      document.querySelectorAll('.reveal').forEach(function (el) {
+        el.classList.add('is-visible');
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      });
+    }, 5000);
+  }
+
+  function waitForGsap(cb, tries) {
+    tries = tries || 0;
+    if (window.gsap && window.ScrollTrigger) {
+      cb();
+      return;
+    }
+    if (tries > 40) {
+      cssReveals();
+      return;
+    }
+    setTimeout(function () { waitForGsap(cb, tries + 1); }, 50);
   }
 
   function start() {
     injectMobileCss();
+    injectPremiumCss();
     cleanPinSpacersOnly();
     setupSmoothScroll();
     setupHeroSlider();
-    setupReveals();
-    watchIngredientGrid();
+    waitForGsap(gsapReveals);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
