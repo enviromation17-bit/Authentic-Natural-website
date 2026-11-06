@@ -20,3 +20,21 @@ Google's login normally persists while the user's Google session is active. Ther
 - The actual Sheet is chosen at deployment through `CRM_SPREADSHEET_ID`, not hardcoded to a Sheet in another account.
 - If the Gmail account type/deployment settings do not expose `Session.getActiveUser().getEmail()`, access fails closed. A domain or authentication architecture change may be needed.
 - A branded `crm.anaturalsintl.com` deployment needs a separate authenticated hosting/proxy design; Apps Script itself runs on its own Google web-app URL.
+
+
+## New: client-friendly Stock dashboard
+- All stock changes are handled in the **Stock** page inside the authenticated Apps Script dashboard, not the storefront.
+- **Add product** saves SKU, product name, price, and starting physical quantity; initially marks availability unverified.
+- **Manage stock** offers three actions: Add received stock, Remove stock, or Correct physical stock count.
+- Shows physical stock, reserved quantity, and remaining available units.
+- Rejects negative counts or reducing stock below reservations.
+- Creates a private **Stock History** tab on first stock operation, recording the actor, reason, old and new stock values.
+- Manual order status changes do **not** automatically reserve or deduct inventory.
+- No change is made to the public website's inventory or Cloudflare Worker. Website and Google Sheets stock can differ until an explicit integration is designed.
+
+### Upgrade existing Apps Script deployment
+1. Copy the updated `Code.gs` and `Index.html` from this repository into your Google Apps Script dashboard project. Ensure HTML file is named **Index** with capital I, resulting in `Index.html`.
+2. Save both.
+3. Deploy > Manage deployments > Edit > **New version** > Deploy.
+4. Log in with the allowlisted account, open **Stock**, test adding a product and receiving an inventory delivery. Check the `Inventory` and `Stock History` tabs in your actual spreadsheet.
+5. Use only test product/stock values until the client confirms real inventory.
