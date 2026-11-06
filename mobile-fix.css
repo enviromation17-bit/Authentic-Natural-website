@@ -1,0 +1,220 @@
+/* Mobile layout hard-fixes — load after enhance.css + hero-scrub.css */
+
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+}
+
+/* Kill huge empty pin-spacer gaps if any remain */
+.pin-spacer {
+  background: transparent !important;
+}
+html.hero-mobile-autoplay .pin-spacer {
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Reveals must not leave invisible sections on mobile */
+@media (max-width: 900px) {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* Header nav: horizontal scroll, no wrap clash */
+  .header {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  .header nav {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    max-width: min(58vw, 280px) !important;
+  }
+  .header nav::-webkit-scrollbar { display: none; }
+  .header nav a {
+    white-space: nowrap !important;
+    font-size: 12px !important;
+    padding: 6px 8px !important;
+  }
+
+  /* Product section stacks cleanly */
+  .product.section,
+  .product {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .gallery,
+  .orbit-stage,
+  .main-image {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  #gallery-image,
+  .orbit-product-img {
+    max-width: min(100%, 320px) !important;
+    max-height: 48vh !important;
+    margin: 0 auto !important;
+  }
+
+  /* Ingredient grid */
+  .ingredient-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .ingredient-card .ingredient-media {
+    height: 110px !important;
+    flex-basis: 110px !important;
+  }
+  .ingredient-card > h3 {
+    font-size: 1rem !important;
+  }
+  .ingredient-card > p {
+    font-size: 12px !important;
+  }
+
+  /* Ritual: stop cut-off / half-visible cards */
+  #ritual,
+  .usage-section,
+  .ritual-scroll-section {
+    overflow: hidden !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+  .usage-nav {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 8px !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 12px !important;
+  }
+  .usage-nav button {
+    flex: 0 0 auto !important;
+    min-width: 112px !important;
+    max-width: 150px !important;
+    white-space: normal !important;
+  }
+  .usage-carousel {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  .usage-track {
+    display: flex !important;
+    width: 100% !important;
+  }
+  .usage-panel,
+  .usage-track .usage-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    gap: 12px !important;
+    grid-template-columns: none !important;
+    padding: 0 !important;
+  }
+  .usage-panel figure {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    order: 1 !important;
+    overflow: hidden !important;
+    border-radius: 16px !important;
+  }
+  .usage-panel figure a {
+    display: block !important;
+    width: 100% !important;
+  }
+  .usage-panel figure img {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: min(58vh, 420px) !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
+  }
+  .usage-panel .usage-caption {
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: left !important;
+    padding: 4px 2px 12px !important;
+  }
+  .usage-panel .usage-caption h3 {
+    font-size: clamp(1.35rem, 6vw, 1.8rem) !important;
+  }
+  .usage-pagination {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  /* Video */
+  .video-section {
+    grid-template-columns: 1fr !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+  .video-section video {
+    max-width: 100% !important;
+    max-height: 42vh !important;
+  }
+
+  /* Story / closing */
+  .story-layout,
+  .closing {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .family-photo {
+    max-height: 360px !important;
+    width: 100% !important;
+    object-fit: contain !important;
+  }
+
+  /* Sections should not invent empty height */
+  .section {
+    min-height: 0 !important;
+  }
+
+  /* Floating WhatsApp safe area */
+  .floating-whatsapp {
+    bottom: max(16px, env(safe-area-inset-bottom)) !important;
+    right: 14px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .ingredient-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .header nav {
+    max-width: 48vw !important;
+  }
+}
+
+/* Phone autoplay hero: stage is normal flow, no pin gap */
+@media (max-width: 720px) {
+  html.hero-mobile-autoplay main > .hero .hero-scrub-stage {
+    position: relative !important;
+    height: min(100svh, 720px) !important;
+    min-height: 480px !important;
+  }
+  html.hero-mobile-autoplay main > .hero {
+    min-height: 0 !important;
+  }
+}

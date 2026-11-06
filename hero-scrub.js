@@ -1,8 +1,6 @@
 'use strict';
 /* Authentic Naturals immersive photographic story.
-   Seven process frames + botanicals.png + ritual.png + product.png.
-   Full viewport imagery, scroll-linked typography, lazy frame decoding,
-   and an intact original-carousel fallback if GSAP or the first photo fails. */
+   Desktop: pinned GSAP scrub. Mobile: short pin OR autoplay (no huge blank gaps). */
 (function () {
   const hero = document.querySelector('main > .hero');
   const stage = document.getElementById('gsap-hero-stage');
@@ -27,7 +25,6 @@
   const copy = stage.querySelector('.scrub-copy');
   if (![firstLayer,secondLayer,progressFill,progressCount,headline,description,copy].every(Boolean)) return;
 
-  // Distinct storytelling typography for each of the ten verified photographs.
   const stories = [
     ['Give your hair','a little more care.','A simple daily-care essential, inspired by nature.'],
     ['From nature,','with intention.','Discover the botanical inspiration behind every ritual.'],
@@ -40,7 +37,6 @@
     ['Meet your','everyday essential.','Discover Hair Repair & Revive Growth Oil and how to use it.'],
     ['Meet the oil.','Make it your ritual.','Explore Authentic Naturals Hair Repair & Revive Growth Oil, made for an everyday conditioning ritual.']
   ];
-  // URLs, not image objects, are retained; on phones only the current and nearest frames are decoded.
   const ready = new Set();
   const failed = new Set();
   const inFlight = new Map();
@@ -48,60 +44,48 @@
   let currentIndex = -1;
   let displayedStory = 0;
   let trigger = null;
+  let autoTimer = null;
   let mobile = window.matchMedia('(max-width: 900px)').matches;
+  let phone = window.matchMedia('(max-width: 720px)').matches;
 
   function preload(i) {
     if (i < 0 || i >= frames.length || ready.has(i) || failed.has(i)) return Promise.resolve(ready.has(i));
     if (inFlight.has(i)) return inFlight.get(i);
-    // Reuse the image already downloaded by the HTML preload, rather than
-    // allocating a second full-resolution bitmap for frame zero.
     if (i === 0) {
       if (firstLayer.complete) {
         if (firstLayer.naturalWidth > 0) { ready.add(0); return Promise.resolve(true); }
         failed.add(0); return Promise.resolve(false);
       }
       return new Promise(resolve => {
-        firstLayer.addEventListener('load', () => {
-          ready.add(0);
-          resolve(true);
-        }, {once:true});
-        firstLayer.addEventListener('error', () => {
-          failed.add(0);
-          resolve(false);
-        }, {once:true});
+        firstLayer.addEventListener('load', () => { ready.add(0); resolve(true); }, {once:true});
+        firstLayer.addEventListener('error', () => { failed.add(0); resolve(false); }, {once:true});
       });
     }
     const pending = new Promise(resolve => {
       const picture = new Image();
       picture.onload = () => {
-        ready.add(i);
-        inFlight.delete(i);
-        resolve(true);
+        ready.add(i); inFlight.delete(i); resolve(true);
         if (trigger) render(latestProgress);
       };
       picture.onerror = () => {
-        failed.add(i);
-        inFlight.delete(i);
-        resolve(false);
-        if (trigger) render(latestProgress);
+        failed.add(i); inFlight.delete(i); resolve(false);
       };
       picture.src = frames[i];
     });
     inFlight.set(i,pending);
     return pending;
   }
+
   function showStory(index) {
     if (index === displayedStory) return;
     displayedStory = index;
     const story = stories[index];
     const reverse = index % 2 === 1;
     gsap.killTweensOf([copy,headline,description]);
-    // Change copy synchronously so fast forward/reverse scroll never reveals stale text.
     headline.replaceChildren(document.createTextNode(story[0] + ' '));
     const emphasis = document.createElement('em');
     emphasis.textContent = story[1];
     headline.appendChild(emphasis);
-    // Highlight one meaningful phrase without parsing dynamic text as HTML.
     const highlightPhrases = [
       'daily-care essential','botanical inspiration','routine that feels like your own',
       'nourish and condition','everyday care','consistent routine',
@@ -127,6 +111,7 @@
       {autoAlpha:1,x:0,y:0,duration:0.48,ease:'power2.out',overwrite:true});
     gsap.fromTo(description,{autoAlpha:0,y:16},{autoAlpha:1,y:0,duration:0.6,delay:0.09,ease:'power2.out',overwrite:true});
   }
+
   function render(progress) {
     const p = Math.min(1,Math.max(0,progress));
     latestProgress = p;
@@ -134,16 +119,12 @@
     const lower = Math.min(frames.length-1,Math.floor(rawIndex));
     const upper = Math.min(frames.length-1,lower+1);
 
-    // Load only the frames needed immediately; prefetch their neighbours.
     preload(lower);
-    // Only fetch the adjacent photo once the visitor begins to scroll.
-    // This avoids network contention with the first hero image and critical CSS.
     if (p > 0.008 && upper !== lower) preload(upper);
 
     const displayIndex = ready.has(lower) ? lower : currentIndex;
     if (displayIndex >= 0 && displayIndex !== currentIndex) {
       firstLayer.src = frames[displayIndex];
-      // Keep a soft matching backdrop while displaying the entire portrait photograph.
       stage.style.setProperty('--hero-photo-backdrop', 'url("' + frames[displayIndex] + '")');
       currentIndex = displayIndex;
     }
@@ -153,11 +134,35 @@
     } else {
       secondLayer.style.opacity = '0';
     }
-    // Composite-only progress animation: no repeated width/layout calculations.
     progressFill.style.transform = 'scaleX(' + p.toFixed(4) + ')';
     progressCount.textContent = String(Math.max(0,displayIndex)+1).padStart(2,'0') + ' / ' + String(frames.length).padStart(2,'0');
-    // Do not change the headline before its photograph is actually available.
     showStory(Math.max(0,displayIndex));
+  }
+
+  function showFrameIndex(index) {
+    const i = ((index % frames.length) + frames.length) % frames.length;
+    preload(i).then(() => {
+      firstLayer.src = frames[i];
+      stage.style.setProperty('--hero-photo-backdrop', 'url("' + frames[i] + '")');
+      currentIndex = i;
+      secondLayer.style.opacity = '0';
+      progressFill.style.transform = 'scaleX(' + (i / (frames.length - 1)).toFixed(4) + ')';
+      progressCount.textContent = String(i+1).padStart(2,'0') + ' / ' + String(frames.length).padStart(2,'0');
+      showStory(i);
+    });
+  }
+
+  function startAutoplay() {
+    stopAutoplay();
+    let i = Math.max(0, currentIndex);
+    autoTimer = setInterval(() => {
+      i = (i + 1) % frames.length;
+      showFrameIndex(i);
+    }, 3800);
+  }
+  function stopAutoplay() {
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = null;
   }
 
   preload(0).then(ok => {
@@ -168,14 +173,13 @@
     stage.style.setProperty('--hero-photo-backdrop', 'url("' + frames[0] + '")');
     currentIndex = 0;
     firstLayer.removeAttribute('loading');
-    // Establish proper stage dimensions before ScrollTrigger measures positions.
     document.documentElement.classList.add('has-gsap-hero');
     hero.classList.remove('reveal');
     hero.classList.add('gsap-hero-enabled');
     hero.style.removeProperty('transform');
     stage.style.willChange = 'auto';
     render(0);
-    // Warm one next frame after first paint, only on non-data-saving connections.
+
     const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     if (!(connection && (connection.saveData || /2g/.test(connection.effectiveType || '')))) {
       const warm = () => preload(1);
@@ -183,23 +187,57 @@
       else window.addEventListener('load', warm, {once:true});
     }
 
-    trigger = ScrollTrigger.create({
-      trigger:stage,
-      start:'top top',
-      end:()=>'+='+Math.max(mobile ? 1500 : 2300, Math.round(window.innerHeight*(mobile ? 3.1 : 5))),
-      pin:stage,
-      pinSpacing:true,
-      anticipatePin:1,
-      invalidateOnRefresh:true,
-      scrub:mobile ? 0.12 : 0.2,
-      onUpdate:self=>render(self.progress),
-      onRefresh:self=>render(self.progress)
-    });
-    const refresh = () => ScrollTrigger.refresh(true);
-    window.addEventListener('pageshow',refresh);
-    window.addEventListener('load',refresh,{once:true});
-    // Re-evaluate pin distance on rotation; do not create duplicate triggers.
-    window.addEventListener('orientationchange',refresh);
-    refresh();
+    mobile = window.matchMedia('(max-width: 900px)').matches;
+    phone = window.matchMedia('(max-width: 720px)').matches;
+
+    // Phones: autoplay frames (no long pinned blank gap). Tablets+: short pin scrub.
+    if (phone) {
+      document.documentElement.classList.add('hero-mobile-autoplay');
+      const hint = stage.querySelector('.scrub-hint');
+      if (hint) hint.textContent = 'Story plays automatically · swipe page to continue';
+      startAutoplay();
+      // Pause when off-screen
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) startAutoplay();
+            else stopAutoplay();
+          });
+        }, { threshold: 0.35 });
+        io.observe(stage);
+      }
+      // Touch: advance frame on horizontal swipe on stage
+      let sx = 0;
+      stage.addEventListener('touchstart', (e) => { sx = e.changedTouches[0].clientX; }, { passive: true });
+      stage.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].clientX - sx;
+        if (Math.abs(dx) < 40) return;
+        stopAutoplay();
+        const next = currentIndex + (dx < 0 ? 1 : -1);
+        showFrameIndex(next);
+        startAutoplay();
+      }, { passive: true });
+    } else {
+      trigger = ScrollTrigger.create({
+        trigger: stage,
+        start: 'top top',
+        // Much shorter on tablet so content below is not buried under empty pin space
+        end: () => '+=' + Math.max(mobile ? 900 : 2300, Math.round(window.innerHeight * (mobile ? 1.55 : 5))),
+        pin: stage,
+        pinSpacing: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        scrub: mobile ? 0.15 : 0.2,
+        onUpdate: self => render(self.progress),
+        onRefresh: self => render(self.progress)
+      });
+      const refresh = () => ScrollTrigger.refresh(true);
+      window.addEventListener('pageshow', refresh);
+      window.addEventListener('load', refresh, { once: true });
+      window.addEventListener('orientationchange', () => {
+        setTimeout(refresh, 200);
+      });
+      refresh();
+    }
   });
 })();
