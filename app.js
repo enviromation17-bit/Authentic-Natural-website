@@ -314,12 +314,14 @@ $('#order-form') && $('#order-form').addEventListener('submit', async (e) => {
     topic:'Hair Repair & Revive Growth Oil',
     notes:'Order request via website bag.\nAddress: '+address+'\nPayment: '+payment,
     payment:payment,
+    address:address,
     quantity:quantity,
+    marketingConsent:fd.get('marketing_consent')==='on',
     consent:fd.get('capture_consent')==='on'
   })||Promise.resolve({saved:false}));
   if(status)status.textContent=response.saved
-    ? 'Saved to our dashboard. Please press Send in WhatsApp to confirm with our team.'
-    : 'Could not reach the dashboard. Please still press Send in WhatsApp — we will receive your message.';
+    ? 'Your request was recorded. Please press Send in WhatsApp to contact our team; an order is not confirmed until our team replies.'
+    : 'We could not save your details to our records. Please press Send in WhatsApp to contact us; do not assume the order is registered.';
   if(submitButton)submitButton.disabled=false;
   if(tab&&!tab.closed)tab.location.href=url;
   else window.location.assign(url);
