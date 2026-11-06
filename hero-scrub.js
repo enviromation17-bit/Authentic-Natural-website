@@ -104,10 +104,10 @@
     }
     stage.dataset.story = String(index + 1);
     const mobileNow = window.matchMedia('(max-width: 900px)').matches;
-    gsap.fromTo(headline, { autoAlpha: 0, x: mobileNow ? 0 : (reverse ? 18 : -18), y: mobileNow ? 12 : 0 },
-      { autoAlpha: 1, x: 0, y: 0, duration: 0.5, ease: 'power2.out', overwrite: true });
-    gsap.fromTo(description, { autoAlpha: 0, y: 14 },
-      { autoAlpha: 1, y: 0, duration: 0.55, delay: 0.08, ease: 'power2.out', overwrite: true });
+    gsap.fromTo(headline, { autoAlpha: 0, x: mobileNow ? 0 : (reverse ? 22 : -22), y: mobileNow ? 16 : 0 },
+      { autoAlpha: 1, x: 0, y: 0, duration: 0.85, ease: 'power3.out', overwrite: true });
+    gsap.fromTo(description, { autoAlpha: 0, y: 18 },
+      { autoAlpha: 1, y: 0, duration: 0.95, delay: 0.12, ease: 'power3.out', overwrite: true });
   }
 
   function updateChrome(index, progress) {
@@ -159,7 +159,7 @@
       secondLayer.style.opacity = '0';
       gsap.to(secondLayer, {
         opacity: 1,
-        duration: 0.7,
+        duration: 1.05,
         ease: 'power2.inOut',
         onComplete: function () {
           firstLayer.src = frames[i];
@@ -180,7 +180,7 @@
       if (document.hidden || transitioning) return;
       showFrameIndex((currentIndex < 0 ? 0 : currentIndex) + 1, true);
       preload((currentIndex + 2) % frames.length);
-    }, 4000);
+    }, 4800);
   }
   function stopAutoplay() {
     if (autoTimer) clearInterval(autoTimer);
@@ -253,7 +253,7 @@
       pinSpacing: true,
       anticipatePin: 1,
       invalidateOnRefresh: true,
-      scrub: mobile ? 0.15 : 0.2,
+      scrub: mobile ? 0.35 : 0.55,
       onUpdate: function (self) { render(self.progress); },
       onRefresh: function (self) { render(self.progress); }
     });
