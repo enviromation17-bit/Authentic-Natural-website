@@ -38,3 +38,14 @@ Google's login normally persists while the user's Google session is active. Ther
 3. Deploy > Manage deployments > Edit > **New version** > Deploy.
 4. Log in with the allowlisted account, open **Stock**, test adding a product and receiving an inventory delivery. Check the `Inventory` and `Stock History` tabs in your actual spreadsheet.
 5. Use only test product/stock values until the client confirms real inventory.
+
+## Lead management (new)
+- In the **Enquiries** page, each lead has a status selector: New, Contacted, Qualified, Won, Lost.
+- Select a status to save it to the existing `Leads` tab.
+- Press **Delete**, confirm, and the row is copied to a private `Deleted Leads` tab before being removed from the active `Leads` tab.
+- Authorized users only: both actions check `currentAdmin_()` on the server.
+- The dashboard updates automatically after each action.
+- Restore an accidentally deleted lead manually from `Deleted Leads` if needed.
+- This affects Google Sheets CRM only, not the public storefront or D1.
+
+To use: copy the latest `Code.gs` and `Index.html` into your existing Apps Script project (HTML file must be named `Index`), save and deploy a **new version**.
