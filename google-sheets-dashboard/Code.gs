@@ -146,3 +146,38 @@ function updateStock(sku,stock,reserved,verified) {
     return {ok:true};
   });
 }
+
+/**
+ * Run ONLY from the Apps Script editor while signed into the intended admin
+ * Google account. This does not bypass the web-app authorization.
+ * View > Execution log for the result. Never publish logs publicly.
+ */
+function diagnoseAdminAccess() {
+  const props = PropertiesService.getScriptProperties();
+  const actualEmail = String(Session.getActiveUser().getEmail() || '').trim().toLowerCase();
+  const configuredEmails = props.getProperty('ADMIN_EMAILS');
+  const approved = (configuredEmails == null ? DEFAULT_ADMIN_EMAILS.join(',') : configuredEmails)
+    .split(',').map(v => v.trim().toLowerCase()).filter(Boolean);
+  const report = {
+    emailAvailable: !!actualEmail,
+    activeEmail: actualEmail || '[Google did not supply the email]',
+    emailAllowlisted: !!actualEmail && approved.includes(actualEmail),
+    configuredEmailListOverridesDefault: configuredEmails != null,
+    configuredSheetOverridesDefault: props.getProperty('CRM_SPREADSHEET_ID') != null,
+    spreadsheetIdValid: false,
+    spreadsheetAccessible: false,
+    requiredTabsAvailable: false,
+    note: 'Editor identity is not definitive proof of the deployed web-app identity; test /exec separately.'
+  };
+  try {
+    const spreadsheetId = crmSpreadsheetId_();
+    report.spreadsheetIdValid = true;
+    const ss = SpreadsheetApp.openById(spreadsheetId);
+    report.spreadsheetAccessible = true;
+    report.requiredTabsAvailable = Object.keys(HEADERS).every(name => !!ss.getSheetByName(name));
+  } catch (err) {
+    report.sheetCheckError = String(err.message || err).slice(0, 180);
+  }
+  console.log(JSON.stringify(report, null, 2));
+  return report;
+}
