@@ -95,7 +95,7 @@ function leadsPage(){
     '</article>';
   }).join('');
   return '<section class="focus-block"><div class="focus-label">Customer enquiries</div><h2 style="margin:0 0 8px">Manage leads</h2><p class="sub" style="margin:0 0 16px">Update a lead’s stage from the dropdown. Deleted leads are moved to a private Deleted Leads tab for recovery.</p>'+
-  '<button type="button" class="actionbutton" onclick="openForm(\\'lead\\')">＋ Add enquiry</button></section>'+
+  '<button type="button" class="actionbutton" onclick="openForm(&quot;lead&quot;)">＋ Add enquiry</button></section>'+
   '<div class="panel"><div class="panel-head"><h2>Leads ('+leads.length+')</h2><span class="muted">Changes saved to Google Sheets</span></div>'+
   (cards||'<div class="empty">No leads yet. Click Add enquiry to start.</div>')+'</div>';
 }
