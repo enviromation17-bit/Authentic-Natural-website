@@ -9,12 +9,12 @@
     const toggle = document.getElementById('usage-autoplay-toggle');
     const previous = document.getElementById('usage-prev');
     const next = document.getElementById('usage-next');
-    if (!section || !carousel || !track || !toggle || !panels.length || typeof window.setUsageStep !== 'function') return;
+    if (!section || !carousel || !track || !panels.length) return;
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const total = panels.length;
-    const INTERVAL = 5600;
-    const MANUAL_BREAK = 9000;
+    const INTERVAL = 6200;
+    const MANUAL_BREAK = 10000;
     let inView = false;
     let paused = reducedMotion.matches;
     let focused = false;
@@ -24,120 +24,115 @@
     let pointerStart = null;
 
     function current() {
-      return Math.max(0, Math.min(total - 1, Number(window.usageStep) || 0));
+      return typeof window.usageStep === 'number' ? window.usageStep : 0;
     }
-    function updateToggle() {
-      toggle.setAttribute('aria-pressed', String(!paused));
-      toggle.textContent = paused ? '▶ Play slides' : 'Ⅱ Pause slides';
-      toggle.setAttribute('aria-label', paused ? 'Play ritual slides automatically' : 'Pause ritual autoplay');
+
+    function go(step) {
+      if (typeof window.setUsageStep === 'function') window.setUsageStep(step);
+      else if (typeof window.showUsageStep === 'function') window.showUsageStep(step);
     }
-    function stopTimer() {
-      if (pending) clearTimeout(pending);
-      pending = 0;
-    }
-    function shouldPlay() {
-      return !paused && !reducedMotion.matches && !document.hidden && inView &&
-        !focused && Date.now() - lastInteraction >= MANUAL_BREAK;
-    }
-    function queueNext() {
-      stopTimer();
-      if (paused || reducedMotion.matches || !inView || document.hidden || focused) return;
-      const delay = Math.max(INTERVAL, MANUAL_BREAK - (Date.now() - lastInteraction));
+
+    function schedule() {
+      window.clearTimeout(pending);
+      if (paused || !inView || reducedMotion.matches || document.hidden) return;
+      if (focused || keyboardFocus || Date.now() - lastInteraction < MANUAL_BREAK) {
+        const delay = Math.max(INTERVAL, MANUAL_BREAK - (Date.now() - lastInteraction));
+        pending = window.setTimeout(schedule, delay);
+        return;
+      }
       pending = window.setTimeout(() => {
-        pending = 0;
-        if (!shouldPlay()) { queueNext(); return; }
-        // Seamlessly restart at step 1 after step 6; never stop at the last slide.
+        if (paused || !inView || document.hidden) return;
         const step = (current() + 1) % total;
-        window.setUsageStep(step);
-        preloadNext();
-        queueNext();
-      }, delay);
+        go(step);
+        schedule();
+      }, INTERVAL);
     }
-    function preloadNext() {
+
+    function warmNext() {
       const image = panels[(current() + 1) % total]?.querySelector('img');
-      if (image) image.loading = 'eager';
+      if (image && image.dataset.warmed !== '1') {
+        image.loading = 'eager';
+        image.dataset.warmed = '1';
+      }
     }
-    function manualStep(step) {
-      window.setUsageStep((step + total) % total);
+
+    function markInteraction() {
       lastInteraction = Date.now();
-      preloadNext();
-      queueNext();
+      warmNext();
+      schedule();
     }
 
-    section.querySelectorAll('[data-step], #usage-prev, #usage-next').forEach(button => {
-      button.addEventListener('click', () => {
-        lastInteraction = Date.now();
-        preloadNext();
-        queueNext();
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        paused = !paused;
+        toggle.setAttribute('aria-pressed', paused ? 'false' : 'true');
+        schedule();
       });
-    });
-    toggle.addEventListener('click', () => {
-      paused = !paused;
-      if (!paused) lastInteraction = 0;
-      updateToggle();
-      queueNext();
+    }
+    if (previous) previous.addEventListener('click', () => { go(Math.max(0, current() - 1)); markInteraction(); });
+    if (next) next.addEventListener('click', () => { go(Math.min(total - 1, current() + 1)); markInteraction(); });
+
+    section.querySelectorAll('[data-step]').forEach((button) => {
+      button.addEventListener('click', () => markInteraction());
     });
 
-    carousel.addEventListener('pointerdown', event => {
+    carousel.addEventListener('pointerdown', (event) => {
       if (event.pointerType === 'mouse' && event.button !== 0) return;
-      pointerStart = { x:event.clientX, y:event.clientY, time:Date.now(), pointerId:event.pointerId };
-    }, {passive:true});
-    carousel.addEventListener('pointerup', event => {
-      if (!pointerStart || event.pointerId !== pointerStart.pointerId) return;
+      pointerStart = { x: event.clientX, y: event.clientY, time: Date.now() };
+    });
+    carousel.addEventListener('pointerup', (event) => {
+      if (!pointerStart) return;
       const dx = event.clientX - pointerStart.x;
       const dy = event.clientY - pointerStart.y;
       const elapsed = Date.now() - pointerStart.time;
       pointerStart = null;
-      // Horizontal gestures only; never trap normal vertical page scrolling.
-      if (Math.abs(dx) < 42 || Math.abs(dx) < Math.abs(dy) * 1.3 || elapsed > 1400) return;
-      manualStep(current() + (dx < 0 ? 1 : -1));
+      if (elapsed > 700 || Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
       carousel.dataset.justSwiped = '1';
       window.setTimeout(() => { delete carousel.dataset.justSwiped; }, 150);
-    }, {passive:true});
+      go(dx < 0 ? Math.min(total - 1, current() + 1) : Math.max(0, current() - 1));
+      markInteraction();
+    });
     carousel.addEventListener('pointercancel', () => { pointerStart = null; });
-    carousel.addEventListener('click', event => {
-      if (carousel.dataset.justSwiped && event.target.closest('a')) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }, true);
-    track.addEventListener('keydown', event => {
-      if (event.key === 'ArrowRight') { event.preventDefault(); manualStep(current() + 1); }
-      if (event.key === 'ArrowLeft') { event.preventDefault(); manualStep(current() - 1); }
-    });
-    // Only keyboard focus pauses autoplay. Clicking a control shouldn't leave
-    // the slideshow frozen indefinitely just because the button retains focus.
-    section.addEventListener('pointerdown', () => {
+
+    track.addEventListener('focusin', () => { focused = true; keyboardFocus = true; });
+    track.addEventListener('focusout', () => {
+      focused = false;
       keyboardFocus = false;
-      if (focused) { focused = false; queueNext(); }
+      schedule();
     });
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Tab') keyboardFocus = true;
-    });
-    section.addEventListener('focusin', () => {
-      if (keyboardFocus) { focused = true; stopTimer(); }
-    });
-    section.addEventListener('focusout', () => {
-      // Delay until focus has moved, so tabbing within section stays paused.
-      window.setTimeout(() => { focused = keyboardFocus && section.contains(document.activeElement); queueNext(); }, 0);
-    });
-    document.addEventListener('visibilitychange', queueNext);
-    reducedMotion.addEventListener?.('change', event => {
-      if (event.matches) paused = true;
-      updateToggle(); queueNext();
-    });
+
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(entries => {
-        inView = entries.some(entry => entry.isIntersecting);
-        if (inView) preloadNext();
-        queueNext();
-      }, {threshold:0.2}).observe(section);
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          inView = entry.isIntersecting && entry.intersectionRatio > 0.35;
+          if (inView) {
+            warmNext();
+            schedule();
+          } else {
+            window.clearTimeout(pending);
+          }
+        });
+      }, { threshold: [0.2, 0.35, 0.5] });
+      io.observe(section);
     } else {
       inView = true;
+      schedule();
     }
-    updateToggle();
-    queueNext();
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) window.clearTimeout(pending);
+      else schedule();
+    });
+
+    reducedMotion.addEventListener?.('change', () => {
+      paused = reducedMotion.matches;
+      schedule();
+    });
+
+    warmNext();
+    schedule();
   }
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
