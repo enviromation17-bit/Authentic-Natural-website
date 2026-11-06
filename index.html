@@ -14,5 +14,55 @@
   <script src="app.js?v=20261106-leadcapture" defer></script><script src="ritual-player.js?v=20261105-loop27" defer></script><script src="product360.js?v=20261105-finalqa19" defer></script><script src="polish.js?v=20261105-leadsbotanical12" defer></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js" defer></script><script src="hero-scrub.js?v=20261105-imageperf24" defer></script><script src="stock-ui.js?v=20261106-leadcapture" defer></script><script src="lead-capture.js?v=20261106-leadcapture" defer></script><script src="lead-popup.js?v=20261106-leadcapture" defer></script>
 </head>
 <body>
-<!-- RESTORED_MIN_HEAD: full body follows from build - see repo after deploy -->
+<a class="skip" href="#main">Skip to content</a>
+<div class="announcement announcement-ticker" aria-label="Free delivery across Pakistan, within 3 to 4 days"><div class="announcement-track"><div class="announcement-set"><span class="ticker-piece">YOUR HAIR CARE, DELIVERED TO YOUR DOOR</span><span class="ticker-sep" aria-hidden="true">✦</span><span class="ticker-piece">FREE DELIVERY ACROSS PAKISTAN</span><span class="ticker-sep" aria-hidden="true">✦</span><span class="ticker-piece">DELIVERY IN 3 TO 4 DAYS</span><span class="ticker-sep" aria-hidden="true">✦</span></div><div class="announcement-set" aria-hidden="true"><span class="ticker-piece">YOUR HAIR CARE, DELIVERED TO YOUR DOOR</span><span class="ticker-sep" aria-hidden="true">✦</span><span class="ticker-piece">FREE DELIVERY ACROSS PAKISTAN</span><span class="ticker-sep" aria-hidden="true">✦</span><span class="ticker-piece">DELIVERY IN 3 TO 4 DAYS</span><span class="ticker-sep" aria-hidden="true">✦</span></div></div></div>
+<header class="header">
+  <a class="brand" href="#" aria-label="Authentic Naturals home"><img src="public/assets/logo-transparent.png" alt="Authentic Naturals logo" width="84" height="84"></a>
+  <nav aria-label="Main navigation"><a href="#shop">Shop hair care</a><a href="#ingredients">Our ingredients</a><a href="#ritual">Your ritual</a><a href="#story">Our story</a></nav>
+  <button class="bag" id="open-cart" aria-label="Open shopping bag">Bag <span id="bag-count">0</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7zm3 0V5a4 4 0 0 1 8 0v2"/></svg></button>
+</header>
+<nav class="mobile-nav" aria-label="Mobile navigation"><a href="#shop">Shop</a><a href="#ingredients">Ingredients</a><a href="#ritual">How to use</a><a href="#story">Our story</a></nav>
+<main id="main">
+  <section class="hero" aria-labelledby="hero-title">
+    <div id="gsap-hero-stage" class="hero-scrub-stage" aria-label="Scroll through the Authentic Naturals product story">
+      <div class="scrub-copy">
+        <span class="scrub-kicker">AUTHENTIC NATURALS · BOTANICAL HAIR CARE</span>
+        <h2 id="scrub-title" class="scrub-title">Give your hair <em>a little more care.</em></h2>
+        <p id="scrub-description" class="scrub-description">Discover our Hair Repair & Revive Growth Oil, created for an everyday conditioning ritual.</p>
+        <a class="scrub-cta" href="#shop">Explore the hair oil <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="scrub-art" aria-label="Authentic Naturals product story frames">
+        <img id="scrub-current" class="scrub-frame" fetchpriority="high" src="public/assets/process-01.png" alt="Authentic Naturals product story image sequence" width="1408" height="1760" decoding="async">
+        <img id="scrub-next" class="scrub-frame scrub-next" alt="" aria-hidden="true" width="1408" height="1760" decoding="async">
+      </div>
+      <span id="scrub-frame-counter" class="scrub-counter" aria-live="off">01 / 10</span>
+      <span class="scrub-hint">Scroll to discover the story</span>
+      <div class="scrub-progress" aria-hidden="true"><span class="scrub-progress-fill" id="scrub-progress-fill"></span></div>
+    </div>
+    <div class="hero-copy"><p class="eyebrow">NATURAL CARE FOR YOUR EVERYDAY ROUTINE</p><h1 id="hero-title">Give your hair<br><em>a little more care.</em></h1><p><strong class="copy-accent">Dry ends? Frizz that won’t settle?</strong> Make time for a little nourishment with our blend of oils and botanicals. Simple hair care at a price that feels right.</p><a class="button" href="#shop">Take a closer look <span aria-hidden="true">↗</span></a><div class="hero-note">❧ Creating value through <strong class="copy-accent">natural purity.</strong></div></div>
+    <div class="hero-photo hero-slider" id="hero-slider" aria-roledescription="carousel" aria-label="Product photos">
+      <div class="hero-slides">
+        <figure class="hero-slide is-active" data-slide="0"><img src="public/assets/botanicals.png" alt="Authentic Naturals hair oil with coconut, amla and botanicals" width="1254" height="1254" loading="lazy" decoding="async"></figure>
+        <figure class="hero-slide" data-slide="1"><img src="public/assets/ritual.png" alt="Hair oil pouring into a glass bowl" width="1254" height="1254" loading="lazy"></figure>
+        <figure class="hero-slide" data-slide="2"><img src="public/assets/product.png" alt="Authentic Naturals hair oil bottle" width="1254" height="1254" loading="lazy"></figure>
+      </div>
+      <div class="photo-caption"><span>HAIR REPAIR & REVIVE GROWTH OIL</span><span>100 ml</span></div>
+      <div class="hero-slider-controls">
+        <button type="button" class="hero-prev" aria-label="Previous photo">‹</button>
+        <div class="hero-dots" role="tablist" aria-label="Slide markers">
+          <button type="button" class="is-active" data-dot="0" aria-label="Show photo 1"></button>
+          <button type="button" data-dot="1" aria-label="Show photo 2"></button>
+          <button type="button" data-dot="2" aria-label="Show photo 3"></button>
+        </div>
+        <button type="button" class="hero-next" aria-label="Next photo">›</button>
+      </div>
+    </div>
+  </section>
+  <p class="restore-note" style="padding:24px;text-align:center">If you see only this page, the full storefront HTML is still being restored. Hard-refresh after the next deploy.</p>
+</main>
+<footer class="site-footer"><p style="padding:20px;text-align:center">Authentic Naturals</p></footer>
+<dialog id="cart-dialog" class="cart-dialog" aria-labelledby="cart-title"><div class="dialog-top"><div><p class="eyebrow">YOUR HAIR CARE ESSENTIAL</p><h2 id="cart-title">Your bag</h2></div><button class="close" data-close="cart-dialog" aria-label="Close">×</button></div><div id="empty-bag"><p>Your bag is empty.</p><button class="button" data-close="cart-dialog">Explore the hair oil ↗</button></div><div id="filled-bag" hidden><div class="cart-item"><img src="public/assets/botanicals.png" alt="" width="90" height="100" loading="lazy"><div><h3>Hair Repair & Revive Growth Oil</h3><p>100 ml · Rs. 1,499 each</p><div class="quantity"><button id="cart-minus">−</button><output id="cart-quantity">1</output><button id="cart-plus">+</button></div><button id="remove-item" class="remove">Remove</button></div></div><div class="totals"><p><span>Subtotal</span><strong id="subtotal"></strong></p><p><span>Delivery</span><strong>Free</strong></p><p class="total"><span>Total</span><strong id="total"></strong></p></div><p id="cart-stock-note" class="cart-stock-note" role="status" hidden></p><form id="order-form"><label>Name <input name="customer" required maxlength="100"></label><label>Phone <input name="phone" type="tel" required maxlength="20"></label><label>City <input name="city" required maxlength="80"></label><label>Address <textarea name="address" required maxlength="400" rows="2"></textarea></label><label>Payment <select name="payment"><option>Cash on delivery</option><option>Bank transfer</option><option>EasyPaisa</option><option>JazzCash</option><option>NayaPay</option></select></label><label class="capture-consent"><input type="checkbox" name="capture_consent" required> I agree to share these order details with Authentic Naturals for order handling.</label><input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="capture-honeypot"><button type="submit" class="button">Continue on WhatsApp ↗</button><p class="capture-status" id="order-save-status" role="status" aria-live="polite"></p></form></div></dialog>
+<dialog id="lead-popup" class="lead-popup" aria-labelledby="lead-popup-title"><button type="button" class="close" id="lead-popup-close" aria-label="Close">×</button><h2 id="lead-popup-title">Ask Authentic Naturals</h2><form id="lead-popup-form"><label>Name <input name="lead_name" required maxlength="80"></label><label>Phone <input name="lead_phone" type="tel" maxlength="32"></label><label>City <input name="lead_city" maxlength="80"></label><label>Interested in <input name="lead_topic" value="Hair Repair & Revive Growth Oil" maxlength="80"></label><label>Your message <textarea name="lead_message" required maxlength="900" rows="3"></textarea></label><label class="capture-consent"><input type="checkbox" name="capture_consent" required> I agree to share these details for a reply.</label><input type="text" name="website" tabindex="-1" autocomplete="off" class="capture-honeypot" aria-hidden="true"><button type="submit" class="button">Continue on WhatsApp ↗</button><p id="lead-save-status" class="capture-status" role="status"></p></form></dialog>
+<button type="button" id="lead-popup-open" class="floating-whatsapp" aria-label="Ask on WhatsApp">Ask on WhatsApp</button>
+<div id="toast" class="toast" role="status"></div>
 </body></html>
