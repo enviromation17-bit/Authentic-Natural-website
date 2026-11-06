@@ -118,6 +118,65 @@ async function capture(request,env) {
     return fail('Unable to save enquiry; please use WhatsApp',503);
   }
 }
+
+/** Google Sheets is the sole destination for website enquiry/order capture when configured.
+ * Secrets remain in Cloudflare Worker bindings and never reach the browser.
+ */
+async function captureToSheets(request,env){
+  if(!env.CRM_SCRIPT_URL||!env.CRM_SHARED_SECRET)
+    return fail('Website CRM intake is not connected yet',503);
+  if(request.method!=='POST')return fail('Method not allowed',405);
+  if(!secure(request)||!validOrigin(request)||request.headers.get('X-Requested-With')!=='XMLHttpRequest')
+    return fail('Invalid request origin',403);
+  if(!request.headers.get('content-type')?.startsWith('application/json'))
+    return fail('JSON required',415);
+  const raw=await request.text();
+  if(raw.length>8192)return fail('Request too large',413);
+  let input;
+  try{input=JSON.parse(raw)}catch{return fail('Invalid JSON',400)}
+  if(!input||typeof input!=='object'||Array.isArray(input))return fail('Invalid request',400);
+  if(input.website)return json({ok:false,error:'Invalid submission'},422);
+  if(input.consent!==true)return fail('Consent required',422);
+  const source=clip(input.source,20);
+  if(!allowedSources.has(source))return fail('Invalid source',422);
+  const name=clip(input.name,100),phone=clip(input.phone,40),city=clip(input.city,100);
+  const notes=clip(input.notes,1200),address=clip(input.address,400);
+  const payment=clip(input.payment,40);
+  const quantity=Number(input.quantity);
+  if(name.length<2||phone.length<7||notes.length<3||!Number.isInteger(quantity)||quantity<1||quantity>20)
+    return fail('Name, phone, message and quantity required',422);
+  if(source==='order'&&(!city||!address))return fail('Delivery city and address required',422);
+  const url=String(env.CRM_SCRIPT_URL);
+  let parsed;
+  try{parsed=new URL(url)}catch{return fail('CRM endpoint misconfigured',503)}
+  if(parsed.protocol!=='https:'||parsed.hostname!=='script.google.com'||!/^\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(parsed.pathname))
+    return fail('CRM endpoint misconfigured',503);
+  // Do not accept caller-supplied URL or token.
+  const requestId=clip(input.idempotencyKey,100)||crypto.randomUUID();
+  const payload={
+    token:env.CRM_SHARED_SECRET,requestId,
+    source:source==='order'?'website_order':'website_enquiry',
+    name,phone,city,message:notes,address,payment,quantity,consent:true,
+    website:''
+  };
+  try{
+    const response=await fetch(parsed.toString(),{
+      method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify(payload),redirect:'follow',
+      signal:AbortSignal.timeout(10000)
+    });
+    if(!response.ok)return fail('CRM service unavailable',503);
+    const result=await response.json();
+    if(!result||result.ok!==true||result.ignored===true)
+      return fail('Unable to save enquiry to CRM',503);
+    return json({ok:true,lead_id:result.id,order_id:result.orderId||null,
+      destination:'google_sheets',orderStatus:source==='order'?'pending_review':'not_order'},201);
+  }catch(error){
+    console.error('Sheets intake unavailable:',String(error).slice(0,100));
+    return fail('Unable to save enquiry to CRM',503);
+  }
+}
+
 async function adminApi(request,env,path) {
   const owner=await authorize(request,env);
   if(!owner)return fail('Staff access required',403);
@@ -181,7 +240,7 @@ export default {
     try{
       if(path==='/api/webhooks/whatsapp')return webhook(request,env);
       if(path==='/api/stock')return publicStock(env);
-      if(path==='/api/leads.php'||path==='/api/leads')return capture(request,env);
+      if(path==='/api/leads.php'||path==='/api/leads')return captureToSheets(request,env);
       if(path==='/admin'||path==='/admin/'){
         const owner=await authorize(request,env);
         if(!owner)return new Response('Dashboard requires an approved Cloudflare Access login and Worker authorization.',{status:403,headers:security});
