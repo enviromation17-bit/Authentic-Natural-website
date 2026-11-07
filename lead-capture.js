@@ -1,7 +1,7 @@
 'use strict';
-/* Website enquiry and order capture: same-origin Cloudflare Worker proxy only.
- * The Worker sends consented records to Google Sheets using server-side secrets.
- * Do not submit directly to Apps Script from browser JavaScript.
+/* Website enquiry and order capture using same-origin Cloudflare Worker /api/leads.
+ * The Worker stores consented records in the private CRM D1 database.
+ * No API credentials or customer records are stored in browser JavaScript.
  */
 window.ANLeadCapture = {
   async submit(details) {
