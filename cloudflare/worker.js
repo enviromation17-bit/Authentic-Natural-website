@@ -1,7 +1,6 @@
-import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { adminPage } from './admin-page.js';
 import { webhook, whatsappAdminApi } from './whatsapp.js';
-import { saveWebsiteLead } from './google-sheets.js';
+import { sessionOwner, passwordLogin, passwordLogout, loginPage } from './password-auth.js';
 
 const SKU = 'AN-HAIR-OIL-100';
 const allowedSources = new Set(['enquiry','order']);
@@ -11,7 +10,7 @@ const validOrderTransitions = {
   waitlist: new Set(['confirmed','cancelled']),
   confirmed: new Set(['fulfilled','cancelled'])
 };
-const identityKeys = new Map();
+
 const json = (data,status=200,headers={}) => new Response(JSON.stringify(data),{
   status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',
     'x-content-type-options':'nosniff',...headers}
@@ -24,33 +23,13 @@ function validOrigin(request) {
   return origin && origin === new URL(request.url).origin;
 }
 function configured(env) {
-  return Boolean(env.DB && env.RATE_SECRET);
+  return Boolean(env.DB);
 }
-async function hashIp(value,env) {
-  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(env.RATE_SECRET),
-    {name:'HMAC',hash:'SHA-256'},false,['sign']);
+async function hashIp(value) {
+  // Daily hashed IP identifier for short-lived anti-spam control in private D1.
   const period=new Date().toISOString().slice(0,10);
-  const bytes=await crypto.subtle.sign('HMAC',key,new TextEncoder().encode(period+':'+value));
+  const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(period+':'+value));
   return [...new Uint8Array(bytes)].map(x=>x.toString(16).padStart(2,'0')).join('');
-}
-async function authorize(request,env) {
-  const domain=clip(env.ACCESS_TEAM_DOMAIN,180).replace(/^https?:\/\//,'').replace(/\/$/,'');
-  const audience=clip(env.ACCESS_AUD,150);
-  const allow=(env.ADMIN_EMAILS||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
-  if (!domain || !domain.endsWith('.cloudflareaccess.com') || !audience || allow.length===0) return null;
-  const raw=request.headers.get('Cf-Access-Jwt-Assertion')
-    || request.headers.get('cookie')?.match(/(?:^|;\s*)CF_Authorization=([^;]+)/)?.[1];
-  if(!raw) return null;
-  try{
-    let keyset=identityKeys.get(domain);
-    if(!keyset){
-      keyset=createRemoteJWKSet(new URL('https://'+domain+'/cdn-cgi/access/certs'));
-      identityKeys.set(domain,keyset);
-    }
-    const {payload}=await jwtVerify(raw,keyset,{issuer:'https://'+domain,audience,algorithms:['RS256']});
-    const email=String(payload.email||'').toLowerCase();
-    return allow.includes(email)?email:null;
-  }catch{return null;}
 }
 const security={
   'x-content-type-options':'nosniff',
@@ -85,11 +64,12 @@ async function capture(request,env) {
   const name=clip(body.name,100);
   const phone=clip(body.phone,40),city=clip(body.city,100);
   const topic=clip(body.topic,100),notes=clip(body.notes,1200);
+  const marketingConsent=body.marketingConsent===true?'Yes':'No';
   const quantity=Math.min(20,Math.max(1,Math.trunc(Number(body.quantity)||1)));
   const idempotency=clip(body.idempotencyKey,90);
-  if(!allowedSources.has(source)||name.length<2||notes.length<3)return fail('Valid name and message required',422);
+  if(!allowedSources.has(source)||name.length<2||phone.length<7||notes.length<3)return fail('Valid name, phone and message required',422);
   if(source==='order'&&(!phone||!city))return fail('Phone and city required for order request',422);
-  const ipHash=await hashIp(request.headers.get('CF-Connecting-IP')||'unknown',env);
+  const ipHash=await hashIp(request.headers.get('CF-Connecting-IP')||'unknown');
   const recent=await env.DB.prepare("SELECT COUNT(*) AS n FROM leads WHERE ip_hash=? AND created_at>=datetime('now','-1 hour')").bind(ipHash).first();
   if((recent?.n||0)>=6)return fail('Too many requests; please contact us via WhatsApp',429);
   try{
@@ -104,7 +84,7 @@ async function capture(request,env) {
       (id,source,name,phone,city,topic,notes,quantity,order_status,sku,consent_at,idempotency_key,ip_hash)
       VALUES(?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP,?,?)`)
       .bind(leadId,source==='order'?(orderStatus==='waitlist'?'website_waitlist':'website_order'):'website_enquiry',
-        name,phone,city,topic,notes,quantity,orderStatus,
+        name,phone,city,topic,notes+' | Marketing opt-in: '+marketingConsent,quantity,orderStatus,
         source==='order'?SKU:null,idempotency||null,ipHash).run();
     return json({ok:true,lead_id:leadId,orderStatus,availability,
       message: orderStatus==='waitlist'
@@ -120,40 +100,8 @@ async function capture(request,env) {
   }
 }
 
-/** Google Sheets is the sole destination for website enquiry/order capture when configured.
- * Secrets remain in Cloudflare Worker bindings and never reach the browser.
- */
-async function captureToSheets(request,env) {
-  if(request.method!=='POST')return fail('Method not allowed',405);
-  if(!env.GOOGLE_SERVICE_ACCOUNT_EMAIL||!env.GOOGLE_PRIVATE_KEY)
-    return fail('Website CRM intake is not connected yet',503);
-  if(!secure(request)||!validOrigin(request)||request.headers.get('X-Requested-With')!=='XMLHttpRequest')
-    return fail('Invalid request origin',403);
-  if(!request.headers.get('content-type')?.startsWith('application/json'))
-    return fail('JSON required',415);
-  const raw=await request.text();
-  if(raw.length>8192)return fail('Request too large',413);
-  let input;
-  try{input=JSON.parse(raw)}catch{return fail('Invalid JSON',400)}
-  if(!input||typeof input!=='object'||Array.isArray(input)||input.website)
-    return fail('Invalid request',422);
-  if(input.consent!==true)return fail('Consent required',422);
-  try{
-    const saved=await saveWebsiteLead(env,input);
-    return json({ok:true,lead_id:saved.id,order_id:saved.orderId,
-      destination:'google_sheets',orderStatus:input.source==='order'?'pending_review':'not_order',
-      duplicate:saved.duplicate},201);
-  }catch(error){
-    const detail=String(error?.message||error);
-    console.error('Google Sheets intake failed:',detail.slice(0,130));
-    if(/consent|quantity|source|phone|City|address|request ID|required/i.test(detail))
-      return fail('Please check the submission details',422);
-    return fail('Could not save to the CRM right now',503);
-  }
-}
-
 async function adminApi(request,env,path) {
-  const owner=await authorize(request,env);
+  const owner=await sessionOwner(request,env);
   if(!owner)return fail('Staff access required',403);
   if(!env.DB)return fail('D1 binding is not configured',503);
   if(path.startsWith('/api/admin/whatsapp/'))return whatsappAdminApi(request,env,path);
@@ -215,14 +163,16 @@ export default {
     try{
       if(path==='/api/webhooks/whatsapp')return webhook(request,env);
       if(path==='/api/stock')return publicStock(env);
-      if(path==='/api/leads.php'||path==='/api/leads')return captureToSheets(request,env);
+      if(path==='/api/leads.php'||path==='/api/leads')return capture(request,env);
+      if(path==='/api/admin/login')return passwordLogin(request,env);
+      if(path==='/api/admin/logout')return passwordLogout(request,env);
       if(path==='/admin'||path==='/admin/'){
-        const owner=await authorize(request,env);
-        if(!owner)return new Response('Dashboard requires an approved Cloudflare Access login and Worker authorization.',{status:403,headers:security});
         if(!env.DB)return new Response('Connect the D1 database to enable the dashboard.',{status:503,headers:security});
+        const owner=await sessionOwner(request,env);
         const nonce=crypto.randomUUID().replace(/-/g,'');
-        return new Response(adminPage(nonce,owner),{headers:{...security,'content-type':'text/html; charset=utf-8',
-          'content-security-policy':"default-src 'none'; script-src 'nonce-"+nonce+"'; style-src 'nonce-"+nonce+"'; connect-src 'self'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'"}});
+        const html=owner?adminPage(nonce,owner):loginPage(nonce);
+        return new Response(html,{headers:{...security,'content-type':'text/html; charset=utf-8',
+          'content-security-policy':"default-src 'none'; script-src 'nonce-"+nonce+"'; style-src 'unsafe-inline'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"}});
       }
       if(path.startsWith('/api/admin/'))return adminApi(request,env,path);
       return env.ASSETS.fetch(request);
