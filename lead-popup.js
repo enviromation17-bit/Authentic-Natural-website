@@ -56,6 +56,40 @@
     });
   });
 
+  const status = document.getElementById('lead-save-status');
+  const formButton = form.querySelector('[type="submit"]');
+  function showStatus(message, kind) {
+    if(!status) return;
+    status.textContent = message;
+    status.dataset.result = kind || '';
+    status.setAttribute('role','status');
+    status.setAttribute('aria-live','polite');
+  }
+  function clearWhatsAppLink() {
+    const old = document.getElementById('lead-whatsapp-ready');
+    if(old) old.remove();
+  }
+  function offerWhatsApp(url) {
+    clearWhatsAppLink();
+    const link = document.createElement('a');
+    link.id = 'lead-whatsapp-ready';
+    link.className = 'lead-popup-send';
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = 'Open WhatsApp ↗';
+    link.style.cssText = 'display:inline-flex;margin-top:12px;align-items:center;justify-content:center;text-decoration:none;';
+    if(status) status.insertAdjacentElement('afterend',link);
+  }
+  form.addEventListener('input',()=>{clearWhatsAppLink();});
+  form.addEventListener('invalid', event => {
+    const field = event.target;
+    if(field && field.name === 'capture_consent'){
+      showStatus('Please agree to share your enquiry details so we can save and respond.','invalid');
+    } else {
+      showStatus('Please fill out the required fields before continuing.','invalid');
+    }
+  },true);
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (!form.reportValidity()) return;
@@ -66,37 +100,45 @@
     const topic = value('lead_topic').slice(0,80);
     const enquiry = value('lead_message').slice(0,900);
     const agreed = Boolean(form.elements.namedItem('capture_consent')?.checked);
-    if (!customer || !phone || !enquiry || !agreed) return;
-    if (value('website')) return;
+    if(!customer || !phone || !enquiry || !agreed){
+      showStatus('Please complete the form and confirm consent.','invalid');
+      return;
+    }
+    if (value('website')) {
+      showStatus('Unable to submit. Please contact the team directly.','error');
+      return;
+    }
     const message = [
-      'Hello Authentic Naturals!',
-      '',
-      '*New website enquiry*',
-      '*Name:* ' + customer,
-      phone ? '*Phone:* ' + phone : '',
+      'Hello Authentic Naturals!','','*New website enquiry*',
+      '*Name:* ' + customer,'*Phone:* ' + phone,
       city ? '*City:* ' + city : '',
       '*Interested in:* ' + topic,
-      '*Question:* ' + enquiry,
-      '',
-      'Sent using the Authentic Naturals website.'
+      '*Question:* ' + enquiry,'','Sent using the Authentic Naturals website.'
     ].filter(Boolean).join('\n');
-    const url = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(message);
-    const status = document.getElementById('lead-save-status');
-    const button = form.querySelector('[type="submit"]');
-    button.disabled = true;
-    if(status) status.textContent = 'Saving your details…';
-    const tab = window.open('about:blank', '_blank');
-    if(tab) tab.opener = null;
-    const saved = await (window.ANLeadCapture?.submit({
-      source:'enquiry',name:customer,phone,city,topic,notes:enquiry,
-      quantity:1,consent:true,marketingConsent:Boolean(form.elements.namedItem('marketing_consent')?.checked)
-    }) || Promise.resolve({saved:false}));
-    if (status) status.textContent = saved.saved
-      ? 'Your enquiry was recorded. Please press Send in WhatsApp to message our team.'
-      : 'Your details could not be saved to our records. Please press Send in WhatsApp to contact our team.';
-    button.disabled = false;
-    if (tab && !tab.closed) tab.location.href = url;
-    else window.location.assign(url);
+    const url='https://wa.me/'+WHATSAPP+'?text='+encodeURIComponent(message);
+    clearWhatsAppLink();
+    if(formButton) formButton.disabled=true;
+    showStatus('Saving your enquiry to the CRM…','saving');
+    try {
+      const response = window.ANLeadCapture
+        ? await window.ANLeadCapture.submit({
+            source:'enquiry',name:customer,phone,city,topic,notes:enquiry,
+            quantity:1,consent:true,
+            marketingConsent:Boolean(form.elements.namedItem('marketing_consent')?.checked)
+          })
+        : {saved:false,reason:'Form service unavailable'};
+      if(response.saved) {
+        showStatus('Your enquiry was saved. Open WhatsApp and press Send to contact our team.','success');
+      }else{
+        showStatus('We could not save your enquiry ('+(response.reason||'service unavailable')+'). You can still contact us on WhatsApp.','error');
+      }
+    }catch(error){
+      console.error('Enquiry submission failed:',error);
+      showStatus('Could not save your enquiry. Please use WhatsApp to contact our team.','error');
+    }finally{
+      if(formButton) formButton.disabled=false;
+      offerWhatsApp(url);
+    }
   });
 
 })();
