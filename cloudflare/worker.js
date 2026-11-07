@@ -1,6 +1,7 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { adminPage } from './admin-page.js';
 import { webhook, whatsappAdminApi } from './whatsapp.js';
+import { saveWebsiteLead } from './google-sheets.js';
 
 const SKU = 'AN-HAIR-OIL-100';
 const allowedSources = new Set(['enquiry','order']);
@@ -122,10 +123,10 @@ async function capture(request,env) {
 /** Google Sheets is the sole destination for website enquiry/order capture when configured.
  * Secrets remain in Cloudflare Worker bindings and never reach the browser.
  */
-async function captureToSheets(request,env){
-  if(!env.CRM_SCRIPT_URL||!env.CRM_SHARED_SECRET)
-    return fail('Website CRM intake is not connected yet',503);
+async function captureToSheets(request,env) {
   if(request.method!=='POST')return fail('Method not allowed',405);
+  if(!env.GOOGLE_SERVICE_ACCOUNT_EMAIL||!env.GOOGLE_PRIVATE_KEY)
+    return fail('Website CRM intake is not connected yet',503);
   if(!secure(request)||!validOrigin(request)||request.headers.get('X-Requested-With')!=='XMLHttpRequest')
     return fail('Invalid request origin',403);
   if(!request.headers.get('content-type')?.startsWith('application/json'))
@@ -134,47 +135,20 @@ async function captureToSheets(request,env){
   if(raw.length>8192)return fail('Request too large',413);
   let input;
   try{input=JSON.parse(raw)}catch{return fail('Invalid JSON',400)}
-  if(!input||typeof input!=='object'||Array.isArray(input))return fail('Invalid request',400);
-  if(input.website)return json({ok:false,error:'Invalid submission'},422);
+  if(!input||typeof input!=='object'||Array.isArray(input)||input.website)
+    return fail('Invalid request',422);
   if(input.consent!==true)return fail('Consent required',422);
-  const source=clip(input.source,20);
-  if(!allowedSources.has(source))return fail('Invalid source',422);
-  const name=clip(input.name,100),phone=clip(input.phone,40),city=clip(input.city,100);
-  const notes=clip(input.notes,1200),address=clip(input.address,400);
-  const payment=clip(input.payment,40);
-  const quantity=Number(input.quantity);
-  if(name.length<2||phone.length<7||notes.length<3||!Number.isInteger(quantity)||quantity<1||quantity>20)
-    return fail('Name, phone, message and quantity required',422);
-  if(source==='order'&&(!city||!address))return fail('Delivery city and address required',422);
-  const url=String(env.CRM_SCRIPT_URL);
-  let parsed;
-  try{parsed=new URL(url)}catch{return fail('CRM endpoint misconfigured',503)}
-  if(parsed.protocol!=='https:'||parsed.hostname!=='script.google.com'||!/^\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(parsed.pathname))
-    return fail('CRM endpoint misconfigured',503);
-  // Do not accept caller-supplied URL or token.
-  const requestId=clip(input.idempotencyKey,100)||crypto.randomUUID();
-  const payload={
-    token:env.CRM_SHARED_SECRET,requestId,
-    source:source==='order'?'website_order':'website_enquiry',
-    name,phone,city,message:notes,address,payment,quantity,consent:true,
-    marketingConsent:input.marketingConsent===true,
-    website:''
-  };
   try{
-    const response=await fetch(parsed.toString(),{
-      method:'POST',headers:{'content-type':'application/json'},
-      body:JSON.stringify(payload),redirect:'follow',
-      signal:AbortSignal.timeout(10000)
-    });
-    if(!response.ok)return fail('CRM service unavailable',503);
-    const result=await response.json();
-    if(!result||result.ok!==true||result.ignored===true)
-      return fail('Unable to save enquiry to CRM',503);
-    return json({ok:true,lead_id:result.id,order_id:result.orderId||null,
-      destination:'google_sheets',orderStatus:source==='order'?'pending_review':'not_order'},201);
+    const saved=await saveWebsiteLead(env,input);
+    return json({ok:true,lead_id:saved.id,order_id:saved.orderId,
+      destination:'google_sheets',orderStatus:input.source==='order'?'pending_review':'not_order',
+      duplicate:saved.duplicate},201);
   }catch(error){
-    console.error('Sheets intake unavailable:',String(error).slice(0,100));
-    return fail('Unable to save enquiry to CRM',503);
+    const detail=String(error?.message||error);
+    console.error('Google Sheets intake failed:',detail.slice(0,130));
+    if(/consent|quantity|source|phone|City|address|request ID|required/i.test(detail))
+      return fail('Please check the submission details',422);
+    return fail('Could not save to the CRM right now',503);
   }
 }
 
