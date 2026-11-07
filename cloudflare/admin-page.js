@@ -1,4 +1,4 @@
-/* Private dashboard HTML is returned only after Cloudflare Access JWT verification. */
+/* Private dashboard HTML is returned only after a valid D1 password session. */
 const escapeHtml = text => String(text).replace(/[&<>"']/g,c=>({
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 })[c]);
@@ -40,7 +40,7 @@ button:disabled{opacity:.42;cursor:not-allowed}.actions{display:flex;gap:8px;fle
 @media(max-width:820px){.columns{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,minmax(0,1fr))}.stat{padding:13px}.stat strong{font-size:32px}}
 @media(max-width:450px){.stats{grid-template-columns:1fr 1fr}.identity{font-size:10px}.lead-controls label{flex-basis:100%}}
 </style></head>
-<body><header><div class="logo">AUTHENTIC NATURALS · OPERATIONS</div><div class="identity">Authorized: ${escapeHtml(owner)}</div></header>
+<body><header><div class="logo">AUTHENTIC NATURALS · OPERATIONS</div><div class="identity">Signed in: ${escapeHtml(owner)} <button id="logout" type="button" class="secondary" style="margin-left:12px;padding:6px 10px">Sign out</button></div></header>
 <main>
 <div class="overline">PRIVATE CLIENT WORKSPACE</div><h1>Leads & inventory.</h1>
 <p class="muted">Manage website enquiries, waitlist requests, pending orders and physical inventory from one secure workspace.</p>
@@ -90,6 +90,10 @@ button:disabled{opacity:.42;cursor:not-allowed}.actions{display:flex;gap:8px;fle
 'use strict';
 const $=s=>document.querySelector(s);
 const F=$('#feedback');
+$('#logout').addEventListener('click',async()=>{
+ try { await api('/api/admin/logout','POST'); location.assign('/admin/'); }
+ catch(e){ F.textContent='Could not sign out: '+e.message; }
+});
 let records=[];
 const statuses=['new','contacted','qualified','won','lost'];
 const flow={pending_review:['confirmed','cancelled'],waitlist:['confirmed','cancelled'],confirmed:['fulfilled','cancelled']};
