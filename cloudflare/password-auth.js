@@ -117,7 +117,7 @@ export async function passwordLogout(req,env) {
  });
 }
 const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export function loginPage() {
+export function loginPage(nonce) {
  return `<!doctype html><html lang="en"><head><meta charset="utf-8">
  <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
  <title>Authentic Naturals CRM · Sign in</title>
@@ -141,7 +141,7 @@ export function loginPage() {
  <form id="login"><label>Username<input name="username" autocomplete="username" required value="owner"></label>
  <label>Password<input type="password" name="password" autocomplete="current-password" required minlength="12"></label>
  <button type="submit">Sign in</button><div id="feedback" role="status" aria-live="polite"></div></form></main>
- <script>
+ <script nonce="${nonce}">
  const form=document.getElementById('login'),status=document.getElementById('feedback');
  form.addEventListener('submit',async event=>{
   event.preventDefault();if(!form.reportValidity())return;
